@@ -1,0 +1,16 @@
+{
+  "php.validate.executablePath": "C:\\xampp\\php\\php.exe",
+  "intelephense.environment.phpVersion": "8.3.0",
+  "editor.formatOnSave": false,
+  "editor.tabSize": 4,
+  "files.trimTrailingWhitespace": true,
+  "terminal.integrated.cwd": "C:\\xampp\\moodle502\\moodle",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/cache": true,
+    "**/localcache": true,
+    "**/temp": true,
+    "**/moodledata": true,
+    "**/backups": true
+  }
+}

@@ -1,0 +1,47 @@
+{{!
+    This file is part the Local Kopere Dashboard for Moodle
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+
+{{!
+    @template local_kopere_mobile/lgpd
+
+    Example context (json):
+    {
+      "lgpd_text": "12345abcde",
+      "user_fullname": "dfg sdfgtyh",
+      "user_email": "12345@abcde",
+      "sesskey":"12345abcde"
+    }
+}}
+<div>
+    {{{lgpd_text}}}
+
+    <form method="post" action="?" style="margin-left: 20px">
+
+        <div><label for="motivo" style="font-weight:bold">{{#str}}fullname{{/str}}:</label>
+            {{{user_fullname}}}
+        </div>
+
+        <div><label for="motivo" style="font-weight:bold">{{#str}}email{{/str}}:</label>
+            {{{user_email}}}
+        </div>
+
+        <div><label for="motivo" style="font-weight:bold">{{#str}}config_lgpd_reason,local_kopere_mobile{{/str}}:</label> <br>
+            <textarea name="motivo" id="motivo" style="width: 100%; min-height: 120px"></textarea>
+        </div>
+        <div><input type="submit" value="{{#str}}submit{{/str}}"></div>
+        <input type="hidden" name="sesskey" id="sesskey" value="{{{sesskey}}}">
+    </form>
+</div>

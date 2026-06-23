@@ -1,0 +1,49 @@
+{{!
+    Reusable ed2go-style master player footer.
+    Provided by local_heyday_courseplayer.
+}}
+
+                </div>
+                <div class="heyday-content-viewed-sentinel" data-heyday-content-sentinel aria-hidden="true"></div>
+            </section>
+
+            {{#completion}}
+            <div class="heyday-completion-row {{#done}}is-complete{{/done}}{{^done}}is-pending{{/done}}" data-heyday-completion-row {{#completeurl}}data-heyday-complete-url="{{completeurl}}"{{/completeurl}} {{#undoavailableurl}}data-heyday-undo-url="{{undoavailableurl}}"{{/undoavailableurl}} data-heyday-complete-label="Activity complete" data-heyday-undo-label="{{undolabel}}">
+                {{#done}}
+                <span class="heyday-completion-check" aria-hidden="true">✓</span>
+                {{/done}}
+
+                {{^done}}
+                <span class="heyday-completion-pending" aria-hidden="true"></span>
+                {{/done}}
+
+                <div class="heyday-completion-text">
+                    <div>{{label}}</div>
+
+                    {{#undourl}}
+                    <a class="heyday-completion-undo" href="{{undourl}}">{{undolabel}}</a>
+                    {{/undourl}}
+                </div>
+            </div>
+            {{/completion}}
+
+            {{#next}}
+            <a class="heyday-nextup-row" href="{{url}}" aria-label="Next Up: {{title}}">
+                <span class="heyday-nextup-label">Next Up</span>
+                <span class="heyday-nextup-body">
+                    <span class="heyday-nextup-title">{{title}}</span>
+                    <span class="heyday-nextup-type">{{type}}</span>
+                </span>
+            </a>
+            {{/next}}
+
+            <footer class="heyday-player-footer" aria-label="Course footer">
+                <a href="{{supporturl}}">Course Support</a>
+                <span></span>
+                <a href="{{cookieurl}}">Cookie Settings</a>
+                <div class="heyday-footer-copyright">{{copyright}}</div>
+            </footer>
+
+        </main>
+    </div>
+</div>

@@ -1,0 +1,1590 @@
+/*
+ * local_heyday_lessons
+ * ed2go-style learner player shell for Moodle + Adaptable.
+ * All selectors are scoped to body.local-heyday-lessons.
+ */
+
+body.local-heyday-lessons {
+    --hd-topbar-height: 42px;
+    --hd-sidebar-width: 356px;
+    --hd-accent: #0073a8;
+    --hd-page-bg: #f4f5f7;
+    --hd-link: var(--hd-accent);
+    --hd-complete: #39a545;
+    --hd-muted: #6f7d89;
+    --hd-lock: #6f7d89;
+    --hd-card-border: #d7dce2;
+    --hd-soft-border: #e4e8ec;
+    --hd-sub-bg: #eef4f8;
+    --hd-sub-deep-bg: #dceaf2;
+    --hd-current-bg: #e1eef5;
+    background: var(--hd-page-bg) !important;
+    overflow-x: hidden;
+}
+
+body.local-heyday-lessons,
+body.local-heyday-lessons #page,
+body.local-heyday-lessons #page.drawers,
+body.local-heyday-lessons #page-wrapper,
+body.local-heyday-lessons.drawer-open-left #page,
+body.local-heyday-lessons.drawer-open-right #page,
+body.local-heyday-lessons.drawer-open-index #page {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    background: var(--hd-page-bg) !important;
+}
+
+body.local-heyday-lessons #topofscroll,
+body.local-heyday-lessons #page-content,
+body.local-heyday-lessons #region-main-box,
+body.local-heyday-lessons #region-main,
+body.local-heyday-lessons .region-main,
+body.local-heyday-lessons .main-inner,
+body.local-heyday-lessons div[role="main"],
+body.local-heyday-lessons #page .container,
+body.local-heyday-lessons #page .container-fluid {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: var(--hd-page-bg) !important;
+}
+
+/* Hide Moodle/Adaptable chrome only on this player URL. */
+body.local-heyday-lessons .drawer-toggles,
+body.local-heyday-lessons .drawer-left,
+body.local-heyday-lessons .drawer-right,
+body.local-heyday-lessons .drawer,
+body.local-heyday-lessons #theme_boost-drawers-courseindex,
+body.local-heyday-lessons #theme_boost-drawers-primary,
+body.local-heyday-lessons #theme_boost-drawers-blocks,
+body.local-heyday-lessons [data-region="drawer"],
+body.local-heyday-lessons [data-region="drawer-toggle"],
+body.local-heyday-lessons [data-region="courseindex"],
+body.local-heyday-lessons .courseindex,
+body.local-heyday-lessons #courseindex,
+body.local-heyday-lessons #block-region-side-pre,
+body.local-heyday-lessons #block-region-side-post,
+body.local-heyday-lessons [data-region="blocks-column"],
+body.local-heyday-lessons nav.navbar,
+body.local-heyday-lessons .navbar,
+body.local-heyday-lessons .navbar.fixed-top,
+body.local-heyday-lessons #adaptable-page-header-wrapper,
+body.local-heyday-lessons #page-header,
+body.local-heyday-lessons .secondary-navigation,
+body.local-heyday-lessons .breadcrumb,
+body.local-heyday-lessons .activity-header,
+body.local-heyday-lessons .tertiary-navigation,
+body.local-heyday-lessons footer#page-footer,
+body.local-heyday-lessons #page-footer,
+body.local-heyday-lessons .mainfooter,
+body.local-heyday-lessons .footer-popover {
+    display: none !important;
+}
+
+body.local-heyday-lessons .hd-player,
+body.local-heyday-lessons .hd-player * {
+    box-sizing: border-box;
+}
+
+body.local-heyday-lessons .hd-player {
+    width: 100vw !important;
+    min-height: 100vh;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    background: var(--hd-page-bg);
+    color: #1f2933;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Black learner topbar. */
+body.local-heyday-lessons .hd-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    height: var(--hd-topbar-height);
+    min-height: var(--hd-topbar-height);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #000;
+    color: #fff;
+    box-shadow: none;
+}
+
+body.local-heyday-lessons .hd-topbar-brand {
+    min-width: 1px;
+    display: flex;
+    align-items: center;
+    padding-left: 18px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+body.local-heyday-lessons .hd-topbar-brand.is-empty {
+    visibility: hidden;
+}
+
+body.local-heyday-lessons .hd-topbar-actions {
+    height: var(--hd-topbar-height);
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: #fff;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+body.local-heyday-lessons .hd-topbar-action,
+body.local-heyday-lessons .hd-topbar-user {
+    height: var(--hd-topbar-height);
+    min-width: 42px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-left: 1px solid rgba(255,255,255,.18);
+    color: #fff;
+    line-height: 1;
+}
+
+body.local-heyday-lessons .hd-topbar-tour,
+body.local-heyday-lessons .hd-topbar-user {
+    font-weight: 700;
+}
+
+body.local-heyday-lessons .hd-topbar-search::before,
+body.local-heyday-lessons .hd-topbar-help::before,
+body.local-heyday-lessons .hd-topbar-user::before,
+body.local-heyday-lessons .hd-topbar-user::after {
+    content: "";
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    background: currentColor;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+}
+
+body.local-heyday-lessons .hd-topbar-search::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M8.5 3a5.5 5.5 0 014.36 8.85l4.15 4.14-1.42 1.42-4.14-4.15A5.5 5.5 0 118.5 3zm0 2a3.5 3.5 0 100 7 3.5 3.5 0 000-7z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M8.5 3a5.5 5.5 0 014.36 8.85l4.15 4.14-1.42 1.42-4.14-4.15A5.5 5.5 0 118.5 3zm0 2a3.5 3.5 0 100 7 3.5 3.5 0 000-7z'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-topbar-help::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M10 18a8 8 0 110-16 8 8 0 010 16zm0-1.7A6.3 6.3 0 1010 3.7a6.3 6.3 0 000 12.6zm-.9-4.3c0-1.1.52-1.65 1.45-2.25.76-.5 1.08-.86 1.08-1.52 0-.78-.58-1.28-1.48-1.28-.88 0-1.55.47-2.08 1.19L6.78 7.1c.79-1.13 1.9-1.78 3.45-1.78 1.94 0 3.24 1.08 3.24 2.76 0 1.22-.55 1.94-1.65 2.65-.76.49-.98.78-.98 1.44v.23H9.1V12zm-.14 3v-1.8h1.96V15H8.96z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M10 18a8 8 0 110-16 8 8 0 010 16zm0-1.7A6.3 6.3 0 1010 3.7a6.3 6.3 0 000 12.6zm-.9-4.3c0-1.1.52-1.65 1.45-2.25.76-.5 1.08-.86 1.08-1.52 0-.78-.58-1.28-1.48-1.28-.88 0-1.55.47-2.08 1.19L6.78 7.1c.79-1.13 1.9-1.78 3.45-1.78 1.94 0 3.24 1.08 3.24 2.76 0 1.22-.55 1.94-1.65 2.65-.76.49-.98.78-.98 1.44v.23H9.1V12zm-.14 3v-1.8h1.96V15H8.96z'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-topbar-user::before {
+    width: 15px;
+    height: 15px;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M10 10a4 4 0 100-8 4 4 0 000 8zm0 2c-3.33 0-6 1.8-6 4v1h12v-1c0-2.2-2.67-4-6-4z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M10 10a4 4 0 100-8 4 4 0 000 8zm0 2c-3.33 0-6 1.8-6 4v1h12v-1c0-2.2-2.67-4-6-4z'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-topbar-user::after {
+    width: 10px;
+    height: 10px;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M6 8L0 0h12L6 8z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M6 8L0 0h12L6 8z'/%3E%3C/svg%3E");
+}
+
+/* Master shell layout. */
+body.local-heyday-lessons .hd-shell {
+    display: grid;
+    grid-template-columns: var(--hd-sidebar-width) minmax(0, 1fr);
+    align-items: start;
+    min-height: calc(100vh - var(--hd-topbar-height));
+    background: var(--hd-page-bg);
+}
+
+body.local-heyday-lessons .hd-sidebar {
+    position: sticky;
+    top: var(--hd-topbar-height);
+    z-index: 25;
+    width: var(--hd-sidebar-width);
+    height: calc(100vh - var(--hd-topbar-height));
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #fff;
+    border-right: 1px solid #d7dce1;
+    box-shadow: 2px 0 8px rgba(15, 23, 42, .12);
+    scrollbar-width: thin;
+    scrollbar-color: #858d94 transparent;
+}
+
+body.local-heyday-lessons .hd-sidebar::-webkit-scrollbar {
+    width: 10px;
+}
+
+body.local-heyday-lessons .hd-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+body.local-heyday-lessons .hd-sidebar::-webkit-scrollbar-thumb {
+    background: #858d94;
+    border-radius: 10px;
+}
+
+body.local-heyday-lessons .hd-sidebar::after {
+    content: "☰";
+    position: fixed;
+    left: calc(var(--hd-sidebar-width) - 1px);
+    top: 57%;
+    transform: translateY(-50%);
+    width: 27px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #65707a;
+    background: #fff;
+    border: 1px solid #d8dde3;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.08);
+    z-index: 1031;
+    pointer-events: none;
+    font-size: 17px;
+    line-height: 1;
+}
+
+/* Main/top sidebar rows. */
+body.local-heyday-lessons .hd-primary-menu,
+body.local-heyday-lessons .hd-lesson-menu,
+body.local-heyday-lessons .hd-after-menu {
+    display: block;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+}
+
+body.local-heyday-lessons .hd-primary-link,
+body.local-heyday-lessons .hd-after-link {
+    min-height: 44px;
+    height: 44px;
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px 0 20px;
+    color: var(--hd-link) !important;
+    background: #fff;
+    border-bottom: 1px solid #e5e8eb;
+    text-decoration: none !important;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.2;
+    position: relative;
+}
+
+body.local-heyday-lessons .hd-primary-link.has-no-icon {
+    grid-template-columns: minmax(0, 1fr) 24px;
+}
+
+body.local-heyday-lessons .hd-primary-link:hover,
+body.local-heyday-lessons .hd-after-link:hover,
+body.local-heyday-lessons .hd-lesson-title:hover,
+body.local-heyday-lessons .hd-lesson-item:hover,
+body.local-heyday-lessons .hd-gs-item:hover {
+    color: var(--hd-link) !important;
+    text-decoration: underline !important;
+}
+
+body.local-heyday-lessons .hd-primary-link.is-current::before,
+body.local-heyday-lessons .hd-after-link.is-current::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: var(--hd-accent);
+}
+
+body.local-heyday-lessons .hd-primary-label,
+body.local-heyday-lessons .hd-after-label {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+body.local-heyday-lessons .hd-primary-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #617584;
+    font-size: 14px;
+    line-height: 1;
+}
+
+body.local-heyday-lessons .hd-icon-home::before { content: "⌂"; }
+body.local-heyday-lessons .hd-icon-scores::before { content: "☑"; }
+body.local-heyday-lessons .hd-icon-discussions::before { content: "◌"; }
+
+/* Lesson group rows. */
+body.local-heyday-lessons .hd-lesson-group {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #fff;
+}
+
+body.local-heyday-lessons .hd-lesson-group > summary {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    cursor: default;
+}
+
+body.local-heyday-lessons .hd-lesson-group > summary::marker,
+body.local-heyday-lessons .hd-lesson-group > summary::-webkit-details-marker {
+    display: none;
+    content: "";
+}
+
+body.local-heyday-lessons .hd-lesson-summary-inner {
+    min-height: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 0 18px 0 20px;
+    background: #fff;
+}
+
+body.local-heyday-lessons .hd-lesson-title,
+body.local-heyday-lessons .hd-lesson-title:visited {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: block;
+    color: var(--hd-link) !important;
+    text-decoration: none !important;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.22;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+body.local-heyday-lessons .hd-lesson-group.is-active > summary .hd-lesson-title {
+    font-weight: 700;
+}
+
+body.local-heyday-lessons .hd-lesson-group.is-locked .hd-lesson-title,
+body.local-heyday-lessons .hd-lesson-title.is-disabled,
+body.local-heyday-lessons .hd-after-link.is-locked {
+    color: var(--hd-lock) !important;
+    text-decoration: none !important;
+}
+
+/* Status icons. */
+body.local-heyday-lessons .hd-status,
+body.local-heyday-lessons .hd-mini-status {
+    margin-left: auto;
+    width: 22px;
+    min-width: 22px;
+    height: 22px;
+    min-height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #7d8993;
+    font-size: 15px;
+    line-height: 1;
+    text-decoration: none !important;
+}
+
+body.local-heyday-lessons .hd-mini-status {
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    min-height: 20px;
+}
+
+body.local-heyday-lessons .hd-status.is-complete,
+body.local-heyday-lessons .hd-mini-status.is-complete {
+    color: var(--hd-complete);
+    font-weight: 400;
+}
+
+body.local-heyday-lessons .hd-status.is-empty,
+body.local-heyday-lessons .hd-mini-status.is-empty {
+    visibility: hidden;
+}
+
+body.local-heyday-lessons .hd-status.is-progress,
+body.local-heyday-lessons .hd-mini-status.is-progress {
+    width: 16px;
+    min-width: 16px;
+    height: 16px;
+    min-height: 16px;
+    border-radius: 50%;
+    background: conic-gradient(#57a9d8 0 45%, #e1e6e8 45% 100%);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.02);
+    color: transparent;
+}
+
+body.local-heyday-lessons .hd-status.is-locked,
+body.local-heyday-lessons .hd-mini-status.is-locked,
+body.local-heyday-lessons .hd-locked-large {
+    color: var(--hd-lock);
+    font-size: 0;
+}
+
+body.local-heyday-lessons .hd-status.is-locked::before,
+body.local-heyday-lessons .hd-mini-status.is-locked::before,
+body.local-heyday-lessons .hd-locked-large::before {
+    content: "";
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M4.5 7V5a3.5 3.5 0 017 0v2h.5A1.5 1.5 0 0113.5 8.5v5A1.5 1.5 0 0112 15H4a1.5 1.5 0 01-1.5-1.5v-5A1.5 1.5 0 014 7h.5zm1.2 0h4.6V5a2.3 2.3 0 00-4.6 0v2zM4 8.2a.3.3 0 00-.3.3v5a.3.3 0 00.3.3h8a.3.3 0 00.3-.3v-5a.3.3 0 00-.3-.3H4z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M4.5 7V5a3.5 3.5 0 017 0v2h.5A1.5 1.5 0 0113.5 8.5v5A1.5 1.5 0 0112 15H4a1.5 1.5 0 01-1.5-1.5v-5A1.5 1.5 0 014 7h.5zm1.2 0h4.6V5a2.3 2.3 0 00-4.6 0v2zM4 8.2a.3.3 0 00-.3.3v5a.3.3 0 00.3.3h8a.3.3 0 00.3-.3v-5a.3.3 0 00-.3-.3H4z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Expanded Lesson / Getting Started menu rows. */
+body.local-heyday-lessons .hd-lesson-items,
+body.local-heyday-lessons .hd-gs-subnav {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid #d2dce4;
+    border-right: 4px solid var(--hd-accent);
+    background: var(--hd-sub-bg);
+}
+
+body.local-heyday-lessons .hd-lesson-item,
+body.local-heyday-lessons .hd-gs-item {
+    position: relative;
+    min-height: 34px;
+    height: 34px;
+    padding: 0 8px 0 28px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 22px;
+    align-items: center;
+    gap: 6px;
+    color: var(--hd-link) !important;
+    background: var(--hd-sub-bg);
+    border-bottom: 0;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.18;
+}
+
+body.local-heyday-lessons .hd-lesson-item.is-heading,
+body.local-heyday-lessons .hd-gs-item.is-heading {
+    background: var(--hd-sub-deep-bg);
+    border-top: 1px solid rgba(188,203,214,.65);
+    border-bottom: 1px solid rgba(188,203,214,.45);
+}
+
+body.local-heyday-lessons .hd-lesson-item.depth-1,
+body.local-heyday-lessons .hd-gs-item.depth-1 { padding-left: 36px; }
+body.local-heyday-lessons .hd-lesson-item.depth-2,
+body.local-heyday-lessons .hd-gs-item.depth-2 { padding-left: 44px; }
+body.local-heyday-lessons .hd-lesson-item.depth-3,
+body.local-heyday-lessons .hd-gs-item.depth-3 { padding-left: 52px; }
+
+body.local-heyday-lessons .hd-lesson-item.is-current,
+body.local-heyday-lessons .hd-gs-item.is-current {
+    background: var(--hd-current-bg);
+    font-weight: 700;
+}
+
+body.local-heyday-lessons .hd-current-arrow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+}
+
+body.local-heyday-lessons .hd-lesson-item.is-current .hd-current-arrow::before,
+body.local-heyday-lessons .hd-gs-item.is-current .hd-current-arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 9px solid var(--hd-accent);
+}
+
+body.local-heyday-lessons .hd-item-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.local-heyday-lessons .hd-lesson-item.is-locked,
+body.local-heyday-lessons .hd-gs-item.is-locked {
+    color: var(--hd-lock) !important;
+    background: #fff;
+}
+
+body.local-heyday-lessons .hd-after-menu {
+    padding-bottom: 24px;
+}
+
+body.local-heyday-lessons .hd-after-link {
+    grid-template-columns: minmax(0, 1fr) 24px;
+    border-bottom: 0;
+}
+
+/* Main lesson page card. */
+body.local-heyday-lessons .hd-main {
+    min-width: 0;
+    padding: 26px clamp(24px, 4.4vw, 64px) 34px;
+    background: var(--hd-page-bg);
+}
+
+body.local-heyday-lessons .hd-card {
+    width: min(100%, 960px);
+    min-height: 640px;
+    margin: 0 auto;
+    padding: 28px 46px 50px;
+    background: #fff;
+    border: 1px solid var(--hd-card-border);
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+
+body.local-heyday-lessons .hd-card-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-height: 34px;
+    color: var(--hd-link);
+    margin-bottom: 6px;
+}
+
+body.local-heyday-lessons .hd-toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+body.local-heyday-lessons .hd-card-icon {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--hd-link) !important;
+    text-decoration: none !important;
+    font-size: 24px;
+    line-height: 1;
+}
+
+body.local-heyday-lessons .hd-bookmark::before,
+body.local-heyday-lessons .hd-print::before,
+body.local-heyday-lessons .hd-fullscreen::before,
+body.local-heyday-lessons .hd-discussion-icon::before,
+body.local-heyday-lessons .hd-score-symbol::before {
+    content: "";
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    background: currentColor;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+}
+
+body.local-heyday-lessons .hd-bookmark::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 2h14v20l-7-4-7 4V2zm2 2v14.55l5-2.85 5 2.85V4H5z' fill='black'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 2h14v20l-7-4-7 4V2zm2 2v14.55l5-2.85 5 2.85V4H5z' fill='black'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-print::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M7 3h10v5H7V3zm11 7a4 4 0 014 4v4h-4v3H6v-3H2v-4a4 4 0 014-4h12zm-2 9v-5H8v5h8zm2-3h2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2h2v-4h12v4z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M7 3h10v5H7V3zm11 7a4 4 0 014 4v4h-4v3H6v-3H2v-4a4 4 0 014-4h12zm-2 9v-5H8v5h8zm2-3h2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2h2v-4h12v4z'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-fullscreen::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4z'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-content-heading {
+    text-align: center;
+    margin: 0 auto 42px;
+}
+
+body.local-heyday-lessons .hd-course-kicker,
+body.local-heyday-lessons .hd-lesson-kicker {
+    color: #657386;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+body.local-heyday-lessons .hd-content-heading h1 {
+    margin: 18px 0 0;
+    color: #111827;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.25;
+}
+
+body.local-heyday-lessons .hd-content-body {
+    max-width: 780px;
+    margin: 0 auto;
+    color: #263342;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+body.local-heyday-lessons .hd-page-content img,
+body.local-heyday-lessons .hd-content-body img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto;
+}
+
+body.local-heyday-lessons .hd-content-body h2,
+body.local-heyday-lessons .hd-content-body h3,
+body.local-heyday-lessons .hd-content-body h4 {
+    color: #1f2933;
+    line-height: 1.3;
+    font-weight: 400;
+    margin: 1.45em 0 .65em;
+}
+
+body.local-heyday-lessons .hd-content-body h2 { font-size: 28px; }
+body.local-heyday-lessons .hd-content-body h3 { font-size: 22px; }
+
+body.local-heyday-lessons .hd-content-body p {
+    margin: 0 0 1em;
+}
+
+body.local-heyday-lessons .hd-content-body ul,
+body.local-heyday-lessons .hd-content-body ol {
+    margin-top: .6em;
+    margin-bottom: 1em;
+    padding-left: 1.6rem;
+}
+
+body.local-heyday-lessons .hd-content-body li {
+    margin-bottom: .45em;
+}
+
+body.local-heyday-lessons .hd-activity-fallback,
+body.local-heyday-lessons .hd-locked-card,
+body.local-heyday-lessons .hd-empty-card {
+    background: #fff;
+    border: 1px solid var(--hd-soft-border);
+    border-radius: 4px;
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.06);
+}
+
+body.local-heyday-lessons .hd-activity-pill {
+    display: inline-flex;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #eef6fb;
+    color: var(--hd-link);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+body.local-heyday-lessons .hd-primary-button,
+body.local-heyday-lessons .hd-outline-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 14px;
+    border-radius: 3px;
+    border: 1px solid var(--hd-accent);
+    color: #fff !important;
+    background: var(--hd-accent);
+    text-decoration: none !important;
+    font-weight: 700;
+}
+
+body.local-heyday-lessons .hd-outline-button {
+    background: #fff;
+    color: var(--hd-accent) !important;
+    cursor: default;
+}
+
+/* Activity completion and Next Up. */
+body.local-heyday-lessons .hd-completion-row {
+    width: min(100%, 960px);
+    margin: 42px auto 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    color: #222;
+    font-size: 15px;
+}
+
+body.local-heyday-lessons .hd-completion-badge {
+    width: 58px;
+    height: 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid #d8e4ec;
+    color: #9aa8b1;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+body.local-heyday-lessons .hd-completion-row.is-complete .hd-completion-badge {
+    border-color: var(--hd-complete);
+    background: var(--hd-complete);
+    color: #fff;
+}
+
+body.local-heyday-lessons .hd-undo-link {
+    display: block;
+    color: var(--hd-link);
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+body.local-heyday-lessons .hd-nextup-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto 30px;
+}
+
+body.local-heyday-lessons .hd-nextup-card {
+    display: flex;
+    min-width: 300px;
+    min-height: 72px;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+body.local-heyday-lessons .hd-nextup-label {
+    min-width: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hd-accent);
+    color: #fff;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+body.local-heyday-lessons .hd-nextup-body {
+    min-width: 245px;
+    padding: 13px 18px;
+    border: 1px solid #cfd8dc;
+    border-left: 0;
+    background: #fff;
+}
+
+body.local-heyday-lessons .hd-nextup-section,
+body.local-heyday-lessons .hd-nextup-type {
+    display: block;
+    color: #777;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+body.local-heyday-lessons .hd-nextup-title {
+    display: block;
+    color: var(--hd-link);
+    text-decoration: underline;
+    font-size: 16px;
+    line-height: 1.25;
+}
+
+body.local-heyday-lessons .hd-footer {
+    width: min(100%, 960px);
+    margin: 26px auto 0;
+    padding: 10px 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: #5f7281;
+    font-size: 12px;
+}
+
+body.local-heyday-lessons .hd-footer a {
+    color: var(--hd-link) !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-lessons .hd-footer-sep {
+    width: 1px;
+    height: 18px;
+    background: #aeb8c2;
+}
+
+body.local-heyday-lessons .hd-copyright {
+    flex-basis: 100%;
+    text-align: center;
+}
+
+/* Home dashboard. */
+body.local-heyday-lessons .hd-main-home {
+    padding: 0;
+}
+
+body.local-heyday-lessons .hd-home-dashboard {
+    min-height: calc(100vh - var(--hd-topbar-height));
+    background: var(--hd-page-bg);
+}
+
+body.local-heyday-lessons .hd-home-hero {
+    position: relative;
+    min-height: 145px;
+    padding: 23px 64px 22px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    overflow: hidden;
+    background: #f4f7fa;
+    border-bottom: 1px solid #d7dce2;
+    box-shadow: 0 2px 7px rgba(15,23,42,.12);
+}
+
+body.local-heyday-lessons .hd-home-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: min(73%, 1080px);
+    background-image:
+        linear-gradient(90deg, rgba(0,0,0,.74), rgba(0,0,0,.50) 56%, rgba(0,0,0,.25)),
+        repeating-linear-gradient(72deg, #252a30 0 8px, #4d535a 8px 10px, #30363d 10px 21px);
+    clip-path: polygon(0 0, 91% 0, 100% 100%, 0 100%);
+    z-index: 0;
+}
+
+body.local-heyday-lessons .hd-home-title,
+body.local-heyday-lessons .hd-home-meters {
+    position: relative;
+    z-index: 1;
+}
+
+body.local-heyday-lessons .hd-home-title h2 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 27px;
+    font-weight: 400;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
+
+body.local-heyday-lessons .hd-home-code {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
+
+body.local-heyday-lessons .hd-home-meters {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 0 0 auto;
+}
+
+body.local-heyday-lessons .hd-home-meter {
+    width: 106px;
+    height: 106px;
+    border-radius: 50%;
+    background: #f6f9fb;
+    display: grid;
+    place-items: center;
+    color: #26313d;
+    box-shadow: inset 0 0 0 1px rgba(115,125,135,.18);
+}
+
+body.local-heyday-lessons .hd-home-meter-ring {
+    position: relative;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(circle at center, #f8fbfd 58%, transparent 59%),
+        conic-gradient(#1e6db8 calc(var(--meter-value) * 1%), #d8e0e6 0);
+}
+
+body.local-heyday-lessons .hd-home-meter-ring.is-score {
+    background:
+        radial-gradient(circle at center, #f8fbfd 58%, transparent 59%),
+        conic-gradient(#8aa1b5 calc(var(--meter-value) * 1%), #d8e0e6 0);
+}
+
+body.local-heyday-lessons .hd-home-meter-ring > span:first-child {
+    display: block;
+    transform: translateY(-10px);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+body.local-heyday-lessons .hd-home-meter-label {
+    position: absolute;
+    transform: translateY(13px);
+    font-size: 14px;
+    line-height: 1.1;
+    text-align: center;
+    pointer-events: none;
+}
+
+body.local-heyday-lessons .hd-home-content {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 42px 24px 80px;
+}
+
+body.local-heyday-lessons .hd-home-welcome {
+    margin: 0 0 22px;
+    color: #111827;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.25;
+}
+
+body.local-heyday-lessons .hd-home-next-card {
+    min-height: 170px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 190px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #d9dee4;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(15,23,42,.20);
+}
+
+body.local-heyday-lessons .hd-home-next-main {
+    min-width: 0;
+    padding: 48px 44px;
+}
+
+body.local-heyday-lessons .hd-home-next-main h3 {
+    margin: 0 0 28px;
+    color: #1f2933;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+body.local-heyday-lessons .hd-home-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #394452;
+    font-size: 14px;
+}
+
+body.local-heyday-lessons .hd-home-progress-track {
+    width: 150px;
+    height: 7px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #d7d7d7;
+}
+
+body.local-heyday-lessons .hd-home-progress-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--hd-accent);
+}
+
+body.local-heyday-lessons .hd-home-next-action {
+    padding: 42px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #147aa3;
+    color: #fff;
+    text-align: center;
+}
+
+body.local-heyday-lessons .hd-home-next-label,
+body.local-heyday-lessons .hd-home-next-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+body.local-heyday-lessons .hd-home-next-name {
+    margin-bottom: 10px;
+}
+
+body.local-heyday-lessons .hd-home-continue-button {
+    min-height: 43px;
+    padding: 9px 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0,0,0,.12);
+    border-radius: 3px;
+    background: #fff;
+    color: #137aa3 !important;
+    text-decoration: none !important;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+/* Scores / discussions / utility pages. */
+body.local-heyday-lessons .hd-main-page {
+    padding: 26px clamp(20px, 3vw, 44px) 60px;
+}
+
+body.local-heyday-lessons .hd-wide-page {
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+body.local-heyday-lessons .hd-page-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+body.local-heyday-lessons .hd-page-title-row h1,
+body.local-heyday-lessons .hd-wide-page > h1 {
+    margin: 0 0 16px;
+    color: #222;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+body.local-heyday-lessons .hd-score-list,
+body.local-heyday-lessons .hd-discussion-list {
+    display: grid;
+    gap: 13px;
+}
+
+body.local-heyday-lessons .hd-score-row,
+body.local-heyday-lessons .hd-discussion-card {
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border: 1px solid #d5dce0;
+    background: #fff;
+    border-radius: 3px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+
+body.local-heyday-lessons .hd-score-row.is-locked,
+body.local-heyday-lessons .hd-discussion-card.is-locked {
+    background: #f1f3f5;
+    border-color: #cfd5db;
+}
+
+body.local-heyday-lessons .hd-score-left,
+body.local-heyday-lessons .hd-discussion-left {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+body.local-heyday-lessons .hd-score-symbol,
+body.local-heyday-lessons .hd-discussion-icon {
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    color: #20272b;
+}
+
+body.local-heyday-lessons .hd-score-symbol::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M6 2h9l5 5v15H6V2zm8 1.8V8h4.2L14 3.8zM8 11h8v2H8v-2zm0 4h8v2H8v-2z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M6 2h9l5 5v15H6V2zm8 1.8V8h4.2L14 3.8zM8 11h8v2H8v-2zm0 4h8v2H8v-2z'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-score-symbol.is-check::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-discussion-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M4 4h16v11H8l-4 4V4zm2 2v8.2L7.2 13H18V6H6z'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M4 4h16v11H8l-4 4V4zm2 2v8.2L7.2 13H18V6H6z'/%3E%3C/svg%3E");
+}
+
+body.local-heyday-lessons .hd-score-name,
+body.local-heyday-lessons .hd-discussion-title {
+    color: var(--hd-link) !important;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.2;
+    text-decoration: underline !important;
+}
+
+body.local-heyday-lessons .hd-score-name.locked-name,
+body.local-heyday-lessons .hd-discussion-card.is-locked .hd-discussion-title {
+    color: #6b7280 !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-lessons .hd-discussion-meta,
+body.local-heyday-lessons .hd-score-right {
+    color: #111;
+    font-size: 14px;
+}
+
+body.local-heyday-lessons .hd-section-item-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+
+body.local-heyday-lessons .hd-section-item-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--hd-soft-border);
+    padding: 10px 0;
+}
+
+body.local-heyday-lessons .hd-section-item-list a {
+    color: var(--hd-link) !important;
+}
+
+body.local-heyday-lessons .hd-section-item-list .is-locked {
+    color: var(--hd-lock);
+}
+
+@media (max-width: 980px) {
+    body.local-heyday-lessons .hd-player {
+        --hd-sidebar-width: 334px;
+    }
+
+    body.local-heyday-lessons .hd-main {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    body.local-heyday-lessons .hd-card {
+        padding: 24px 28px 42px;
+    }
+
+    body.local-heyday-lessons .hd-home-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px;
+    }
+
+    body.local-heyday-lessons .hd-home-meters {
+        align-self: flex-end;
+    }
+
+    body.local-heyday-lessons .hd-home-next-card {
+        grid-template-columns: 1fr;
+    }
+
+    body.local-heyday-lessons .hd-home-next-action {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 760px) {
+    body.local-heyday-lessons .hd-shell {
+        display: block;
+    }
+
+    body.local-heyday-lessons .hd-sidebar {
+        position: relative;
+        top: 0;
+        width: 100%;
+        height: auto;
+        max-height: 70vh;
+        border-right: 0;
+        border-bottom: 1px solid #d7dce1;
+    }
+
+    body.local-heyday-lessons .hd-sidebar::after {
+        display: none;
+    }
+
+    body.local-heyday-lessons .hd-topbar-user {
+        max-width: 150px;
+        overflow: hidden;
+    }
+
+    body.local-heyday-lessons .hd-content-heading h1 {
+        font-size: 24px;
+    }
+
+    body.local-heyday-lessons .hd-home-meters {
+        align-self: flex-start;
+        gap: 14px;
+    }
+
+    body.local-heyday-lessons .hd-home-meter {
+        width: 88px;
+        height: 88px;
+    }
+
+    body.local-heyday-lessons .hd-home-meter-ring {
+        width: 76px;
+        height: 76px;
+    }
+
+    body.local-heyday-lessons .hd-home-content {
+        padding: 28px 16px 60px;
+    }
+
+    body.local-heyday-lessons .hd-home-next-main {
+        padding: 32px 24px;
+    }
+
+    body.local-heyday-lessons .hd-score-row,
+    body.local-heyday-lessons .hd-discussion-card,
+    body.local-heyday-lessons .hd-page-title-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
+@media print {
+    body.local-heyday-lessons .hd-topbar,
+    body.local-heyday-lessons .hd-sidebar,
+    body.local-heyday-lessons .hd-card-toolbar,
+    body.local-heyday-lessons .hd-completion-row,
+    body.local-heyday-lessons .hd-nextup-wrap,
+    body.local-heyday-lessons .hd-footer {
+        display: none !important;
+    }
+
+    body.local-heyday-lessons .hd-shell {
+        display: block;
+    }
+
+    body.local-heyday-lessons .hd-main,
+    body.local-heyday-lessons .hd-card {
+        padding: 0;
+        margin: 0;
+        width: auto;
+        min-height: 0;
+        border: 0;
+        box-shadow: none;
+    }
+}
+
+/* ===========================================================
+   ed2go-style lesson content components
+   Scope: local_heyday_lessons only
+   =========================================================== */
+
+body.local-heyday-lessons .heyday-ed2go-content-page {
+    max-width: 980px;
+    margin: 0 auto;
+    color: #1f2933;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+body.local-heyday-lessons .heyday-ed2go-content-page p {
+    margin: 0 0 20px;
+}
+
+/* Dark decorative information box */
+body.local-heyday-lessons .heyday-callout-box {
+    max-width: 820px;
+    margin: 70px auto 58px;
+    padding: 34px 42px;
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 34px;
+    align-items: center;
+    background: #3f3f3f;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+}
+
+body.local-heyday-lessons .heyday-callout-icon {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d9d9d9;
+    color: #006fa8;
+    font-size: 74px;
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1;
+}
+
+body.local-heyday-lessons .heyday-callout-content h3 {
+    margin: 0 0 14px;
+    color: #00a6ff;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+body.local-heyday-lessons .heyday-callout-content p {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+/* Large content image */
+body.local-heyday-lessons .heyday-content-image-wrap {
+    margin: 54px auto 20px;
+    text-align: center;
+}
+
+body.local-heyday-lessons .heyday-content-image {
+    display: block;
+    width: 100%;
+    max-width: 820px;
+    height: auto;
+    margin: 0 auto;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    body.local-heyday-lessons .heyday-callout-box {
+        grid-template-columns: 1fr;
+        margin: 38px auto;
+        padding: 26px;
+    }
+
+    body.local-heyday-lessons .heyday-callout-icon {
+        width: 78px;
+        height: 78px;
+        font-size: 58px;
+    }
+}
+
+/* ed2go-style reading page content */
+body.local-heyday-lessons .heyday-ed2go-reading-page {
+    max-width: 980px;
+    margin: 0 auto;
+    color: #1f2933;
+    font-size: 16px;
+    line-height: 1.58;
+}
+
+body.local-heyday-lessons .heyday-ed2go-reading-page p {
+    margin: 0 0 18px;
+}
+
+body.local-heyday-lessons .heyday-highlight-title {
+    margin: 0 0 44px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.25;
+}
+
+body.local-heyday-lessons .heyday-highlight-title span {
+    display: inline;
+    padding: 0 2px;
+    background: #c7c7c7;
+    color: #1f2933;
+}
+
+body.local-heyday-lessons .heyday-float-image-right {
+    float: right;
+    width: 46%;
+    max-width: 520px;
+    margin: 0 0 22px 36px;
+}
+
+body.local-heyday-lessons .heyday-reading-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+body.local-heyday-lessons .heyday-ed2go-reading-page::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+@media (max-width: 760px) {
+    body.local-heyday-lessons .heyday-float-image-right {
+        float: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 24px auto;
+    }
+
+    body.local-heyday-lessons .heyday-highlight-title {
+        font-size: 24px;
+        margin-bottom: 28px;
+    }
+}
+
+/* ===========================================================
+   ed2go-style content page and dark callout
+   Scope: local_heyday_lessons only
+   =========================================================== */
+
+body.local-heyday-lessons .heyday-ed2go-content-page {
+    max-width: 980px;
+    margin: 0 auto;
+    color: #1f2933;
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+body.local-heyday-lessons .heyday-ed2go-content-page p {
+    margin: 0 0 20px;
+}
+
+body.local-heyday-lessons .heyday-callout-box {
+    max-width: 820px;
+    margin: 64px auto 36px;
+    padding: 34px 42px;
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 34px;
+    align-items: center;
+    background: #3f3f3f;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+}
+
+body.local-heyday-lessons .heyday-callout-content h3 {
+    margin: 0 0 14px;
+    color: #00a6ff;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+body.local-heyday-lessons .heyday-callout-content p {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+body.local-heyday-lessons .heyday-callout-icon {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d9d9d9;
+}
+
+/* Thought/cloud icon drawn with CSS */
+body.local-heyday-lessons .heyday-thought-icon {
+    position: relative;
+    display: block;
+    width: 58px;
+    height: 38px;
+}
+
+body.local-heyday-lessons .heyday-thought-icon::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 8px;
+    width: 48px;
+    height: 28px;
+    background: #ffffff;
+    border: 3px solid #1ea7e1;
+    border-radius: 24px;
+}
+
+body.local-heyday-lessons .heyday-thought-icon::after {
+    content: "";
+    position: absolute;
+    left: 13px;
+    top: 1px;
+    width: 17px;
+    height: 17px;
+    background: #ffffff;
+    border-top: 3px solid #1ea7e1;
+    border-left: 3px solid #1ea7e1;
+    border-radius: 50%;
+    box-shadow:
+        15px 0 0 0 #ffffff,
+        15px 0 0 3px #1ea7e1;
+}
+
+body.local-heyday-lessons .heyday-thought-icon span::before {
+    content: "";
+    position: absolute;
+    right: 2px;
+    bottom: -8px;
+    width: 12px;
+    height: 9px;
+    background: #ffffff;
+    border: 3px solid #1ea7e1;
+    border-radius: 50%;
+}
+
+body.local-heyday-lessons .heyday-thought-icon span::after {
+    content: "";
+    position: absolute;
+    right: -10px;
+    bottom: -13px;
+    width: 7px;
+    height: 6px;
+    background: #ffffff;
+    border: 3px solid #1ea7e1;
+    border-radius: 50%;
+}
+
+@media (max-width: 700px) {
+    body.local-heyday-lessons .heyday-callout-box {
+        grid-template-columns: 1fr;
+        margin: 38px auto;
+        padding: 26px;
+    }
+
+    body.local-heyday-lessons .heyday-callout-icon {
+        width: 78px;
+        height: 78px;
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "bmewburn.vscode-intelephense-client",
+    "xdebug.php-debug",
+    "moodlehq.mdlcode",
+    "dbaeumer.vscode-eslint",
+    "stylelint.vscode-stylelint",
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    "anthropic.claude-code"
+  ]
+}

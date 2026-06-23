@@ -1,0 +1,1124 @@
+/* =========================================================
+   Heyday Discussions custom learner UI
+   Moodle 5.0.6+ / Adaptable 500.2.6
+   File: /local/heyday_discussions/styles.css
+   ========================================================= */
+
+
+/* =========================================================
+   1. Page cleanup for custom learner discussion pages
+   ========================================================= */
+
+   body.heyday-discussions-page,
+   body.path-local-heyday_discussions,
+   body[id^="page-local-heyday_discussions"] {
+       background: #f5f6f7 !important;
+   }
+   
+   /* Hide extra Moodle activity/course navigation above the custom page */
+   body.heyday-discussions-page .secondary-navigation,
+   body.heyday-discussions-page .activity-navigation,
+   body.heyday-discussions-page [data-region="completion-info"],
+   body.heyday-discussions-page .activity-header,
+   body.heyday-discussions-page #page-navbar + .secondary-navigation,
+   body.path-local-heyday_discussions .secondary-navigation,
+   body.path-local-heyday_discussions .activity-navigation,
+   body.path-local-heyday_discussions [data-region="completion-info"],
+   body.path-local-heyday_discussions .activity-header,
+   body[id^="page-local-heyday_discussions"] .secondary-navigation,
+   body[id^="page-local-heyday_discussions"] .activity-navigation,
+   body[id^="page-local-heyday_discussions"] [data-region="completion-info"],
+   body[id^="page-local-heyday_discussions"] .activity-header {
+       display: none !important;
+   }
+   
+   /* Keep the left course index / drawer visible */
+   body.heyday-discussions-page .drawer-left,
+   body.heyday-discussions-page [data-region="left-hand-drawer"],
+   body.path-local-heyday_discussions .drawer-left,
+   body.path-local-heyday_discussions [data-region="left-hand-drawer"],
+   body[id^="page-local-heyday_discussions"] .drawer-left,
+   body[id^="page-local-heyday_discussions"] [data-region="left-hand-drawer"] {
+       display: block !important;
+       visibility: visible !important;
+   }
+   
+   /* Hide the right drawer / block region for ed2go-style learner page */
+   body.heyday-discussions-page .drawer-right,
+   body.heyday-discussions-page [data-region="right-hand-drawer"],
+   body.heyday-discussions-page #block-region-side-post,
+   body.path-local-heyday_discussions .drawer-right,
+   body.path-local-heyday_discussions [data-region="right-hand-drawer"],
+   body.path-local-heyday_discussions #block-region-side-post,
+   body[id^="page-local-heyday_discussions"] .drawer-right,
+   body[id^="page-local-heyday_discussions"] [data-region="right-hand-drawer"],
+   body[id^="page-local-heyday_discussions"] #block-region-side-post {
+       display: none !important;
+   }
+   
+   /* Prevent the hidden right drawer from pushing the content */
+   body.heyday-discussions-page #page,
+   body.path-local-heyday_discussions #page,
+   body[id^="page-local-heyday_discussions"] #page {
+       margin-right: 0 !important;
+   }
+   
+   /* Clean region-main card styling inherited from Moodle/Adaptable */
+   body.heyday-discussions-page #region-main,
+   body.path-local-heyday_discussions #region-main,
+   body[id^="page-local-heyday_discussions"] #region-main {
+       background: transparent !important;
+       border: 0 !important;
+       box-shadow: none !important;
+   }
+   
+   
+   /* =========================================================
+      2. Discussions index/list page
+      URL: /local/heyday_discussions/index.php?id=COURSEID
+      ========================================================= */
+   
+   .hd-discussions-index {
+       max-width: 1120px !important;
+       margin: 22px auto 60px auto !important;
+   }
+   
+   .hd-discussions-index h2 {
+       font-size: 30px !important;
+       font-weight: 400 !important;
+       margin: 0 0 14px 0 !important;
+       color: #222222 !important;
+   }
+   
+   .hd-discussion-setup {
+       border: 1px solid #bee5eb !important;
+       background: #d1ecf1 !important;
+       padding: 14px 18px !important;
+       margin: 12px 0 16px !important;
+       border-radius: 3px !important;
+       color: #111827 !important;
+   }
+   
+   .hd-discussion-card {
+       display: flex !important;
+       align-items: center !important;
+       justify-content: space-between !important;
+       min-height: 88px !important;
+       border: 1px solid #dddddd !important;
+       border-radius: 3px !important;
+       background: #ffffff !important;
+       margin-bottom: 12px !important;
+       padding: 18px 20px !important;
+   }
+   
+   .hd-discussion-card.locked {
+       background: #d2d5d7 !important;
+       border-color: #bfc3c6 !important;
+   }
+   
+   .hd-discussion-left {
+       display: flex !important;
+       align-items: flex-start !important;
+       gap: 16px !important;
+   }
+   
+   .hd-discussion-icon {
+       font-size: 20px !important;
+       color: #1e262d !important;
+       line-height: 1.2 !important;
+       margin-top: 5px !important;
+   }
+   
+   .hd-discussion-title {
+       font-size: 24px !important;
+       line-height: 1.2 !important;
+       color: #0073a8 !important;
+       text-decoration: underline !important;
+       font-weight: 400 !important;
+   }
+   
+   .hd-discussion-title:hover,
+   .hd-discussion-title:focus {
+       color: #005f8c !important;
+   }
+   
+   .hd-new-badge {
+       display: inline-block !important;
+       background: #b7302d !important;
+       color: #ffffff !important;
+       padding: 2px 8px !important;
+       border-radius: 3px !important;
+       font-weight: 700 !important;
+       font-size: 13px !important;
+       margin-top: 8px !important;
+   }
+   
+   .hd-discussion-meta {
+       font-size: 14px !important;
+       margin-top: 6px !important;
+       color: #111111 !important;
+   }
+   
+   .hd-discussion-right {
+       min-width: 78px !important;
+       text-align: center !important;
+   }
+   
+   .hd-updated-label {
+       font-size: 11px !important;
+       color: #444444 !important;
+   }
+   
+   .hd-updated-date {
+       font-size: 14px !important;
+       background: #f7f7f7 !important;
+       padding: 7px 9px !important;
+       border-radius: 3px !important;
+       color: #111111 !important;
+   }
+   
+   .hd-lock {
+       font-size: 20px !important;
+       color: #222222 !important;
+   }
+   
+   
+   /* =========================================================
+      3. Single discussion activity shell
+      URL: /local/heyday_discussions/view.php?cmid=COURSEMODULEID
+      ========================================================= */
+   
+   .hd-forum-shell {
+       max-width: 920px !important;
+       margin: 28px auto 80px auto !important;
+       background: #ffffff !important;
+       border: 1px solid #d7d7d7 !important;
+       padding: 26px 34px 40px 34px !important;
+       box-shadow: none !important;
+       color: #111827 !important;
+   }
+   
+   body.heyday-discussions-page .hd-forum-shell,
+   body.path-local-heyday_discussions .hd-forum-shell,
+   body[id^="page-local-heyday_discussions"] .hd-forum-shell {
+       max-width: 920px !important;
+       margin: 28px auto 80px auto !important;
+   }
+   
+   
+   /* =========================================================
+      4. Top toolbar: back, bookmark, print, fullscreen
+      ========================================================= */
+   
+   .hd-forum-toolbar {
+       display: flex !important;
+       align-items: center !important;
+       gap: 18px !important;
+       margin-bottom: 18px !important;
+   }
+   
+   .hd-toolbar-spacer {
+       flex: 1 !important;
+   }
+   
+   .hd-icon-link,
+   .hd-icon-button {
+       display: inline-flex !important;
+       align-items: center !important;
+       justify-content: center !important;
+       width: 34px !important;
+       height: 34px !important;
+       border: 0 !important;
+       background: transparent !important;
+       color: #0073a8 !important;
+       font-size: 22px !important;
+       line-height: 1 !important;
+       text-decoration: none !important;
+       cursor: pointer !important;
+       box-shadow: none !important;
+       padding: 0 !important;
+   }
+   
+   .hd-icon-link:hover,
+   .hd-icon-button:hover,
+   .hd-icon-link:focus,
+   .hd-icon-button:focus {
+       color: #005f8c !important;
+       background: transparent !important;
+       box-shadow: none !important;
+       outline: none !important;
+   }
+   
+   .hd-bookmark.is-bookmarked,
+   .hd-bookmark-flag.is-bookmarked {
+       color: #0073a8 !important;
+   }
+   
+   /* Print dropdown */
+   .hd-print-menu-wrap {
+       position: relative !important;
+   }
+   
+   .hd-print-menu {
+       position: absolute !important;
+       top: 38px !important;
+       right: 0 !important;
+       width: 198px !important;
+       background: #ffffff !important;
+       border: 1px solid #d7d7d7 !important;
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+       z-index: 9999 !important;
+       padding: 8px 0 !important;
+   }
+   
+   .hd-print-menu button {
+       display: block !important;
+       width: 100% !important;
+       border: 0 !important;
+       background: #ffffff !important;
+       padding: 8px 12px !important;
+       text-align: left !important;
+       font-size: 13px !important;
+       color: #333333 !important;
+       cursor: pointer !important;
+   }
+   
+   .hd-print-menu button:hover {
+       background: #f1f5f9 !important;
+   }
+   
+   
+   /* =========================================================
+      5. Center course / lesson / activity title
+      ========================================================= */
+   
+   .hd-forum-heading {
+       text-align: center !important;
+       margin-bottom: 26px !important;
+   }
+   
+   .hd-course-title,
+   .hd-lesson-title {
+       color: #6b7280 !important;
+       font-size: 14px !important;
+       line-height: 1.3 !important;
+   }
+   
+   .hd-forum-heading h1 {
+       font-size: 28px !important;
+       font-weight: 400 !important;
+       margin: 16px 0 22px 0 !important;
+       color: #111827 !important;
+   }
+   
+   
+   /* =========================================================
+      6. Discussion prompt / intro text
+      ========================================================= */
+   
+   .hd-forum-intro {
+       font-size: 15px !important;
+       line-height: 1.55 !important;
+       color: #111827 !important;
+       margin-bottom: 28px !important;
+   }
+   
+   .hd-forum-intro .no-overflow {
+       overflow: visible !important;
+   }
+   
+   .hd-forum-intro p {
+       margin-bottom: 16px !important;
+   }
+   
+   .hd-forum-intro ul {
+       margin-top: 10px !important;
+       margin-bottom: 18px !important;
+   }
+   
+   .hd-forum-intro li {
+       margin-bottom: 8px !important;
+   }
+   
+   
+   /* =========================================================
+      7. Write your post area
+      ========================================================= */
+   
+   .hd-write-post {
+       margin-top: 10px !important;
+   }
+   
+   .hd-write-post h2 {
+       font-size: 24px !important;
+       font-weight: 400 !important;
+       margin: 20px 0 10px 0 !important;
+       color: #111827 !important;
+   }
+   
+   .hd-post-title {
+       width: 100% !important;
+       height: 36px !important;
+       border: 1px solid #cfd8dc !important;
+       border-bottom: 0 !important;
+       border-radius: 2px 2px 0 0 !important;
+       padding: 6px 10px !important;
+       margin-bottom: 0 !important;
+       box-sizing: border-box !important;
+       background: #ffffff !important;
+       color: #111827 !important;
+       font-size: 14px !important;
+   }
+   
+   /* Hide any old fake/static toolbar */
+   .hd-editor-toolbar {
+       display: none !important;
+   }
+   
+   
+   /* =========================================================
+      8. Real Moodle TinyMCE editor toolbar
+      Goal: ed2go-style single-row clickable toolbar
+      ========================================================= */
+   
+   .heyday-discussions-page .hd-write-post .tox.tox-tinymce,
+   body.path-local-heyday_discussions .hd-write-post .tox.tox-tinymce,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox.tox-tinymce {
+       border: 1px solid #cfd8dc !important;
+       border-radius: 0 !important;
+       min-height: 140px !important;
+   }
+   
+   /* Hide TinyMCE menu row: Edit / View / Insert / Format / Tools / Table / Help */
+   .heyday-discussions-page .hd-write-post .tox-menubar,
+   body.path-local-heyday_discussions .hd-write-post .tox-menubar,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-menubar {
+       display: none !important;
+   }
+   
+   /* Remove extra shadows and make toolbar connected to title input */
+   .heyday-discussions-page .hd-write-post .tox-editor-header,
+   body.path-local-heyday_discussions .hd-write-post .tox-editor-header,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-editor-header {
+       box-shadow: none !important;
+       border-bottom: 1px solid #d9e0e4 !important;
+   }
+   
+   /* Toolbar background */
+   .heyday-discussions-page .hd-write-post .tox-toolbar-overlord,
+   .heyday-discussions-page .hd-write-post .tox-toolbar,
+   .heyday-discussions-page .hd-write-post .tox-toolbar__primary,
+   body.path-local-heyday_discussions .hd-write-post .tox-toolbar-overlord,
+   body.path-local-heyday_discussions .hd-write-post .tox-toolbar,
+   body.path-local-heyday_discussions .hd-write-post .tox-toolbar__primary,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar-overlord,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar__primary {
+       background: #f7f7f7 !important;
+       border: 0 !important;
+   }
+   
+   /* Force compact one-row toolbar */
+   .heyday-discussions-page .hd-write-post .tox-toolbar,
+   .heyday-discussions-page .hd-write-post .tox-toolbar__primary,
+   body.path-local-heyday_discussions .hd-write-post .tox-toolbar,
+   body.path-local-heyday_discussions .hd-write-post .tox-toolbar__primary,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar__primary {
+       min-height: 34px !important;
+       flex-wrap: nowrap !important;
+       overflow-x: auto !important;
+       overflow-y: hidden !important;
+       white-space: nowrap !important;
+   }
+   
+   /* Toolbar groups */
+   .heyday-discussions-page .hd-write-post .tox-toolbar__group,
+   body.path-local-heyday_discussions .hd-write-post .tox-toolbar__group,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar__group {
+       padding: 2px 4px !important;
+       border-right: 1px solid #dddddd !important;
+       flex-wrap: nowrap !important;
+       white-space: nowrap !important;
+   }
+   
+   .heyday-discussions-page .hd-write-post .tox-toolbar__group:last-child,
+   body.path-local-heyday_discussions .hd-write-post .tox-toolbar__group:last-child,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar__group:last-child {
+       border-right: 0 !important;
+   }
+   
+   /* Icon buttons: B, I, list, indent, quote, link, table, fullscreen, help */
+   .heyday-discussions-page .hd-write-post .tox-tbtn,
+   body.path-local-heyday_discussions .hd-write-post .tox-tbtn,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-tbtn {
+       width: 27px !important;
+       height: 27px !important;
+       margin: 0 1px !important;
+       border-radius: 0 !important;
+       box-shadow: none !important;
+   }
+   
+   .heyday-discussions-page .hd-write-post .tox-tbtn svg,
+   body.path-local-heyday_discussions .hd-write-post .tox-tbtn svg,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-tbtn svg {
+       transform: scale(0.82) !important;
+   }
+   
+   /* Dropdowns: Styles, Normal, Font, Size */
+   .heyday-discussions-page .hd-write-post .tox-tbtn--select,
+   body.path-local-heyday_discussions .hd-write-post .tox-tbtn--select,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-tbtn--select {
+       width: auto !important;
+       min-width: 62px !important;
+       max-width: 100px !important;
+       height: 27px !important;
+       padding: 0 5px !important;
+   }
+   
+   .heyday-discussions-page .hd-write-post .tox-tbtn--select .tox-tbtn__select-label,
+   body.path-local-heyday_discussions .hd-write-post .tox-tbtn--select .tox-tbtn__select-label,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-tbtn--select .tox-tbtn__select-label {
+       font-size: 12px !important;
+       max-width: 76px !important;
+       overflow: hidden !important;
+       text-overflow: ellipsis !important;
+   }
+   
+   /* Editor body */
+   .heyday-discussions-page .hd-write-post .tox-edit-area,
+   body.path-local-heyday_discussions .hd-write-post .tox-edit-area,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-edit-area {
+       border-top: 0 !important;
+   }
+   
+   .heyday-discussions-page .hd-write-post .tox-edit-area__iframe,
+   body.path-local-heyday_discussions .hd-write-post .tox-edit-area__iframe,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-edit-area__iframe {
+       background: #ffffff !important;
+       min-height: 90px !important;
+   }
+   
+   .heyday-discussions-page .hd-write-post .tox-sidebar-wrap,
+   body.path-local-heyday_discussions .hd-write-post .tox-sidebar-wrap,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-sidebar-wrap {
+       min-height: 95px !important;
+   }
+   
+   /* Hide TinyMCE statusbar to match the uploaded first screenshot */
+   .heyday-discussions-page .hd-write-post .tox-statusbar,
+   body.path-local-heyday_discussions .hd-write-post .tox-statusbar,
+   body[id^="page-local-heyday_discussions"] .hd-write-post .tox-statusbar {
+       display: none !important;
+   }
+   
+   /* Hide extra toolbar buttons that are not in the uploaded first screenshot */
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Undo"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Redo"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Align left"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Align center"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Align right"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Justify"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Left to right"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Right to left"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label="Show blocks"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[aria-label*="H5P"],
+   .heyday-discussions-page .hd-write-post .tox-tbtn[title*="H5P"] {
+       display: none !important;
+   }
+   
+   /* Fallback textarea if editor fails to load */
+   .hd-write-post textarea.hd-post-message,
+   .hd-write-post textarea#hd_message {
+       width: 100% !important;
+       min-height: 120px !important;
+       border: 1px solid #cfd8dc !important;
+       border-top: 0 !important;
+       border-radius: 0 !important;
+       resize: vertical !important;
+       box-sizing: border-box !important;
+   }
+   
+   
+   /* =========================================================
+      9. Upload line and post buttons
+      ========================================================= */
+   
+   .hd-upload-line {
+       border: 1px solid #cfd8dc !important;
+       border-top: 0 !important;
+       padding: 7px 10px !important;
+       font-size: 13px !important;
+       background: #fafafa !important;
+   }
+   
+   .hd-upload-line a {
+       color: #0073a8 !important;
+       text-decoration: none !important;
+   }
+   
+   .hd-upload-line a:hover {
+       text-decoration: underline !important;
+   }
+   
+   .hd-post-actions {
+       display: flex !important;
+       justify-content: flex-end !important;
+       gap: 12px !important;
+       margin: 8px 0 20px !important;
+   }
+   
+   .hd-post-actions .btn {
+       min-width: 78px !important;
+       border-radius: 3px !important;
+       padding: 8px 16px !important;
+       box-shadow: none !important;
+   }
+   
+   .hd-post-actions .btn-secondary {
+       background: #ffffff !important;
+       color: #333333 !important;
+       border: 1px solid #333333 !important;
+   }
+   
+   .hd-post-actions .btn-secondary:hover {
+       background: #f7f7f7 !important;
+   }
+   
+   .hd-post-actions .btn-success {
+       background: #77a85f !important;
+       color: #ffffff !important;
+       border: 1px solid #77a85f !important;
+   }
+   
+   .hd-post-actions .btn-success:hover {
+       background: #6f9f58 !important;
+       border-color: #6f9f58 !important;
+   }
+   
+   
+   /* =========================================================
+      10. Search and sort
+      ========================================================= */
+   
+   .hd-discussion-searchbar {
+       display: flex !important;
+       margin: 22px 0 12px 0 !important;
+   }
+   
+   .hd-search-posts {
+       flex: 1 !important;
+       width: 100% !important;
+       height: 38px !important;
+       border: 1px solid #cfd8dc !important;
+       border-radius: 3px 0 0 3px !important;
+       padding: 8px 12px !important;
+       box-sizing: border-box !important;
+   }
+   
+   .hd-search-button {
+       width: 46px !important;
+       border: 0 !important;
+       background: #4b9fc4 !important;
+       color: #ffffff !important;
+       border-radius: 0 3px 3px 0 !important;
+       cursor: pointer !important;
+   }
+   
+   .hd-search-button:hover {
+       background: #267fa6 !important;
+   }
+   
+   .hd-discussion-section-title {
+       display: flex !important;
+       align-items: center !important;
+       margin-top: 10px !important;
+       margin-bottom: 6px !important;
+   }
+   
+   .hd-discussion-section-title h2 {
+       font-size: 24px !important;
+       font-weight: 400 !important;
+       margin: 0 !important;
+       color: #111827 !important;
+   }
+   
+   .hd-sort-discussions {
+       margin-left: auto !important;
+       background: #0073a8 !important;
+       border-color: #0073a8 !important;
+       border-radius: 4px !important;
+       color: #ffffff !important;
+       box-shadow: none !important;
+   }
+   
+   .hd-sort-discussions:hover {
+       background: #005f8c !important;
+       border-color: #005f8c !important;
+   }
+   
+   
+   /* =========================================================
+      11. Discussion thread list
+      ========================================================= */
+   
+   .hd-thread-list {
+       margin-top: 4px !important;
+   }
+   
+   .hd-thread {
+       border: 1px solid #dddddd !important;
+       background: #ffffff !important;
+       margin-bottom: 12px !important;
+       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+   }
+   
+   .hd-thread[hidden] {
+       display: none !important;
+   }
+   
+   .hd-thread-top {
+       display: flex !important;
+       align-items: center !important;
+       background: #ffffff !important;
+       padding: 8px 12px !important;
+       cursor: pointer !important;
+   }
+   
+   .hd-thread:first-child .hd-thread-top {
+       background: #c7e9fb !important;
+   }
+   
+   .hd-thread-toggle {
+       width: 24px !important;
+       color: #555555 !important;
+       font-size: 17px !important;
+       flex: 0 0 24px !important;
+   }
+   
+   .hd-thread-meta {
+       flex: 1 !important;
+       min-width: 0 !important;
+   }
+   
+   .hd-thread-meta em {
+       display: block !important;
+       font-size: 11px !important;
+       color: #555555 !important;
+       line-height: 1.2 !important;
+   }
+   
+   .hd-thread-meta h3 {
+       font-size: 15px !important;
+       font-weight: 700 !important;
+       margin: 0 !important;
+       color: #111827 !important;
+       line-height: 1.3 !important;
+   }
+   
+   .hd-thread-stats {
+       min-width: 130px !important;
+       text-align: right !important;
+       font-size: 12px !important;
+       color: #0073a8 !important;
+       line-height: 1.25 !important;
+   }
+   
+   .hd-thread-stats small {
+       color: #666666 !important;
+       font-size: 10px !important;
+   }
+   
+   .hd-bookmark-flag {
+       border: 0 !important;
+       background: transparent !important;
+       color: #666666 !important;
+       font-size: 18px !important;
+       cursor: pointer !important;
+       padding: 0 0 0 10px !important;
+       box-shadow: none !important;
+   }
+   
+   .hd-bookmark-flag:hover,
+   .hd-bookmark-flag:focus {
+       color: #0073a8 !important;
+       outline: none !important;
+   }
+   
+   .hd-thread-body {
+       padding: 12px 16px !important;
+       font-size: 14px !important;
+       line-height: 1.5 !important;
+       color: #111827 !important;
+   }
+   
+   .hd-thread-body p {
+       margin-bottom: 12px !important;
+   }
+   
+   .hd-thread-actions {
+       display: flex !important;
+       gap: 16px !important;
+       align-items: center !important;
+       border-top: 1px solid #eeeeee !important;
+       padding: 7px 12px !important;
+       font-size: 12px !important;
+   }
+   
+   .hd-thread-actions a {
+       color: #005f8c !important;
+       text-decoration: underline !important;
+   }
+   
+   .hd-thread-actions span {
+       margin-left: auto !important;
+       color: #666666 !important;
+   }
+   
+   .hd-reply-preview {
+       margin: 8px 16px 12px 42px !important;
+       border: 1px solid #d7d7d7 !important;
+       background: #ffffff !important;
+   }
+   
+   .hd-reply-top {
+       background: #c7e9fb !important;
+       padding: 6px 10px !important;
+       display: flex !important;
+       justify-content: space-between !important;
+       font-size: 12px !important;
+       color: #555555 !important;
+   }
+   
+   .hd-reply-message {
+       padding: 10px 12px !important;
+       font-size: 14px !important;
+       line-height: 1.5 !important;
+   }
+   
+   .hd-empty-forum {
+       padding: 14px 18px !important;
+       background: #d1ecf1 !important;
+       border: 1px solid #bee5eb !important;
+       margin-bottom: 16px !important;
+       color: #111827 !important;
+   }
+   
+   
+   /* =========================================================
+      12. Load more button
+      ========================================================= */
+   
+   .hd-load-more-wrap {
+       text-align: center !important;
+       margin: 20px 0 !important;
+   }
+   
+   .hd-load-more {
+       background: #0073a8 !important;
+       border-color: #0073a8 !important;
+       border-radius: 4px !important;
+       color: #ffffff !important;
+       box-shadow: none !important;
+   }
+   
+   .hd-load-more:hover {
+       background: #005f8c !important;
+       border-color: #005f8c !important;
+   }
+   
+   
+   /* =========================================================
+      13. Next Up card
+      ========================================================= */
+   
+   .hd-nextup-wrapper {
+       text-align: center !important;
+       margin-top: 26px !important;
+   }
+   
+   .hd-endline {
+       display: flex !important;
+       align-items: center !important;
+       justify-content: center !important;
+       gap: 12px !important;
+       margin-bottom: 14px !important;
+       color: #333333 !important;
+   }
+   
+   .hd-endline span:first-child,
+   .hd-endline span:last-child {
+       width: 70px !important;
+       height: 1px !important;
+       background: #bbbbbb !important;
+   }
+   
+   .hd-nextup-card {
+       display: inline-flex !important;
+       align-items: stretch !important;
+       text-decoration: none !important;
+       color: inherit !important;
+       border: 1px solid #d8d8d8 !important;
+       background: #ffffff !important;
+       min-width: 270px !important;
+       max-width: 380px !important;
+       margin: 0 auto !important;
+       text-align: left !important;
+       cursor: pointer !important;
+   }
+   
+   .hd-nextup-card:hover,
+   .hd-nextup-card:focus {
+       text-decoration: none !important;
+       color: inherit !important;
+       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+       outline: none !important;
+   }
+   
+   .hd-nextup-card:focus {
+       border-color: #0073a8 !important;
+   }
+   
+   .hd-nextup-label {
+       background: #0073a8 !important;
+       color: #ffffff !important;
+       font-weight: 700 !important;
+       padding: 18px 22px !important;
+       display: flex !important;
+       align-items: center !important;
+       justify-content: center !important;
+       min-width: 95px !important;
+       text-align: center !important;
+   }
+   
+   .hd-nextup-body {
+       padding: 14px 18px !important;
+       text-align: left !important;
+       background: #ffffff !important;
+       color: #333333 !important;
+       min-width: 180px !important;
+   }
+   
+   .hd-nextup-activity-name {
+       color: #006aa6 !important;
+       text-decoration: underline !important;
+       font-size: 15px !important;
+       display: block !important;
+       margin-bottom: 4px !important;
+   }
+   
+   .hd-nextup-activity-type {
+       color: #333333 !important;
+       font-size: 13px !important;
+   }
+   
+   
+   /* =========================================================
+      14. Bottom status bar
+      ========================================================= */
+   
+   .hd-bottom-status {
+       position: fixed !important;
+       right: 16px !important;
+       bottom: 0 !important;
+       z-index: 1040 !important;
+       background: #ffffff !important;
+       border: 1px solid #dddddd !important;
+       border-radius: 10px 10px 0 0 !important;
+       box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.12) !important;
+       padding: 8px 14px !important;
+       display: flex !important;
+       align-items: center !important;
+       gap: 8px !important;
+       font-size: 14px !important;
+       color: #111827 !important;
+   }
+   
+   .hd-status-pill {
+       display: inline-flex !important;
+       align-items: center !important;
+       justify-content: center !important;
+       min-width: 28px !important;
+       height: 28px !important;
+       color: #ffffff !important;
+       font-weight: 700 !important;
+       border-radius: 3px !important;
+       padding: 0 6px !important;
+   }
+   
+   .hd-status-pill.green {
+       background: #4b8f1f !important;
+   }
+   
+   .hd-status-pill.red {
+       background: #c73535 !important;
+   }
+   
+   .hd-status-pill.blue {
+       background: #0073c8 !important;
+   }
+   
+   
+   /* =========================================================
+      15. Fullscreen mode
+      ========================================================= */
+   
+   .hd-forum-shell:fullscreen {
+       overflow-y: auto !important;
+       width: 100vw !important;
+       height: 100vh !important;
+       max-width: none !important;
+       margin: 0 !important;
+       border: 0 !important;
+       padding: 32px 60px 80px !important;
+       background: #ffffff !important;
+   }
+   
+   .hd-forum-shell:-webkit-full-screen {
+       overflow-y: auto !important;
+       width: 100vw !important;
+       height: 100vh !important;
+       max-width: none !important;
+       margin: 0 !important;
+       border: 0 !important;
+       padding: 32px 60px 80px !important;
+       background: #ffffff !important;
+   }
+   
+   
+   /* =========================================================
+      16. Print view
+      ========================================================= */
+   
+   @media print {
+       body * {
+           visibility: hidden !important;
+       }
+   
+       .hd-forum-shell,
+       .hd-forum-shell * {
+           visibility: visible !important;
+       }
+   
+       .hd-forum-shell {
+           position: absolute !important;
+           left: 0 !important;
+           top: 0 !important;
+           width: 100% !important;
+           max-width: none !important;
+           border: 0 !important;
+           margin: 0 !important;
+           padding: 20px !important;
+           box-shadow: none !important;
+       }
+   
+       .hd-forum-toolbar,
+       .hd-write-post,
+       .hd-discussion-searchbar,
+       .hd-sort-discussions,
+       .hd-bottom-status,
+       .hd-load-more-wrap {
+           display: none !important;
+       }
+   }
+   
+   
+   /* =========================================================
+      17. Styles dropdown output inside TinyMCE
+      ========================================================= */
+   
+   .hd-style-italic-title {
+       font-style: italic !important;
+       font-weight: 600 !important;
+       font-size: 18px !important;
+   }
+   
+   .hd-style-subtitle {
+       font-size: 16px !important;
+       color: #555555 !important;
+   }
+   
+   .hd-style-special-container {
+       border: 1px solid #d7d7d7 !important;
+       background: #f7f7f7 !important;
+       padding: 10px !important;
+       margin: 8px 0 !important;
+   }
+   
+   .hd-style-marker {
+       background: #fff3a3 !important;
+       padding: 1px 3px !important;
+   }
+   
+   
+   /* =========================================================
+      18. Responsive
+      ========================================================= */
+   
+   @media (max-width: 768px) {
+       .hd-discussions-index,
+       .hd-forum-shell {
+           max-width: 100% !important;
+           margin: 12px auto 80px auto !important;
+       }
+   
+       .hd-forum-shell {
+           padding: 18px 14px 36px !important;
+       }
+   
+       .hd-forum-heading h1 {
+           font-size: 24px !important;
+       }
+   
+       .hd-discussion-card {
+           align-items: flex-start !important;
+           padding: 14px !important;
+       }
+   
+       .hd-discussion-title {
+           font-size: 20px !important;
+       }
+   
+       .hd-thread-top {
+           align-items: flex-start !important;
+           flex-wrap: wrap !important;
+       }
+   
+       .hd-thread-stats {
+           min-width: auto !important;
+           width: 100% !important;
+           text-align: left !important;
+           margin-left: 24px !important;
+           margin-top: 4px !important;
+       }
+   
+       .hd-bookmark-flag {
+           margin-left: auto !important;
+       }
+   
+       .hd-reply-preview {
+           margin-left: 20px !important;
+       }
+   
+       .hd-bottom-status {
+           left: 0 !important;
+           right: 0 !important;
+           justify-content: center !important;
+           border-radius: 10px 10px 0 0 !important;
+           font-size: 13px !important;
+           flex-wrap: wrap !important;
+       }
+   
+       .hd-nextup-card {
+           min-width: 220px !important;
+       }
+   
+       .heyday-discussions-page .hd-write-post .tox-toolbar,
+       .heyday-discussions-page .hd-write-post .tox-toolbar__primary,
+       body.path-local-heyday_discussions .hd-write-post .tox-toolbar,
+       body.path-local-heyday_discussions .hd-write-post .tox-toolbar__primary,
+       body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar,
+       body[id^="page-local-heyday_discussions"] .hd-write-post .tox-toolbar__primary {
+           overflow-x: auto !important;
+       }
+   }

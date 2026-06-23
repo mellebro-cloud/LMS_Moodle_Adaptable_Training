@@ -1,0 +1,4 @@
+/* Only hide on HVP review pages where our plugin is active */
+.path-mod-hvp .h5p-reporting-main-score-container {
+    display: none !important;
+}

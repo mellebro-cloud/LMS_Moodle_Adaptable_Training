@@ -1,0 +1,11 @@
+{
+  "folders": [
+    {
+      "name": "Moodle Project",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "terminal.integrated.cwd": "C:\\xampp\\moodle502\\moodle\\public"
+  }
+}

@@ -1,0 +1,58 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_ai_manager/instanceaddmodal
+
+    Template for the modal to add an instance.
+
+    Example context (json):
+    {
+        "tools": [
+            {
+                "linklabel": "Add test tool",
+                "addurl": "https://mymoodle.com/addtool?tool=testtool",
+                "adddescription": "This tool is a very great tool to add"
+            },
+            {
+                "linklabel": "Add another test tool",
+                "addurl": "https://mymoodle.com/addtool?tool=anothertesttool",
+                "adddescription": "This tool is another very great tool to add"
+            }
+        ]
+    }
+}}
+{{< core/modal}}
+    {{$title}}
+        {{#pix}} aiicon, local_ai_manager {{/pix}} {{#str}} instanceaddmodal_heading, local_ai_manager{{/str}}
+    {{/title}}
+    {{$body}}
+        <div class="row instanceaddmodal">
+            {{#tools}}
+                <div class="col-4 mb-3">
+                    <a class="text-decoration-none" href="{{{addurl}}}">
+                        <div class="card">
+                            <h5 class="card-title text-center pt-3">{{linklabel}}</h5>
+                            <div class="card-body">
+                                <p>{{adddescription}}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {{/tools}}
+        </div>
+    {{/body}}
+{{/core/modal}}

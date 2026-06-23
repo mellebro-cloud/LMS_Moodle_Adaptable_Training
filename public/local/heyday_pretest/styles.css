@@ -1,0 +1,651 @@
+/* =========================================================
+   Heyday Pretest Custom Shell
+   Moodle 5.0.6+ / Adaptable 500.2.6
+   File: local/heyday_pretest/styles.css
+   ========================================================= */
+
+
+/* =========================================================
+   1. Moodle / Adaptable page cleanup
+   Keep the left course index/sidebar.
+   Hide only extra Moodle headings, breadcrumbs, blocks, and bottom activity nav.
+   ========================================================= */
+
+   body.heyday-pretest-shell,
+   body.path-local-heyday_pretest,
+   body.path-local-heyday-pretest {
+       background: #f5f6f7 !important;
+   }
+   
+   /* Hide Moodle page header and breadcrumb above the custom Pretest card */
+   body.heyday-pretest-shell #page-header,
+   body.heyday-pretest-shell .page-header-headings,
+   body.heyday-pretest-shell #page-navbar,
+   body.heyday-pretest-shell .breadcrumb,
+   body.heyday-pretest-shell .breadcrumb-nav,
+   body.heyday-pretest-shell .secondary-navigation,
+   body.heyday-pretest-shell .activity-header,
+   body.heyday-pretest-shell #region-main > h1:first-child,
+   body.heyday-pretest-shell #region-main > h2:first-child,
+   body.heyday-pretest-shell #region-main > .box.generalbox:first-child,
+   
+   body.path-local-heyday_pretest #page-header,
+   body.path-local-heyday_pretest .page-header-headings,
+   body.path-local-heyday_pretest #page-navbar,
+   body.path-local-heyday_pretest .breadcrumb,
+   body.path-local-heyday_pretest .breadcrumb-nav,
+   body.path-local-heyday_pretest .secondary-navigation,
+   body.path-local-heyday_pretest .activity-header,
+   body.path-local-heyday_pretest #region-main > h1:first-child,
+   body.path-local-heyday_pretest #region-main > h2:first-child,
+   body.path-local-heyday_pretest #region-main > .box.generalbox:first-child,
+   
+   body.path-local-heyday-pretest #page-header,
+   body.path-local-heyday-pretest .page-header-headings,
+   body.path-local-heyday-pretest #page-navbar,
+   body.path-local-heyday-pretest .breadcrumb,
+   body.path-local-heyday-pretest .breadcrumb-nav,
+   body.path-local-heyday-pretest .secondary-navigation,
+   body.path-local-heyday-pretest .activity-header,
+   body.path-local-heyday-pretest #region-main > h1:first-child,
+   body.path-local-heyday-pretest #region-main > h2:first-child,
+   body.path-local-heyday-pretest #region-main > .box.generalbox:first-child {
+       display: none !important;
+   }
+   
+   /* Hide Moodle default bottom Previous / Next / Jump to activity navigation */
+   body.heyday-pretest-shell .activity-navigation,
+   body.heyday-pretest-shell .moodle-activity-navigation,
+   body.heyday-pretest-shell .prevnext,
+   body.heyday-pretest-shell .activityprev,
+   body.heyday-pretest-shell .activitynext,
+   body.heyday-pretest-shell .activity-nav,
+   body.heyday-pretest-shell .navguide,
+   body.heyday-pretest-shell .urlselect,
+   body.heyday-pretest-shell .jumpmenu,
+   body.heyday-pretest-shell select[name="jump"],
+   body.heyday-pretest-shell #prev-activity-link,
+   body.heyday-pretest-shell #next-activity-link,
+   body.heyday-pretest-shell #jump-to-activity,
+   
+   body.path-local-heyday_pretest .activity-navigation,
+   body.path-local-heyday_pretest .moodle-activity-navigation,
+   body.path-local-heyday_pretest .prevnext,
+   body.path-local-heyday_pretest .activityprev,
+   body.path-local-heyday_pretest .activitynext,
+   body.path-local-heyday_pretest .activity-nav,
+   body.path-local-heyday_pretest .navguide,
+   body.path-local-heyday_pretest .urlselect,
+   body.path-local-heyday_pretest .jumpmenu,
+   body.path-local-heyday_pretest select[name="jump"],
+   body.path-local-heyday_pretest #prev-activity-link,
+   body.path-local-heyday_pretest #next-activity-link,
+   body.path-local-heyday_pretest #jump-to-activity,
+   
+   body.path-local-heyday-pretest .activity-navigation,
+   body.path-local-heyday-pretest .moodle-activity-navigation,
+   body.path-local-heyday-pretest .prevnext,
+   body.path-local-heyday-pretest .activityprev,
+   body.path-local-heyday-pretest .activitynext,
+   body.path-local-heyday-pretest .activity-nav,
+   body.path-local-heyday-pretest .navguide,
+   body.path-local-heyday-pretest .urlselect,
+   body.path-local-heyday-pretest .jumpmenu,
+   body.path-local-heyday-pretest select[name="jump"],
+   body.path-local-heyday-pretest #prev-activity-link,
+   body.path-local-heyday-pretest #next-activity-link,
+   body.path-local-heyday-pretest #jump-to-activity {
+       display: none !important;
+   }
+   
+   /* Hide right block region and red block editing placeholders */
+   body.heyday-pretest-shell .block-region,
+   body.heyday-pretest-shell .block-add,
+   body.heyday-pretest-shell .block-controls,
+   body.heyday-pretest-shell [data-region="blocks-column"],
+   body.heyday-pretest-shell .block-region-side-post,
+   body.heyday-pretest-shell .block-region-side-pre,
+   body.heyday-pretest-shell #block-region-side-post,
+   body.heyday-pretest-shell #block-region-side-pre,
+   
+   body.path-local-heyday_pretest .block-region,
+   body.path-local-heyday_pretest .block-add,
+   body.path-local-heyday_pretest .block-controls,
+   body.path-local-heyday_pretest [data-region="blocks-column"],
+   body.path-local-heyday_pretest .block-region-side-post,
+   body.path-local-heyday_pretest .block-region-side-pre,
+   body.path-local-heyday_pretest #block-region-side-post,
+   body.path-local-heyday_pretest #block-region-side-pre,
+   
+   body.path-local-heyday-pretest .block-region,
+   body.path-local-heyday-pretest .block-add,
+   body.path-local-heyday-pretest .block-controls,
+   body.path-local-heyday-pretest [data-region="blocks-column"],
+   body.path-local-heyday-pretest .block-region-side-post,
+   body.path-local-heyday-pretest .block-region-side-pre,
+   body.path-local-heyday-pretest #block-region-side-post,
+   body.path-local-heyday-pretest #block-region-side-pre {
+       display: none !important;
+   }
+   
+   /* Main content region */
+   body.heyday-pretest-shell #region-main,
+   body.path-local-heyday_pretest #region-main,
+   body.path-local-heyday-pretest #region-main {
+       background: transparent !important;
+       border: 0 !important;
+       box-shadow: none !important;
+       padding-top: 24px !important;
+       padding-bottom: 40px !important;
+   }
+   
+   
+   /* =========================================================
+      2. Main Pretest page shell
+      ========================================================= */
+   
+   .hd-pretest-page {
+       max-width: 960px;
+       margin: 0 auto 80px auto;
+       padding: 0 16px 60px 16px;
+       color: #111;
+       font-size: 15px;
+       line-height: 1.35;
+   }
+   
+   .hd-pretest-card {
+       max-width: 920px;
+       min-height: 360px;
+       margin: 0 auto;
+       padding: 24px 34px 34px 34px;
+       background: #fff;
+       border: 1px solid #d6dde2;
+       border-radius: 2px;
+       box-shadow: none;
+       position: relative;
+   }
+   
+   
+   /* =========================================================
+      3. Top icons: back, bookmark, print, fullscreen
+      ========================================================= */
+   
+   .hd-pretest-topbar {
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       min-height: 34px;
+       margin-bottom: 4px;
+   }
+   
+   .hd-pretest-topbar-left,
+   .hd-pretest-topbar-right {
+       display: flex;
+       align-items: center;
+       gap: 18px;
+   }
+   
+   .hd-icon-btn {
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       width: 26px;
+       height: 26px;
+       padding: 0;
+       border: 0;
+       background: transparent;
+       color: #0073aa;
+       font-size: 21px;
+       line-height: 1;
+       cursor: pointer;
+       text-decoration: none;
+   }
+   
+   .hd-icon-btn i {
+       line-height: 1;
+   }
+   
+   .hd-icon-btn:hover,
+   .hd-icon-btn:focus {
+       color: #005d8c;
+       background: transparent;
+       text-decoration: none;
+       outline: none;
+   }
+   
+   .hd-bookmark-btn.is-active {
+       color: #0073aa;
+   }
+   
+   
+   /* =========================================================
+      4. Print dropdown
+      ========================================================= */
+   
+   .hd-print-wrapper {
+       position: relative;
+   }
+   
+   .hd-print-menu {
+       display: none;
+       position: absolute;
+       top: 34px;
+       right: 0;
+       min-width: 220px;
+       background: #fff;
+       border: 1px solid #d6dde2;
+       border-radius: 2px;
+       box-shadow: 0 3px 8px rgba(0, 0, 0, .14);
+       z-index: 9999;
+   }
+   
+   .hd-print-menu.is-open {
+       display: block;
+   }
+   
+   .hd-print-menu button {
+       display: block;
+       width: 100%;
+       padding: 12px 14px;
+       border: 0;
+       background: #fff;
+       color: #333;
+       font-size: 14px;
+       text-align: left;
+       cursor: pointer;
+   }
+   
+   .hd-print-menu button:hover,
+   .hd-print-menu button:focus {
+       background: #f2f6f8;
+       outline: none;
+   }
+   
+   
+   /* =========================================================
+      5. Course title and Pretest title
+      ========================================================= */
+   
+   .hd-pretest-course-title {
+       margin-top: 0;
+       margin-bottom: 14px;
+       color: #5b6f7a;
+       font-size: 15px;
+       font-weight: 400;
+       text-align: center;
+   }
+   
+   .hd-pretest-title {
+       margin: 0 0 28px 0;
+       color: #111;
+       font-size: 28px;
+       font-weight: 400;
+       line-height: 1.2;
+       text-align: center;
+   }
+   
+   
+   /* =========================================================
+      6. Pretest instructions
+      ========================================================= */
+   
+   .hd-pretest-body {
+       margin-top: 0;
+   }
+   
+   .hd-pretest-body p {
+       margin: 0 0 18px 0;
+       color: #111;
+       font-size: 15px;
+       line-height: 1.35;
+   }
+   
+   .hd-pretest-rules {
+       margin: 22px 0 28px 0;
+       padding: 12px 18px;
+       background: #fff;
+       border: 1px solid #d9dde1;
+       border-radius: 3px;
+   }
+   
+   .hd-pretest-rules ul {
+       margin-top: 0;
+       margin-bottom: 0;
+       padding-left: 20px;
+   }
+   
+   .hd-pretest-rules li {
+       margin-top: 2px;
+       margin-bottom: 2px;
+   }
+   
+   
+   /* =========================================================
+      7. Skip It / Start / Resume button row
+      ========================================================= */
+   
+   .hd-pretest-actions {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       gap: 26px;
+       margin-top: 8px;
+   }
+   
+   .hd-skip-link {
+       color: #006fae;
+       font-size: 15px;
+       text-decoration: underline;
+   }
+   
+   .hd-skip-link:hover,
+   .hd-skip-link:focus {
+       color: #004f7a;
+       text-decoration: underline;
+   }
+   
+   .hd-primary-btn {
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       min-width: 92px;
+       min-height: 42px;
+       padding: 8px 18px;
+       background: #43852b;
+       border: 0;
+       border-radius: 4px;
+       color: #fff !important;
+       font-size: 18px;
+       font-weight: 600;
+       line-height: 1.2;
+       text-align: center;
+       text-decoration: none !important;
+       cursor: pointer;
+   }
+   
+   .hd-primary-btn:hover,
+   .hd-primary-btn:focus {
+       background: #356c22;
+       color: #fff !important;
+       text-decoration: none !important;
+       outline: none;
+   }
+   
+   
+   /* =========================================================
+      8. End of Pretest separator
+      ========================================================= */
+   
+   .hd-end-separator {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       gap: 10px;
+       width: 260px;
+       margin: 54px auto 28px auto;
+       color: #333;
+       font-size: 15px;
+       font-weight: 400;
+   }
+   
+   .hd-end-separator span {
+       display: block;
+       width: 64px;
+       height: 1px;
+       background: #aeb7bd;
+   }
+   
+   .hd-end-separator strong {
+       font-weight: 400;
+       white-space: nowrap;
+   }
+   
+   
+   /* =========================================================
+      9. Next Up card
+      The entire card is clickable.
+      ========================================================= */
+   
+   .hd-next-card {
+       display: flex;
+       width: 340px;
+       min-height: 72px;
+       margin: 0 auto;
+       color: #111;
+       text-decoration: none !important;
+   }
+   
+   .hd-next-label {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       width: 88px;
+       min-width: 88px;
+       background: #0879a8;
+       color: #fff;
+       font-size: 16px;
+       font-weight: 600;
+       text-align: center;
+   }
+   
+   .hd-next-content {
+       display: flex;
+       flex: 1;
+       flex-direction: column;
+       justify-content: center;
+       padding: 8px 12px;
+       background: #fff;
+       border: 1px solid #d6dde2;
+       border-left: 0;
+   }
+   
+   .hd-next-section {
+       margin-bottom: 2px;
+       color: #8a8a8a;
+       font-size: 13px;
+       line-height: 1.2;
+   }
+   
+   .hd-next-title {
+       color: #006fae;
+       font-size: 15px;
+       line-height: 1.2;
+       text-decoration: underline;
+   }
+   
+   .hd-next-type {
+       margin-top: 2px;
+       color: #333;
+       font-size: 13px;
+       line-height: 1.2;
+   }
+   
+   .hd-next-card:hover,
+   .hd-next-card:focus {
+       text-decoration: none !important;
+   }
+   
+   .hd-next-card:hover .hd-next-title,
+   .hd-next-card:focus .hd-next-title {
+       color: #004f7a;
+       text-decoration: underline;
+   }
+   
+   .hd-next-card:hover .hd-next-label,
+   .hd-next-card:focus .hd-next-label {
+       background: #006f99;
+   }
+   
+   
+   /* =========================================================
+      10. Fullscreen mode
+      ========================================================= */
+   
+   .hd-pretest-page:fullscreen {
+       width: 100%;
+       max-width: 100%;
+       min-height: 100vh;
+       padding-top: 40px;
+       background: #f5f6f7;
+       overflow: auto;
+   }
+   
+   .hd-pretest-page:-webkit-full-screen {
+       width: 100%;
+       max-width: 100%;
+       min-height: 100vh;
+       padding-top: 40px;
+       background: #f5f6f7;
+       overflow: auto;
+   }
+   
+   .hd-pretest-page:fullscreen .hd-pretest-card,
+   .hd-pretest-page:-webkit-full-screen .hd-pretest-card {
+       max-width: 920px;
+   }
+   
+   
+   /* =========================================================
+      11. Print mode
+      ========================================================= */
+   
+   @media print {
+       body.heyday-pretest-shell *,
+       body.path-local-heyday_pretest *,
+       body.path-local-heyday-pretest * {
+           visibility: hidden;
+       }
+   
+       body.heyday-pretest-shell .hd-pretest-page,
+       body.heyday-pretest-shell .hd-pretest-page *,
+       body.path-local-heyday_pretest .hd-pretest-page,
+       body.path-local-heyday_pretest .hd-pretest-page *,
+       body.path-local-heyday-pretest .hd-pretest-page,
+       body.path-local-heyday-pretest .hd-pretest-page * {
+           visibility: visible;
+       }
+   
+       body.heyday-pretest-shell .hd-pretest-page,
+       body.path-local-heyday_pretest .hd-pretest-page,
+       body.path-local-heyday-pretest .hd-pretest-page {
+           position: absolute;
+           top: 0;
+           left: 0;
+           width: 100%;
+           max-width: 100%;
+           margin: 0;
+           padding: 0;
+           background: #fff;
+       }
+   
+       .hd-pretest-card {
+           max-width: 100%;
+           border: 0;
+           padding: 0;
+           box-shadow: none;
+       }
+   
+       .hd-pretest-topbar,
+       .hd-pretest-actions,
+       .hd-end-separator,
+       .hd-next-card,
+       .hd-print-menu {
+           display: none !important;
+       }
+   
+       .hd-pretest-title {
+           margin-top: 20px;
+       }
+   }
+   
+   
+   /* =========================================================
+      12. Mobile responsive
+      ========================================================= */
+   
+   @media (max-width: 768px) {
+       .hd-pretest-page {
+           max-width: 100%;
+           padding: 0 10px 36px 10px;
+       }
+   
+       .hd-pretest-card {
+           padding: 20px 18px 28px 18px;
+       }
+   
+       .hd-pretest-title {
+           font-size: 24px;
+       }
+   
+       .hd-pretest-actions {
+           gap: 18px;
+       }
+   
+       .hd-next-card {
+           width: 100%;
+           max-width: 340px;
+       }
+   }
+   
+   @media (max-width: 480px) {
+       .hd-pretest-topbar-left,
+       .hd-pretest-topbar-right {
+           gap: 12px;
+       }
+   
+       .hd-pretest-card {
+           padding: 18px 14px 24px 14px;
+       }
+   
+       .hd-pretest-body p {
+           font-size: 14px;
+       }
+   
+       .hd-primary-btn {
+           min-width: 84px;
+           font-size: 16px;
+       }
+   
+       .hd-next-label {
+           width: 78px;
+           min-width: 78px;
+           font-size: 14px;
+       }
+   
+       .hd-next-title {
+           font-size: 14px;
+       }
+   }
+
+   /* =========================================================
+   Force-hide Adaptable/Moodle extra outside Pretest title
+   ========================================================= */
+
+body#page-local-heyday-pretest-view .page-header-headings,
+body#page-local-heyday-pretest-view .page-context-header,
+body#page-local-heyday-pretest-view #page-header,
+body#page-local-heyday-pretest-view #page-navbar,
+body#page-local-heyday-pretest-view .breadcrumb,
+body#page-local-heyday-pretest-view .breadcrumb-nav,
+body#page-local-heyday-pretest-view .secondary-navigation,
+body#page-local-heyday-pretest-view .activity-header {
+    display: none !important;
+}
+
+/* Hide only Moodle's outside heading, not the custom card heading */
+body#page-local-heyday-pretest-view #region-main > h1:not(.hd-pretest-title),
+body#page-local-heyday-pretest-view #region-main > h2:not(.hd-pretest-title),
+body#page-local-heyday-pretest-view #region-main > div:not(.hd-pretest-page) > h1,
+body#page-local-heyday-pretest-view #region-main > div:not(.hd-pretest-page) > h2 {
+    display: none !important;
+}
+
+/* Hide Moodle footer bar shown at bottom: Documentation / Get mobile app */
+body#page-local-heyday-pretest-view #page-footer,
+body#page-local-heyday-pretest-view footer,
+body#page-local-heyday-pretest-view .homelink,
+body#page-local-heyday-pretest-view .helplink,
+body#page-local-heyday-pretest-view .footer-popover,
+body#page-local-heyday-pretest-view .footer-content-popover {
+    display: none !important;
+}

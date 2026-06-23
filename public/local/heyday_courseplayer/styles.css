@@ -1,0 +1,4598 @@
+/*
+ * Heyday ed2go-style master course player.
+ * Scope is intentionally limited to body.local-heyday-courseplayer.
+ */
+
+.local-heyday-courseplayer {
+    --heyday-topbar-bg: #050505;
+    --heyday-accent: #0073a8;
+    --heyday-page-bg: #f4f5f7;
+    --heyday-card-bg: #ffffff;
+    --heyday-sidebar-width: 424px;
+    --heyday-content-max: 980px;
+    --heyday-border: #d9dee4;
+    --heyday-soft-border: #e8ebef;
+    --heyday-text: #1f2933;
+    --heyday-muted: #6b7785;
+    --heyday-sidebar-bg: #ffffff;
+    --heyday-subitem-bg: #eef5fa;
+    --heyday-subitem-current-bg: #e1f0f8;
+    --heyday-complete: #54a221;
+    --heyday-lock: #7b8794;
+    background: var(--heyday-page-bg);
+}
+
+.local-heyday-courseplayer #page,
+.local-heyday-courseplayer #page.drawers,
+.local-heyday-courseplayer #page-wrapper,
+.local-heyday-courseplayer #region-main,
+.local-heyday-courseplayer div[role="main"] {
+    background: var(--heyday-page-bg);
+}
+
+.local-heyday-courseplayer #region-main,
+.local-heyday-courseplayer .region-main,
+.local-heyday-courseplayer [role="main"] {
+    border: 0;
+    padding: 0;
+}
+
+.local-heyday-courseplayer .secondary-navigation,
+.local-heyday-courseplayer .breadcrumb,
+.local-heyday-courseplayer #page-header,
+.local-heyday-courseplayer .activity-header,
+.local-heyday-courseplayer .tertiary-navigation {
+    display: none !important;
+}
+
+.heyday-ed2go-topbar {
+    height: 42px;
+    background: var(--heyday-topbar-bg);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    box-sizing: border-box;
+    margin-left: calc(-1 * var(--bs-gutter-x, 0px));
+    margin-right: calc(-1 * var(--bs-gutter-x, 0px));
+    position: sticky;
+    top: 0;
+    z-index: 40;
+}
+
+.heyday-ed2go-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+
+.heyday-topbar-logo {
+    max-height: 26px;
+    max-width: 120px;
+    object-fit: contain;
+}
+
+.heyday-ed2go-topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.heyday-ed2go-topbar a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.heyday-topbar-separator {
+    width: 1px;
+    height: 22px;
+    background: rgba(255,255,255,.34);
+}
+
+.heyday-courseplayer-page {
+    background: var(--heyday-page-bg);
+    color: var(--heyday-text);
+    min-height: calc(100vh - 42px);
+    margin-left: calc(-1 * var(--bs-gutter-x, 0px));
+    margin-right: calc(-1 * var(--bs-gutter-x, 0px));
+}
+
+.heyday-courseplayer-shell {
+    display: grid;
+    grid-template-columns: var(--heyday-sidebar-width) minmax(0, 1fr);
+    align-items: start;
+    min-height: calc(100vh - 42px);
+}
+
+.heyday-courseplayer-sidebar {
+    position: sticky;
+    top: 42px;
+    height: calc(100vh - 42px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--heyday-sidebar-bg);
+    border-right: 1px solid var(--heyday-border);
+    box-shadow: 2px 0 6px rgba(15, 23, 42, .08);
+    z-index: 25;
+    scrollbar-width: thin;
+}
+
+.heyday-courseplayer-sidebar::-webkit-scrollbar {
+    width: 10px;
+}
+
+.heyday-courseplayer-sidebar::-webkit-scrollbar-thumb {
+    background: #9aa4af;
+    border-radius: 10px;
+}
+
+.heyday-main-menu {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--heyday-soft-border);
+}
+
+.heyday-main-menu a,
+.heyday-main-menu > span,
+.heyday-final-exam-link {
+    min-height: 43px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--heyday-accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--heyday-soft-border);
+    font-size: 15px;
+    line-height: 1.25;
+    position: relative;
+}
+
+.heyday-main-menu a:hover,
+.heyday-lesson-group-title:hover,
+.heyday-lesson-item:hover,
+.heyday-final-exam-link:hover {
+    color: var(--heyday-accent);
+    text-decoration: underline;
+}
+
+.heyday-main-menu a.is-current,
+.heyday-after-lessons-menu a.is-current {
+    font-weight: 700;
+    background: #f7fbfe;
+}
+
+.heyday-main-menu a.is-current::before,
+.heyday-after-lessons-menu a.is-current::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--heyday-accent);
+}
+
+.heyday-lessons-label {
+    padding: 11px 18px 7px;
+    color: #5d6977;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.heyday-lesson-list {
+    padding: 0 0 5px;
+}
+
+.heyday-lesson-group {
+    border-bottom: 1px solid var(--heyday-soft-border);
+}
+
+.heyday-lesson-group > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.heyday-lesson-group > summary::-webkit-details-marker {
+    display: none;
+}
+
+.heyday-group-summary-inner {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 12px 9px 18px;
+}
+
+.heyday-lesson-group-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--heyday-accent);
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.heyday-lesson-group.is-active .heyday-lesson-group-title {
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.heyday-lesson-group.is-locked .heyday-lesson-group-title,
+.heyday-lesson-group-title.is-disabled {
+    color: var(--heyday-lock);
+    cursor: default;
+    text-decoration: none;
+}
+
+.heyday-group-status,
+.heyday-status-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    min-height: 18px;
+    font-size: 13px;
+    color: var(--heyday-muted);
+}
+
+.heyday-group-status.completed,
+.heyday-status-icon.completed {
+    color: var(--heyday-complete);
+    font-weight: 700;
+}
+
+.heyday-group-status.locked,
+.heyday-status-icon.locked {
+    color: var(--heyday-lock);
+}
+
+.heyday-progress-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 4px solid #d9e6ef;
+    border-left-color: #49a2d5;
+    background: #ffffff;
+}
+
+.heyday-mini-dot {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 50%;
+    background: #4aa4d8;
+}
+
+.heyday-release-note {
+    display: block;
+    color: #687585;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.35;
+    padding: 0 16px 8px 18px;
+}
+
+.heyday-lesson-items {
+    border-top: 1px solid #d4dde6;
+    border-right: 4px solid var(--heyday-accent);
+    background: var(--heyday-subitem-bg);
+}
+
+.heyday-subsection-title {
+    min-height: 36px;
+    padding: 9px 14px 8px 28px;
+    color: var(--heyday-accent);
+    font-size: 14px;
+    border-bottom: 1px solid #d7e1e9;
+    background: #e3f0f8;
+    line-height: 1.25;
+}
+
+.heyday-subsection-title.depth-1,
+.heyday-subsection-title.depth-2,
+.heyday-subsection-title.depth-3 {
+    padding-left: 42px;
+}
+
+.heyday-lesson-item {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) 26px;
+    align-items: start;
+    gap: 4px;
+    min-height: 34px;
+    padding: 8px 6px 8px 18px;
+    color: var(--heyday-accent);
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.25;
+    border-bottom: 1px solid #d7e1e9;
+    position: relative;
+    background: #f4f8fb;
+}
+
+.heyday-lesson-item.depth-1 { padding-left: 30px; }
+.heyday-lesson-item.depth-2 { padding-left: 42px; }
+.heyday-lesson-item.depth-3 { padding-left: 54px; }
+
+.heyday-lesson-item.is-lesson-page {
+    background: #f7fbff;
+}
+
+.heyday-lesson-item.is-current {
+    background: var(--heyday-subitem-current-bg);
+    font-weight: 700;
+}
+
+.heyday-lesson-item.is-current .heyday-current-arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid var(--heyday-accent);
+}
+
+.heyday-lesson-item.is-locked {
+    color: var(--heyday-lock);
+    background: #fafafa;
+    cursor: default;
+}
+
+.heyday-lesson-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.heyday-lesson-text small {
+    color: var(--heyday-muted);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.heyday-after-lessons-menu {
+    margin-top: 0;
+    padding-bottom: 20px;
+}
+
+.heyday-final-exam-link.is-locked {
+    color: var(--heyday-lock);
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 26px;
+    gap: 4px;
+}
+
+.heyday-final-exam-link.is-missing {
+    color: var(--heyday-lock);
+}
+
+.heyday-courseplayer-main {
+    min-width: 0;
+    padding: 26px 32px 36px;
+}
+
+.heyday-player-card {
+    width: min(100%, var(--heyday-content-max));
+    min-height: 600px;
+    margin: 0 auto;
+    background: var(--heyday-card-bg);
+    border: 1px solid var(--heyday-border);
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    padding: 26px 40px 42px;
+}
+
+.heyday-player-topbar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: var(--heyday-accent);
+    min-height: 32px;
+    margin-bottom: 10px;
+}
+
+.heyday-back-link,
+.heyday-bookmark,
+.heyday-icon-button {
+    color: var(--heyday-accent);
+    font-size: 22px;
+    line-height: 1;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.heyday-topbar-spacer {
+    flex: 1 1 auto;
+}
+
+.heyday-player-heading {
+    text-align: center;
+    margin: 0 auto 42px;
+}
+
+.heyday-course-kicker,
+.heyday-lesson-kicker {
+    font-size: 13px;
+    color: #657386;
+    line-height: 1.35;
+}
+
+.heyday-player-heading h1 {
+    margin: 18px 0 0;
+    font-size: 28px;
+    font-weight: 400;
+    color: #111827;
+    line-height: 1.25;
+}
+
+.heyday-content-body {
+    max-width: 760px;
+    margin: 0 auto;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #293442;
+}
+
+.heyday-content-body h2,
+.heyday-content-body h3,
+.heyday-content-body h4 {
+    color: #1f2933;
+    line-height: 1.3;
+    margin-top: 1.5em;
+}
+
+.heyday-content-body p {
+    margin: 0 0 1em;
+}
+
+.heyday-content-body img,
+.heyday-inline-lesson-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto;
+    border-radius: 2px;
+}
+
+.heyday-content-body ul,
+.heyday-content-body ol {
+    padding-left: 1.6rem;
+}
+
+.heyday-activity-fallback,
+.heyday-empty-state,
+.heyday-intro-card,
+.heyday-locked-card,
+.heyday-info-card,
+.heyday-dashboard-card,
+.heyday-list-card {
+    background: #ffffff;
+    border: 1px solid var(--heyday-soft-border);
+    border-radius: 4px;
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+}
+
+.heyday-activity-type {
+    display: inline-flex;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #eef6fb;
+    color: var(--heyday-accent);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.heyday-primary-button,
+.heyday-secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 9px 16px;
+    border-radius: 3px;
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid var(--heyday-accent);
+}
+
+.heyday-primary-button {
+    color: #ffffff !important;
+    background: var(--heyday-accent);
+}
+
+.heyday-secondary-button {
+    color: var(--heyday-accent) !important;
+    background: #ffffff;
+}
+
+.heyday-primary-button:hover,
+.heyday-secondary-button:hover {
+    text-decoration: none;
+    filter: brightness(.96);
+}
+
+.heyday-locked-card {
+    text-align: center;
+    max-width: 520px;
+    margin: 20px auto;
+    background: #fbfbfb;
+}
+
+.heyday-locked-icon {
+    font-size: 34px;
+    margin-bottom: 12px;
+}
+
+.heyday-completion-row,
+.heyday-nextup-row {
+    width: min(100%, var(--heyday-content-max));
+    margin: 20px auto 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.heyday-completion-check {
+    width: 50px;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--heyday-complete);
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.heyday-nextup-row {
+    background: #ffffff;
+    border: 1px solid var(--heyday-soft-border);
+    border-radius: 4px;
+    padding: 12px 16px;
+}
+
+.heyday-nextup-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--heyday-muted);
+    font-weight: 700;
+}
+
+.heyday-nextup-row a {
+    color: var(--heyday-accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.heyday-nextup-row a span {
+    display: block;
+    color: var(--heyday-muted);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.heyday-dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(220px, .8fr);
+    gap: 18px;
+}
+
+.heyday-dashboard-main {
+    grid-row: span 2;
+}
+
+.heyday-dashboard-main h2 {
+    margin-top: 0;
+}
+
+.heyday-course-code {
+    display: inline-flex;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #f0f4f8;
+    color: #4b5563;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.heyday-course-summary {
+    margin-bottom: 18px;
+}
+
+.heyday-muted {
+    color: var(--heyday-muted);
+}
+
+.heyday-score-circle {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    border: 9px solid #d7ecf8;
+    color: var(--heyday-accent);
+    font-size: 24px;
+    font-weight: 800;
+    background: #ffffff;
+}
+
+.heyday-progress-card {
+    text-align: center;
+}
+
+.heyday-progress-card h3 {
+    margin-top: 0;
+}
+
+.heyday-quicklinks {
+    display: grid;
+    gap: 8px;
+}
+
+.heyday-quicklinks a,
+.heyday-lesson-summary-list a {
+    color: var(--heyday-accent);
+    text-decoration: none;
+}
+
+.heyday-quicklinks a:hover,
+.heyday-lesson-summary-list a:hover {
+    text-decoration: underline;
+}
+
+.heyday-lesson-summary-list {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.heyday-card-list,
+.heyday-gettingstarted-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.heyday-gettingstarted-grid {
+    grid-template-columns: 1fr;
+}
+
+.heyday-list-card h3,
+.heyday-info-card h2 {
+    margin-top: 0;
+}
+
+.heyday-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border: 1px solid var(--heyday-soft-border);
+}
+
+.heyday-table th,
+.heyday-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--heyday-soft-border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.heyday-table th {
+    background: #f7fafc;
+    color: #374151;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.heyday-player-footer {
+    width: min(100%, var(--heyday-content-max));
+    margin: 36px auto 0;
+    padding: 20px 0 4px;
+    color: var(--heyday-muted);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+
+.heyday-player-footer a {
+    color: var(--heyday-accent);
+    text-decoration: none;
+}
+
+.heyday-player-footer > span {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #aab2bd;
+}
+
+@media (max-width: 1100px) {
+    .heyday-courseplayer-shell {
+        grid-template-columns: 310px minmax(0, 1fr);
+    }
+
+    .heyday-courseplayer-main {
+        padding: 20px;
+    }
+
+    .heyday-player-card {
+        padding: 22px;
+    }
+}
+
+@media (max-width: 860px) {
+    .heyday-courseplayer-shell {
+        display: block;
+    }
+
+    .heyday-courseplayer-sidebar {
+        position: relative;
+        top: 0;
+        width: 100%;
+        height: auto;
+        max-height: 56vh;
+        border-right: 0;
+        border-bottom: 1px solid var(--heyday-border);
+    }
+
+    .heyday-ed2go-topbar {
+        position: relative;
+        top: auto;
+    }
+
+    .heyday-ed2go-brand span {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .heyday-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .heyday-dashboard-main {
+        grid-row: auto;
+    }
+}
+
+@media print {
+    .heyday-ed2go-topbar,
+    .heyday-courseplayer-sidebar,
+    .heyday-player-topbar,
+    .heyday-completion-row,
+    .heyday-nextup-row,
+    .heyday-player-footer {
+        display: none !important;
+    }
+
+    .heyday-courseplayer-shell {
+        display: block;
+    }
+
+    .heyday-courseplayer-main {
+        padding: 0;
+    }
+
+    .heyday-player-card {
+        box-shadow: none;
+        border: 0;
+        max-width: none;
+        padding: 0;
+    }
+}
+
+/* ===========================================================
+   2026060803 - Moodle + Adaptable shell cleanup and ed2go-style Home dashboard
+   Scope: local_heyday_courseplayer only
+   =========================================================== */
+
+/* Hide Moodle drawer/course-index clutter only inside the master player page. */
+body.local-heyday-courseplayer .drawer-toggles,
+body.local-heyday-courseplayer .drawer-left,
+body.local-heyday-courseplayer .drawer-right,
+body.local-heyday-courseplayer .drawer,
+body.local-heyday-courseplayer #theme_boost-drawers-courseindex,
+body.local-heyday-courseplayer #theme_boost-drawers-primary,
+body.local-heyday-courseplayer #theme_boost-drawers-blocks,
+body.local-heyday-courseplayer [data-region="drawer"],
+body.local-heyday-courseplayer [data-region="drawer-toggle"],
+body.local-heyday-courseplayer [data-region="courseindex"],
+body.local-heyday-courseplayer .courseindex,
+body.local-heyday-courseplayer #courseindex,
+body.local-heyday-courseplayer #block-region-side-pre,
+body.local-heyday-courseplayer #block-region-side-post,
+body.local-heyday-courseplayer [data-region="blocks-column"] {
+    display: none !important;
+}
+
+/* Hide the normal Moodle/Adaptable navbar on this player page so the black ed2go bar is the learner header. */
+body.local-heyday-courseplayer nav.navbar,
+body.local-heyday-courseplayer .navbar.fixed-top,
+body.local-heyday-courseplayer #page-header,
+body.local-heyday-courseplayer .secondary-navigation,
+body.local-heyday-courseplayer .breadcrumb,
+body.local-heyday-courseplayer .activity-header,
+body.local-heyday-courseplayer .tertiary-navigation {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer,
+body.local-heyday-courseplayer #page,
+body.local-heyday-courseplayer #page.drawers,
+body.local-heyday-courseplayer #page-wrapper,
+body.local-heyday-courseplayer.drawer-open-left #page,
+body.local-heyday-courseplayer.drawer-open-right #page,
+body.local-heyday-courseplayer.drawer-open-index #page {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--heyday-page-bg) !important;
+    max-width: none !important;
+    width: 100% !important;
+    overflow-x: hidden;
+}
+
+body.local-heyday-courseplayer #topofscroll,
+body.local-heyday-courseplayer #page-content,
+body.local-heyday-courseplayer #region-main-box,
+body.local-heyday-courseplayer #region-main,
+body.local-heyday-courseplayer .region-main,
+body.local-heyday-courseplayer .main-inner,
+body.local-heyday-courseplayer div[role="main"],
+body.local-heyday-courseplayer #page .container,
+body.local-heyday-courseplayer #page .container-fluid {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: var(--heyday-page-bg) !important;
+}
+
+/* Force the player to use browser width, not Moodle's inner course column. */
+body.local-heyday-courseplayer .heyday-ed2go-topbar,
+body.local-heyday-courseplayer .heyday-courseplayer-page {
+    width: 100vw !important;
+    max-width: none !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+}
+
+/* Home page should look like an ed2go dashboard, not a lesson-reading card. */
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-home .heyday-courseplayer-main {
+    padding: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-home .heyday-player-card {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: calc(100vh - 42px);
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: var(--heyday-page-bg) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-home .heyday-player-topbar,
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-home .heyday-player-heading {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-home .heyday-content-body {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-home-dashboard {
+    min-height: calc(100vh - 42px);
+    background: var(--heyday-page-bg);
+}
+
+body.local-heyday-courseplayer .heyday-home-hero {
+    min-height: 145px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    padding: 22px 64px 22px 20px;
+    box-sizing: border-box;
+    background-color: #e9eef3;
+    background-image:
+        linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.45) 48%, rgba(244,247,250,.92) 78%, #f4f7fa 100%),
+        repeating-linear-gradient(135deg, #3f4750 0, #3f4750 8px, #343b44 8px, #343b44 16px);
+    background-size: cover;
+    background-position: center;
+    border-bottom: 1px solid #d7dce2;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, .12);
+}
+
+body.local-heyday-courseplayer .heyday-home-hero-title {
+    color: #ffffff;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .heyday-home-hero-title h2 {
+    margin: 0 0 8px;
+    color: #ffffff;
+    font-size: 27px;
+    font-weight: 500;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
+
+body.local-heyday-courseplayer .heyday-home-section-code {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
+
+body.local-heyday-courseplayer .heyday-home-meters {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 0 0 auto;
+}
+
+body.local-heyday-courseplayer .heyday-home-meter {
+    width: 106px;
+    height: 106px;
+    border-radius: 50%;
+    background: #f6f9fb;
+    display: grid;
+    place-items: center;
+    color: #26313d;
+    box-shadow: inset 0 0 0 1px rgba(115, 125, 135, .18);
+}
+
+body.local-heyday-courseplayer .heyday-home-meter-ring {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at center, #f8fbfd 58%, transparent 59%),
+        conic-gradient(#1e6db8 calc(var(--meter-value) * 1%), #d8e0e6 0);
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+
+body.local-heyday-courseplayer .heyday-home-meter-ring.is-score {
+    background:
+        radial-gradient(circle at center, #f8fbfd 58%, transparent 59%),
+        conic-gradient(#8aa1b5 calc(var(--meter-value) * 1%), #d8e0e6 0);
+}
+
+body.local-heyday-courseplayer .heyday-home-meter-ring span {
+    display: block;
+    transform: translateY(-10px);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-home-meter-label {
+    position: absolute;
+    transform: translateY(13px);
+    font-size: 14px;
+    line-height: 1.1;
+    text-align: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+body.local-heyday-courseplayer .heyday-home-content {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+}
+
+body.local-heyday-courseplayer .heyday-home-welcome {
+    margin: 0 0 24px;
+    font-size: 28px;
+    line-height: 1.25;
+    font-weight: 400;
+    color: #111827;
+}
+
+body.local-heyday-courseplayer .heyday-home-next-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 190px;
+    min-height: 168px;
+    background: #ffffff;
+    border: 1px solid #d9dee4;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .18);
+    overflow: hidden;
+}
+
+body.local-heyday-courseplayer .heyday-home-next-main {
+    padding: 48px 44px;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .heyday-home-next-main h3 {
+    margin: 0 0 28px;
+    font-size: 24px;
+    font-weight: 400;
+    color: #1f2933;
+}
+
+body.local-heyday-courseplayer .heyday-home-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #394452;
+    font-size: 14px;
+}
+
+body.local-heyday-courseplayer .heyday-home-progress-track {
+    width: 150px;
+    height: 7px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #d7d7d7;
+}
+
+body.local-heyday-courseplayer .heyday-home-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--heyday-accent);
+}
+
+body.local-heyday-courseplayer .heyday-home-next-action {
+    background: #137aa3;
+    color: #ffffff;
+    padding: 42px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    text-align: center;
+}
+
+body.local-heyday-courseplayer .heyday-home-next-label,
+body.local-heyday-courseplayer .heyday-home-next-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-home-next-name {
+    margin-bottom: 10px;
+}
+
+body.local-heyday-courseplayer .heyday-home-continue-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 43px;
+    padding: 9px 17px;
+    border-radius: 3px;
+    background: #ffffff;
+    color: #137aa3 !important;
+    border: 1px solid rgba(0,0,0,.12);
+    text-decoration: none !important;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+body.local-heyday-courseplayer .heyday-home-continue-button:hover {
+    background: #f2f7fb;
+    color: #0f6688 !important;
+}
+
+/* Keep non-Home pages as centered ed2go-style lesson cards. */
+body.local-heyday-courseplayer .heyday-courseplayer-page:not(.is-page-home) .heyday-courseplayer-main {
+    min-width: 0;
+    padding: 26px clamp(24px, 4vw, 64px) 40px !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page:not(.is-page-home) .heyday-player-card,
+body.local-heyday-courseplayer .heyday-courseplayer-page:not(.is-page-home) .heyday-completion-row,
+body.local-heyday-courseplayer .heyday-courseplayer-page:not(.is-page-home) .heyday-nextup-row,
+body.local-heyday-courseplayer .heyday-courseplayer-page:not(.is-page-home) .heyday-player-footer {
+    box-sizing: border-box;
+    width: min(100%, var(--heyday-content-max)) !important;
+}
+
+body.local-heyday-courseplayer .heyday-dashboard-card,
+body.local-heyday-courseplayer .heyday-info-card,
+body.local-heyday-courseplayer .heyday-list-card {
+    min-width: 0;
+    overflow-wrap: break-word;
+}
+
+@media (max-width: 980px) {
+    body.local-heyday-courseplayer .heyday-home-hero {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 24px;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-meters {
+        align-self: flex-end;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-next-card {
+        grid-template-columns: 1fr;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-next-action {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 760px) {
+    body.local-heyday-courseplayer .heyday-courseplayer-shell {
+        display: block;
+    }
+
+    body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
+        position: relative;
+        top: 0;
+        width: 100%;
+        height: auto;
+        max-height: 58vh;
+        border-right: 0;
+        border-bottom: 1px solid var(--heyday-border);
+    }
+
+    body.local-heyday-courseplayer .heyday-home-meters {
+        align-self: flex-start;
+        gap: 14px;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-meter {
+        width: 88px;
+        height: 88px;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-meter-ring {
+        width: 76px;
+        height: 76px;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-meter-ring span {
+        transform: translateY(-8px);
+        font-size: 13px;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-meter-label {
+        transform: translateY(12px);
+        font-size: 13px;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-content {
+        padding: 28px 16px 60px;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-next-main {
+        padding: 32px 24px;
+    }
+}
+
+
+
+/* =========================================================
+   2026060804 - ed2go-style Scores page inside master player
+   Scope: local_heyday_courseplayer only
+   ========================================================= */
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-scores .heyday-courseplayer-main {
+    padding: 26px 20px 60px !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-scores .heyday-player-card {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-scores .heyday-player-topbar,
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-scores .heyday-player-heading {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-scores .heyday-content-body {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-scores-wrapper {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body.local-heyday-courseplayer .heyday-scores-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 16px;
+}
+
+body.local-heyday-courseplayer .heyday-scores-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #222;
+}
+
+body.local-heyday-courseplayer .heyday-download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    border: 1px solid #0073a8 !important;
+    color: #006fa8 !important;
+    background: #fff !important;
+    border-radius: 4px !important;
+    padding: 8px 13px !important;
+    font-size: 14px !important;
+    line-height: 1;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-download-btn:hover {
+    background: #eef8fd !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-score-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #d5dce0;
+    background: #fff;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+body.local-heyday-courseplayer .heyday-credit-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #0073a8;
+    color: #006fa8;
+    background: #fff;
+    padding: 7px 12px;
+    border-radius: 4px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+body.local-heyday-courseplayer .heyday-credit-filter input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+}
+
+body.local-heyday-courseplayer .heyday-sort-btn,
+body.local-heyday-courseplayer .heyday-score-apply {
+    background: #0073a8;
+    border: 1px solid #0073a8;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1;
+    min-height: 36px;
+    cursor: pointer;
+}
+
+body.local-heyday-courseplayer .heyday-score-apply {
+    background: #fff;
+    color: #006fa8;
+}
+
+body.local-heyday-courseplayer .heyday-sort-btn:hover,
+body.local-heyday-courseplayer .heyday-score-apply:hover {
+    filter: brightness(.96);
+}
+
+body.local-heyday-courseplayer .heyday-search-wrap {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 240px;
+    min-width: 180px;
+}
+
+body.local-heyday-courseplayer .heyday-search-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    border: 1px solid #cfd7dc;
+    border-right: 0;
+    background: #f5f6f7;
+    color: #555;
+    font-size: 14px;
+}
+
+body.local-heyday-courseplayer .heyday-score-search {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    border: 1px solid #cfd7dc;
+    padding: 7px 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+body.local-heyday-courseplayer .heyday-score-search:focus {
+    border-color: #0073a8;
+}
+
+body.local-heyday-courseplayer .heyday-score-list {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+body.local-heyday-courseplayer .heyday-score-row {
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border: 1px solid #d5dce0;
+    background: #fff;
+    border-radius: 3px;
+    padding: 0 16px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+body.local-heyday-courseplayer .heyday-score-row.is-locked {
+    background: #cfd3d6;
+    border-color: #bfc4c7;
+}
+
+body.local-heyday-courseplayer .heyday-score-left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .heyday-score-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .heyday-score-name {
+    color: #006fa8;
+    font-size: 22px;
+    font-weight: 400;
+    text-decoration: underline;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+body.local-heyday-courseplayer .heyday-score-name:hover {
+    color: #004f75;
+}
+
+body.local-heyday-courseplayer .heyday-score-name.locked-name {
+    color: #222;
+    text-decoration: none;
+    cursor: default;
+}
+
+body.local-heyday-courseplayer .heyday-score-submitted-date {
+    margin-top: 8px;
+    color: #111;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+body.local-heyday-courseplayer .hd-score-icon {
+    width: 26px;
+    height: 26px;
+    margin-right: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 26px;
+    color: #20272b;
+}
+
+body.local-heyday-courseplayer .hd-score-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+body.local-heyday-courseplayer .hd-score-icon-check svg {
+    width: 25px;
+    height: 25px;
+}
+
+body.local-heyday-courseplayer .heyday-score-right {
+    min-width: 165px;
+    text-align: right;
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+body.local-heyday-courseplayer .heyday-score-percent {
+    color: #c43d13;
+    font-size: 14px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+body.local-heyday-courseplayer .heyday-score-status {
+    color: #5b1f00;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+body.local-heyday-courseplayer .heyday-score-note {
+    color: #111;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+body.local-heyday-courseplayer .heyday-score-points {
+    color: #667780;
+    font-size: 14px;
+    line-height: 1.2;
+    margin-top: 2px;
+}
+
+body.local-heyday-courseplayer .heyday-score-points-complete {
+    color: #c43d13;
+}
+
+body.local-heyday-courseplayer .hd-score-lock {
+    width: 23px;
+    height: 23px;
+    color: #20272b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.local-heyday-courseplayer .hd-score-lock svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+}
+
+body.local-heyday-courseplayer .heyday-score-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    margin: 18px 0 6px;
+}
+
+body.local-heyday-courseplayer .heyday-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid #cfd7dc;
+    border-right: 0;
+    background: #fff;
+    color: #006fa8;
+    font-size: 14px;
+    line-height: 1;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-page-btn:last-child {
+    border-right: 1px solid #cfd7dc;
+}
+
+body.local-heyday-courseplayer .heyday-page-btn:hover {
+    background: #eef8fd;
+    color: #004f75;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-page-btn.is-active {
+    background: #0073a8;
+    color: #fff;
+    border-color: #0073a8;
+    font-weight: 600;
+    cursor: default;
+}
+
+body.local-heyday-courseplayer .heyday-page-btn.is-disabled {
+    color: #8a8a8a;
+    background: #f7f7f7;
+    cursor: default;
+    pointer-events: none;
+}
+
+@media (max-width: 900px) {
+    body.local-heyday-courseplayer .heyday-score-toolbar {
+        flex-wrap: wrap;
+    }
+
+    body.local-heyday-courseplayer .heyday-search-wrap {
+        flex-basis: 100%;
+    }
+
+    body.local-heyday-courseplayer .heyday-score-row {
+        min-height: 92px;
+        padding: 12px;
+    }
+
+    body.local-heyday-courseplayer .heyday-score-name {
+        font-size: 18px;
+    }
+
+    body.local-heyday-courseplayer .heyday-score-right {
+        min-width: 125px;
+    }
+}
+
+@media (max-width: 640px) {
+    body.local-heyday-courseplayer .heyday-scores-title-row,
+    body.local-heyday-courseplayer .heyday-score-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    body.local-heyday-courseplayer .heyday-score-right {
+        align-items: flex-start;
+        text-align: left;
+        padding-left: 44px;
+    }
+}
+
+
+/* ===========================================================
+   2026060805 - ed2go-style Discussions index inside master player
+   Scope: local_heyday_courseplayer only
+   =========================================================== */
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-discussions .heyday-content-body {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+body.local-heyday-courseplayer .heyday-discussions-page-master {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-setup {
+    border: 1px solid #bee5eb;
+    background: #d1ecf1;
+    padding: 14px 18px;
+    margin: 0 0 16px;
+    border-radius: 3px;
+    color: #111827;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-card-list {
+    display: grid;
+    gap: 12px;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 88px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    background: #ffffff;
+    padding: 18px 20px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+body.local-heyday-courseplayer .heyday-discussion-card.is-locked {
+    background: #f1f3f5;
+    border-color: #cfd5db;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-card.is-placeholder {
+    opacity: .82;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-icon {
+    flex: 0 0 auto;
+    font-size: 20px;
+    color: #1e262d;
+    line-height: 1.2;
+    margin-top: 5px;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-main {
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-title {
+    color: var(--heyday-accent);
+    font-size: 24px;
+    line-height: 1.2;
+    text-decoration: underline;
+    font-weight: 400;
+    overflow-wrap: anywhere;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-card.is-locked .heyday-discussion-title {
+    color: #6b7280;
+    text-decoration: none;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-title:hover,
+body.local-heyday-courseplayer .heyday-discussion-title:focus {
+    color: #005f8c;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-new-badge {
+    display: inline-block;
+    background: #b7302d;
+    color: #ffffff;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-meta {
+    font-size: 14px;
+    margin-top: 6px;
+    color: #111111;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-right {
+    flex: 0 0 96px;
+    text-align: center;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-updated-label {
+    font-size: 11px;
+    color: #444444;
+    margin-bottom: 4px;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-updated-date {
+    font-size: 14px;
+    background: #f7f7f7;
+    padding: 7px 9px;
+    border-radius: 3px;
+    color: #111111;
+}
+
+body.local-heyday-courseplayer .heyday-discussion-lock {
+    font-size: 20px;
+    color: #222222;
+}
+
+@media (max-width: 760px) {
+    body.local-heyday-courseplayer .heyday-discussion-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    body.local-heyday-courseplayer .heyday-discussion-right {
+        flex: 0 0 auto;
+        text-align: left;
+        padding-left: 38px;
+    }
+
+    body.local-heyday-courseplayer .heyday-discussion-title {
+        font-size: 20px;
+    }
+}
+
+
+/* ===========================================================
+   2026060806 - ed2go-style Getting Started pages
+   Scope: local_heyday_courseplayer only
+   =========================================================== */
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-content-body {
+    width: 100%;
+    max-width: 100%;
+}
+
+body.local-heyday-courseplayer .heyday-gs-master {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+body.local-heyday-courseplayer .heyday-gs-tabbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 auto 22px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 52px;
+    padding: 12px 14px;
+    border: 1px solid var(--heyday-soft-border);
+    border-radius: 4px;
+    background: #ffffff;
+    color: var(--heyday-accent);
+    text-decoration: none !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+body.local-heyday-courseplayer .heyday-gs-tab:hover {
+    border-color: rgba(0, 115, 168, .42);
+    background: #f8fcff;
+}
+
+body.local-heyday-courseplayer .heyday-gs-tab.is-current {
+    border-color: var(--heyday-accent);
+    background: #eef7fc;
+    box-shadow: inset 4px 0 0 var(--heyday-accent);
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-gs-tab-title {
+    min-width: 0;
+    line-height: 1.25;
+}
+
+body.local-heyday-courseplayer .heyday-gs-tab-status {
+    flex: 0 0 auto;
+    color: #9aa8b1;
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-gs-tab.is-completed .heyday-gs-tab-status {
+    color: var(--heyday-complete);
+}
+
+body.local-heyday-courseplayer .heyday-gs-page-card {
+    background: #ffffff;
+    border: 1px solid var(--heyday-soft-border);
+    border-radius: 4px;
+    padding: 42px 56px 48px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .07);
+}
+
+body.local-heyday-courseplayer .heyday-gs-kicker {
+    text-align: center;
+    color: #66727c;
+    font-size: 15px;
+    line-height: 1.4;
+    margin-bottom: 16px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-page-title {
+    text-align: center;
+    font-size: 32px;
+    line-height: 1.25;
+    font-weight: 400;
+    color: #111827;
+    margin: 0 0 40px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-content {
+    color: #222;
+    font-size: 18px;
+    line-height: 1.66;
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+body.local-heyday-courseplayer .heyday-gs-content p {
+    margin: 0 0 19px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-content ul,
+body.local-heyday-courseplayer .heyday-gs-content ol {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding-left: 34px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-content li {
+    margin-bottom: 8px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-lesson-list {
+    columns: 2;
+    column-gap: 46px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-completion-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin: 40px auto 30px;
+    color: #222;
+    font-size: 17px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-completion-check,
+body.local-heyday-courseplayer .heyday-gs-completion-pending {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-gs-completion-check {
+    background: var(--heyday-complete);
+    color: #ffffff;
+}
+
+body.local-heyday-courseplayer .heyday-gs-completion-pending {
+    border: 4px solid #d8e4ec;
+    background: #ffffff;
+    color: #9aa8b1;
+}
+
+body.local-heyday-courseplayer .heyday-gs-undo {
+    color: var(--heyday-accent);
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-end-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 24px auto 22px;
+    color: #333;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+body.local-heyday-courseplayer .heyday-gs-end-divider::before,
+body.local-heyday-courseplayer .heyday-gs-end-divider::after {
+    content: "";
+    width: 85px;
+    height: 1px;
+    background: #9aa7ad;
+}
+
+body.local-heyday-courseplayer .heyday-gs-next-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 26px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-next-card {
+    display: flex;
+    min-width: 340px;
+    min-height: 78px;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+body.local-heyday-courseplayer .heyday-gs-next-label {
+    background: var(--heyday-accent);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 94px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-gs-next-body {
+    border: 1px solid #cfd8dc;
+    border-left: 0;
+    background: #ffffff;
+    padding: 13px 20px;
+    min-width: 245px;
+}
+
+body.local-heyday-courseplayer .heyday-gs-next-section {
+    color: #777;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+body.local-heyday-courseplayer .heyday-gs-next-title {
+    font-size: 16px;
+    line-height: 1.25;
+    color: var(--heyday-accent);
+    text-decoration: underline;
+}
+
+body.local-heyday-courseplayer .heyday-gs-next-type {
+    font-size: 13px;
+    color: #444;
+    margin-top: 2px;
+}
+
+@media (max-width: 980px) {
+    body.local-heyday-courseplayer .heyday-gs-tabbar {
+        grid-template-columns: 1fr;
+    }
+
+    body.local-heyday-courseplayer .heyday-gs-page-card {
+        padding: 32px 28px 38px;
+    }
+
+    body.local-heyday-courseplayer .heyday-gs-page-title {
+        font-size: 28px;
+    }
+
+    body.local-heyday-courseplayer .heyday-gs-content {
+        font-size: 17px;
+    }
+
+    body.local-heyday-courseplayer .heyday-gs-lesson-list {
+        columns: 1;
+    }
+}
+
+@media (max-width: 640px) {
+    body.local-heyday-courseplayer .heyday-gs-next-card {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* ===========================================================
+   2026060807 - ed2go-style left menu for Getting Started
+   Scope: local_heyday_courseplayer only
+   =========================================================== */
+
+body.local-heyday-courseplayer .heyday-primary-menu .heyday-main-nav-link {
+    display: grid !important;
+    grid-template-columns: 18px minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 10px 12px 10px 18px;
+}
+
+body.local-heyday-courseplayer .heyday-main-nav-icon {
+    width: 18px;
+    min-width: 18px;
+    text-align: center;
+    color: #526171;
+    font-size: 14px;
+    line-height: 1;
+}
+
+body.local-heyday-courseplayer .heyday-main-nav-icon.is-empty {
+    color: transparent;
+}
+
+body.local-heyday-courseplayer .heyday-main-nav-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+body.local-heyday-courseplayer .heyday-nav-status {
+    justify-self: end;
+    min-width: 20px;
+    color: var(--heyday-muted);
+    text-align: center;
+    font-size: 13px;
+    line-height: 1;
+}
+
+body.local-heyday-courseplayer .heyday-nav-status.completed {
+    color: var(--heyday-complete);
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-nav-status.locked {
+    color: var(--heyday-lock);
+}
+
+/* Getting Started subitems in the left menu, matching ed2go-style expansion. */
+body.local-heyday-courseplayer .heyday-gs-sidebar-subnav {
+    background: var(--heyday-subitem-bg);
+    border-top: 1px solid #d4dde6;
+    border-right: 4px solid var(--heyday-accent);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-link {
+    position: relative;
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 4px;
+    min-height: 34px;
+    padding: 8px 6px 8px 18px;
+    color: var(--heyday-accent);
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.25;
+    border-bottom: 1px solid #d7e1e9;
+    background: #f4f8fb;
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-link:hover {
+    color: var(--heyday-accent);
+    text-decoration: underline;
+    background: #edf6fc;
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current {
+    background: var(--heyday-subitem-current-bg);
+    font-weight: 500;
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current .heyday-current-arrow::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid var(--heyday-accent);
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-status {
+    justify-self: end;
+    color: #8c9aa7;
+    font-size: 13px;
+    line-height: 1;
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-status.completed {
+    color: var(--heyday-complete);
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-status.locked {
+    color: var(--heyday-lock);
+}
+
+/* The ed2go reference puts these pages in the left menu, not as large tabs inside the card. */
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-tabbar {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-master {
+    display: block;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-page-card {
+    margin-top: 0;
+}
+
+/* Slightly closer ed2go left menu density. */
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
+    box-shadow: 2px 0 7px rgba(15, 23, 42, .10);
+}
+
+body.local-heyday-courseplayer .heyday-main-menu a.is-current,
+body.local-heyday-courseplayer .heyday-after-lessons-menu a.is-current {
+    background: #f1f8fc;
+}
+
+/* ===========================================================
+   2026060808 - Getting Started pages match ed2go reference
+   Scope: local_heyday_courseplayer only
+   =========================================================== */
+
+/* The ed2go reference uses the main player card only.
+   Hide the old top tabs and remove the second inner white card. */
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-tabbar {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-master {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-page-card {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-kicker,
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-page-title {
+    display: none !important;
+}
+
+/* Content should sit directly under the existing player heading,
+   like the fourth ed2go screenshot. */
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-reference-content,
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-content {
+    max-width: 880px;
+    margin: 44px auto 0;
+    color: #1f2933;
+    font-size: 16px;
+    line-height: 1.62;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-content p {
+    margin: 0 0 14px;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-content ol,
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-content ul {
+    margin-top: 10px;
+    margin-bottom: 16px;
+    padding-left: 28px;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-content li {
+    margin-bottom: 5px;
+}
+
+/* Syllabus in the ed2go-like layout should be readable, not oversized. */
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-lesson-list {
+    columns: 2;
+    column-gap: 80px;
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Completion and Next Up should look like the ed2go reference. */
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-completion-row {
+    margin: 54px auto 30px;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-completion-check,
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-completion-pending {
+    width: 58px;
+    height: 58px;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-end-divider {
+    margin-top: 22px;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-next-card {
+    min-width: 300px;
+    min-height: 72px;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-next-label {
+    min-width: 92px;
+    font-size: 16px;
+}
+
+/* Make the left Getting Started subitems match the ed2go reference. */
+body.local-heyday-courseplayer .heyday-gs-sidebar-subnav {
+    background: #eef3f7;
+    border-right: 4px solid var(--heyday-accent);
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-link {
+    min-height: 34px;
+    background: #eef3f7;
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current {
+    background: #e5edf3;
+}
+
+body.local-heyday-courseplayer .heyday-gs-sidebar-status.completed {
+    color: var(--heyday-complete);
+    font-weight: 700;
+}
+
+@media (max-width: 900px) {
+    body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-reference-content,
+    body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-content {
+        max-width: 100%;
+        margin-top: 32px;
+        font-size: 15px;
+    }
+
+    body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-gettingstarted .heyday-gs-lesson-list {
+        columns: 1;
+        max-width: 100%;
+    }
+}
+/* ===========================================================
+   2026061001 - Master ed2go learner shell correction
+   Matches the supplied ed2go screenshots more closely while
+   staying scoped to local_heyday_courseplayer only.
+   =========================================================== */
+
+body.local-heyday-courseplayer.local-heyday-masterplayer {
+    --heyday-topbar-height: 42px;
+    --heyday-sidebar-width: 424px;
+    --heyday-accent: #0073a8;
+    --heyday-page-bg: #f4f5f7;
+    --heyday-ed2go-link: #0073a8;
+    --heyday-ed2go-locked: #707d89;
+    --heyday-ed2go-complete: #3fa344;
+}
+
+/* Keep the learner page as the only visible shell; Adaptable/Moodle chrome is suppressed on this URL. */
+body.local-heyday-courseplayer #page-footer,
+body.local-heyday-courseplayer .mainfooter,
+body.local-heyday-courseplayer footer#page-footer,
+body.local-heyday-courseplayer .footer-popover,
+body.local-heyday-courseplayer .navbar,
+body.local-heyday-courseplayer nav.navbar,
+body.local-heyday-courseplayer .navbar.fixed-top,
+body.local-heyday-courseplayer #adaptable-page-header-wrapper,
+body.local-heyday-courseplayer #page-header {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-ed2go-topbar {
+    height: var(--heyday-topbar-height) !important;
+    min-height: var(--heyday-topbar-height) !important;
+    background: #000 !important;
+    padding: 0 0 0 18px !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1030 !important;
+    box-shadow: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-ed2go-brand {
+    height: var(--heyday-topbar-height);
+    min-width: 1px;
+}
+
+body.local-heyday-courseplayer .heyday-ed2go-brand.is-empty {
+    visibility: hidden;
+}
+
+body.local-heyday-courseplayer .heyday-ed2go-topbar-right {
+    height: var(--heyday-topbar-height);
+    gap: 0 !important;
+    margin-left: auto;
+    font-size: 14px;
+}
+
+body.local-heyday-courseplayer .heyday-topbar-separator {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-topbar-action,
+body.local-heyday-courseplayer .heyday-topbar-user {
+    height: var(--heyday-topbar-height);
+    min-width: 42px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: #fff !important;
+    text-decoration: none !important;
+    border-left: 1px solid rgba(255,255,255,.18);
+    box-sizing: border-box;
+}
+
+body.local-heyday-courseplayer .heyday-topbar-action:hover {
+    background: rgba(255,255,255,.09);
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-topbar-tour {
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-topbar-user {
+    padding-right: 18px;
+    font-weight: 700;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-page {
+    width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    min-height: calc(100vh - var(--heyday-topbar-height));
+    background: var(--heyday-page-bg) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-shell {
+    grid-template-columns: var(--heyday-sidebar-width) minmax(0, 1fr) !important;
+    min-height: calc(100vh - var(--heyday-topbar-height));
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
+    top: var(--heyday-topbar-height) !important;
+    height: calc(100vh - var(--heyday-topbar-height)) !important;
+    background: #fff !important;
+    border-right: 1px solid #d9dde2 !important;
+    box-shadow: 2px 0 8px rgba(15,23,42,.12) !important;
+    scrollbar-color: #8d949b transparent;
+}
+
+/* The reference shell has a small fixed handle at the sidebar edge. It is decorative, not JavaScript-driven. */
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar::after {
+    content: "☰";
+    position: fixed;
+    left: calc(var(--heyday-sidebar-width) - 1px);
+    top: 58%;
+    transform: translateY(-50%);
+    width: 27px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #65707a;
+    background: #fff;
+    border: 1px solid #d8dde3;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.08);
+    z-index: 1031;
+    pointer-events: none;
+    font-size: 17px;
+    line-height: 1;
+}
+
+body.local-heyday-courseplayer .heyday-main-menu a,
+body.local-heyday-courseplayer .heyday-main-menu > span,
+body.local-heyday-courseplayer .heyday-final-exam-link {
+    min-height: 42px !important;
+    padding: 10px 20px !important;
+    color: var(--heyday-ed2go-link) !important;
+    font-size: 15px !important;
+    font-weight: 400;
+    border-bottom: 1px solid #e5e8eb !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-primary-menu a:nth-child(n+4) {
+    border-bottom-color: transparent !important;
+}
+
+body.local-heyday-courseplayer .heyday-main-nav-icon {
+    color: #667886;
+    width: 18px;
+    min-width: 18px;
+    text-align: center;
+}
+
+body.local-heyday-courseplayer .heyday-main-menu a.is-current,
+body.local-heyday-courseplayer .heyday-after-lessons-menu a.is-current {
+    background: #fff !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-main-menu a.is-current::before,
+body.local-heyday-courseplayer .heyday-after-lessons-menu a.is-current::before {
+    width: 5px !important;
+    background: var(--heyday-accent) !important;
+}
+
+body.local-heyday-courseplayer .heyday-lessons-label {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-list {
+    padding: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group {
+    border-bottom: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-group-summary-inner {
+    min-height: 42px !important;
+    padding: 9px 18px 9px 20px !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group-title {
+    color: var(--heyday-ed2go-link) !important;
+    font-size: 15px !important;
+    line-height: 1.25;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group.is-active .heyday-lesson-group-title {
+    font-weight: 700 !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group.is-locked .heyday-lesson-group-title,
+body.local-heyday-courseplayer .heyday-lesson-group-title.is-disabled,
+body.local-heyday-courseplayer .heyday-final-exam-link.is-locked,
+body.local-heyday-courseplayer .heyday-final-exam-link.is-missing {
+    color: var(--heyday-ed2go-locked) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar .heyday-release-note,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar .heyday-lesson-text small {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-group-status,
+body.local-heyday-courseplayer .heyday-nav-status,
+body.local-heyday-courseplayer .heyday-status-icon,
+body.local-heyday-courseplayer .heyday-gs-sidebar-status {
+    min-width: 20px;
+    min-height: 20px;
+    color: #7d8993;
+    font-size: 15px;
+    line-height: 1;
+}
+
+body.local-heyday-courseplayer .heyday-group-status.completed,
+body.local-heyday-courseplayer .heyday-nav-status.completed,
+body.local-heyday-courseplayer .heyday-status-icon.completed,
+body.local-heyday-courseplayer .heyday-gs-sidebar-status.completed {
+    color: var(--heyday-ed2go-complete) !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-progress-dot,
+body.local-heyday-courseplayer .heyday-mini-dot {
+    width: 15px !important;
+    height: 15px !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: conic-gradient(#55a7d6 0 42%, #dfe5e7 42% 100%) !important;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);
+}
+
+body.local-heyday-courseplayer .heyday-lesson-items,
+body.local-heyday-courseplayer .heyday-gs-sidebar-subnav {
+    border-top: 1px solid #d2dbe2 !important;
+    border-right: 4px solid var(--heyday-accent) !important;
+    background: #edf4f8 !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title {
+    min-height: 34px !important;
+    padding: 8px 16px 7px 28px !important;
+    color: var(--heyday-ed2go-link) !important;
+    font-size: 14px !important;
+    background: #dceaf2 !important;
+    border-bottom: 1px solid #d1dde5 !important;
+    line-height: 1.25;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title.depth-1,
+body.local-heyday-courseplayer .heyday-subsection-title.depth-2,
+body.local-heyday-courseplayer .heyday-subsection-title.depth-3 {
+    padding-left: 36px !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link {
+    min-height: 34px !important;
+    grid-template-columns: 0 minmax(0, 1fr) 22px !important;
+    gap: 4px !important;
+    padding: 8px 8px 7px 28px !important;
+    color: var(--heyday-ed2go-link) !important;
+    background: #edf4f8 !important;
+    border-bottom: 0 !important;
+    font-size: 14px !important;
+    line-height: 1.25;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.depth-1 { padding-left: 36px !important; }
+body.local-heyday-courseplayer .heyday-lesson-item.depth-2 { padding-left: 44px !important; }
+body.local-heyday-courseplayer .heyday-lesson-item.depth-3 { padding-left: 52px !important; }
+
+body.local-heyday-courseplayer .heyday-lesson-item.is-lesson-page {
+    background: #f3f7fa !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.is-current,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current {
+    background: #e1eef5 !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.is-current .heyday-current-arrow::before,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current .heyday-current-arrow::before {
+    left: -28px !important;
+    border-top-width: 9px !important;
+    border-bottom-width: 9px !important;
+    border-left-width: 9px !important;
+    border-left-color: var(--heyday-accent) !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.is-locked {
+    color: var(--heyday-ed2go-locked) !important;
+    background: #fff !important;
+}
+
+/* Use a line-style lock instead of a coloured emoji. */
+body.local-heyday-courseplayer .heyday-status-icon.locked,
+body.local-heyday-courseplayer .heyday-group-status.locked,
+body.local-heyday-courseplayer .heyday-gs-sidebar-status.locked,
+body.local-heyday-courseplayer .heyday-discussion-lock {
+    color: var(--heyday-ed2go-locked) !important;
+    font-size: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-status-icon.locked::before,
+body.local-heyday-courseplayer .heyday-group-status.locked::before,
+body.local-heyday-courseplayer .heyday-gs-sidebar-status.locked::before,
+body.local-heyday-courseplayer .heyday-discussion-lock::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M4.5 7V5a3.5 3.5 0 0 1 7 0v2h.5A1.5 1.5 0 0 1 13.5 8.5v5A1.5 1.5 0 0 1 12 15H4a1.5 1.5 0 0 1-1.5-1.5v-5A1.5 1.5 0 0 1 4 7h.5Zm1.2 0h4.6V5a2.3 2.3 0 0 0-4.6 0v2ZM4 8.2a.3.3 0 0 0-.3.3v5a.3.3 0 0 0 .3.3h8a.3.3 0 0 0 .3-.3v-5a.3.3 0 0 0-.3-.3H4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M4.5 7V5a3.5 3.5 0 0 1 7 0v2h.5A1.5 1.5 0 0 1 13.5 8.5v5A1.5 1.5 0 0 1 12 15H4a1.5 1.5 0 0 1-1.5-1.5v-5A1.5 1.5 0 0 1 4 7h.5Zm1.2 0h4.6V5a2.3 2.3 0 0 0-4.6 0v2ZM4 8.2a.3.3 0 0 0-.3.3v5a.3.3 0 0 0 .3.3h8a.3.3 0 0 0 .3-.3v-5a.3.3 0 0 0-.3-.3H4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Home dashboard: angled grayscale hero block, circular meters, and centered next-activity card. */
+body.local-heyday-courseplayer .heyday-home-hero {
+    min-height: 145px !important;
+    position: relative;
+    overflow: hidden;
+    background: #f4f7fa !important;
+    padding: 23px 70px 22px 16px !important;
+    border-bottom: 1px solid #d7dce2 !important;
+}
+
+body.local-heyday-courseplayer .heyday-home-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: min(73%, 1080px);
+    background-image:
+        linear-gradient(90deg, rgba(0,0,0,.74), rgba(0,0,0,.50) 56%, rgba(0,0,0,.25)),
+        linear-gradient(135deg, rgba(255,255,255,.11) 0 18%, transparent 18% 100%),
+        repeating-linear-gradient(72deg, #252a30 0 8px, #4d535a 8px 10px, #30363d 10px 21px);
+    background-size: cover;
+    background-position: center;
+    clip-path: polygon(0 0, 91% 0, 100% 100%, 0 100%);
+    z-index: 0;
+}
+
+body.local-heyday-courseplayer .heyday-home-hero-title,
+body.local-heyday-courseplayer .heyday-home-meters {
+    position: relative;
+    z-index: 1;
+}
+
+body.local-heyday-courseplayer .heyday-home-hero-title h2 {
+    font-size: 27px !important;
+    font-weight: 400 !important;
+    margin-bottom: 8px !important;
+}
+
+body.local-heyday-courseplayer .heyday-home-content {
+    max-width: 980px !important;
+    padding-top: 42px !important;
+}
+
+body.local-heyday-courseplayer .heyday-home-welcome {
+    font-size: 28px !important;
+    margin-bottom: 22px !important;
+}
+
+body.local-heyday-courseplayer .heyday-home-next-card {
+    min-height: 170px !important;
+    grid-template-columns: minmax(0, 1fr) 190px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 8px rgba(15,23,42,.20) !important;
+}
+
+body.local-heyday-courseplayer .heyday-home-next-main {
+    padding: 48px 44px !important;
+}
+
+body.local-heyday-courseplayer .heyday-home-next-action {
+    background: #147aa3 !important;
+}
+
+body.local-heyday-courseplayer .heyday-home-continue-button {
+    font-size: 18px !important;
+    min-height: 43px !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-footer {
+    margin-top: 26px !important;
+    font-size: 12px !important;
+    color: #5f7281 !important;
+}
+
+@media (max-width: 760px) {
+    body.local-heyday-courseplayer .heyday-courseplayer-shell {
+        display: block !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
+        position: relative !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 70vh !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-courseplayer-sidebar::after {
+        display: none !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-home-next-card {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ===========================================================
+   2026061002 - Left menu visual parity with supplied ed2go shell
+   =========================================================== */
+body.local-heyday-courseplayer.local-heyday-masterplayer {
+    --heyday-sidebar-width: 424px;
+    --heyday-ed2go-link: #0073a8;
+    --heyday-ed2go-muted: #6f7d89;
+    --heyday-ed2go-complete: #36a546;
+    --heyday-ed2go-locked: #6f7d89;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
+    width: var(--heyday-sidebar-width) !important;
+    box-sizing: border-box !important;
+    border-right: 1px solid #d7dce1 !important;
+    box-shadow: 2px 0 8px rgba(15, 23, 42, .12) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar *,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar *::before,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar *::after {
+    box-sizing: border-box;
+}
+
+body.local-heyday-courseplayer .heyday-main-menu,
+body.local-heyday-courseplayer .heyday-lesson-list,
+body.local-heyday-courseplayer .heyday-lesson-group,
+body.local-heyday-courseplayer .heyday-lesson-group > summary,
+body.local-heyday-courseplayer .heyday-lesson-items,
+body.local-heyday-courseplayer .heyday-after-lessons-menu {
+    margin: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group,
+body.local-heyday-courseplayer .heyday-lesson-group > summary {
+    display: block !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group > summary::marker,
+body.local-heyday-courseplayer .heyday-lesson-group > summary::-webkit-details-marker {
+    display: none !important;
+    content: "" !important;
+}
+
+body.local-heyday-courseplayer .heyday-main-menu a,
+body.local-heyday-courseplayer .heyday-main-menu > span {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: var(--heyday-ed2go-link) !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+    border-bottom: 1px solid #e5e8eb !important;
+    text-decoration: none !important;
+    background: #fff !important;
+}
+
+body.local-heyday-courseplayer .heyday-main-nav-icon {
+    width: 18px !important;
+    min-width: 18px !important;
+    height: 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #617584 !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+}
+
+body.local-heyday-courseplayer .heyday-main-nav-icon.is-empty {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-main-nav-label {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body.local-heyday-courseplayer .heyday-nav-status,
+body.local-heyday-courseplayer .heyday-group-status,
+body.local-heyday-courseplayer .heyday-status-icon,
+body.local-heyday-courseplayer .heyday-gs-sidebar-status {
+    margin-left: auto !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    font-size: 15px !important;
+}
+
+body.local-heyday-courseplayer .heyday-nav-status.completed,
+body.local-heyday-courseplayer .heyday-group-status.completed,
+body.local-heyday-courseplayer .heyday-status-icon.completed,
+body.local-heyday-courseplayer .heyday-gs-sidebar-status.completed {
+    color: var(--heyday-ed2go-complete) !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group {
+    border-bottom: 0 !important;
+    background: #fff !important;
+}
+
+body.local-heyday-courseplayer .heyday-group-summary-inner {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 18px 0 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    background: #fff !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group-title,
+body.local-heyday-courseplayer .heyday-lesson-group-title:link,
+body.local-heyday-courseplayer .heyday-lesson-group-title:visited {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: block !important;
+    color: var(--heyday-ed2go-link) !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.22 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group.is-active > summary .heyday-lesson-group-title {
+    font-weight: 700 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group.is-locked .heyday-lesson-group-title,
+body.local-heyday-courseplayer .heyday-lesson-group-title.is-disabled {
+    color: var(--heyday-ed2go-locked) !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-progress-dot,
+body.local-heyday-courseplayer .heyday-mini-dot {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: conic-gradient(#57a9d8 0 45%, #e1e6e8 45% 100%) !important;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.02) !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-items,
+body.local-heyday-courseplayer .heyday-gs-sidebar-subnav {
+    padding: 0 !important;
+    border-top: 1px solid #d2dce4 !important;
+    border-right: 4px solid var(--heyday-ed2go-link) !important;
+    background: #edf4f8 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 10px 0 29px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 22px !important;
+    align-items: center !important;
+    gap: 6px !important;
+    color: var(--heyday-ed2go-link) !important;
+    background: #edf4f8 !important;
+    border-bottom: 0 !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.18 !important;
+    text-decoration: none !important;
+    position: relative !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.depth-1 { padding-left: 29px !important; }
+body.local-heyday-courseplayer .heyday-lesson-item.depth-2 { padding-left: 38px !important; }
+body.local-heyday-courseplayer .heyday-lesson-item.depth-3 { padding-left: 47px !important; }
+
+body.local-heyday-courseplayer .heyday-lesson-item .heyday-current-arrow,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link .heyday-current-arrow {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.is-current,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current {
+    background: #e1eef5 !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.is-current .heyday-current-arrow::before,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current .heyday-current-arrow::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-top: 9px solid transparent !important;
+    border-bottom: 9px solid transparent !important;
+    border-left: 9px solid var(--heyday-ed2go-link) !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 10px 0 29px !important;
+    display: flex !important;
+    align-items: center !important;
+    color: var(--heyday-ed2go-link) !important;
+    background: #dceaf2 !important;
+    border-bottom: 0 !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.18 !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title.depth-1,
+body.local-heyday-courseplayer .heyday-subsection-title.depth-2,
+body.local-heyday-courseplayer .heyday-subsection-title.depth-3 {
+    padding-left: 29px !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-text,
+body.local-heyday-courseplayer .heyday-gs-sidebar-title {
+    min-width: 0 !important;
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-text > span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar .heyday-release-note,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar .heyday-lesson-text small {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-after-lessons-menu {
+    padding-bottom: 22px !important;
+}
+
+body.local-heyday-courseplayer .heyday-final-exam-link {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 18px 0 20px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 22px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+    border-bottom: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-primary-menu a:nth-child(n+4) {
+    border-bottom-color: transparent !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar::after {
+    left: calc(var(--heyday-sidebar-width) - 1px) !important;
+}
+
+@media (max-width: 760px) {
+    body.local-heyday-courseplayer.local-heyday-masterplayer {
+        --heyday-sidebar-width: 100%;
+    }
+}
+
+/* ===========================================================
+   Final left-sidebar correction: ed2go-style menu parity
+   =========================================================== */
+
+body.local-heyday-courseplayer.local-heyday-masterplayer {
+    --heyday-sidebar-width: 424px;
+    --heyday-ed2go-link: #0073a8;
+    --heyday-ed2go-complete: #36a546;
+    --heyday-ed2go-locked: #6f7d89;
+}
+
+/* Sidebar width and behavior */
+body.local-heyday-courseplayer .heyday-courseplayer-shell {
+    grid-template-columns: var(--heyday-sidebar-width) minmax(0, 1fr) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
+    width: var(--heyday-sidebar-width) !important;
+    background: #fff !important;
+    border-right: 1px solid #d7dce1 !important;
+    box-shadow: 2px 0 8px rgba(15, 23, 42, .12) !important;
+    overflow-x: hidden !important;
+}
+
+/* Top three rows: Home, Scores, Discussions */
+body.local-heyday-courseplayer .heyday-primary-menu .heyday-main-nav-link {
+    display: grid !important;
+    grid-template-columns: 18px minmax(0, 1fr) 24px !important;
+    align-items: center !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 18px !important;
+    gap: 8px !important;
+    color: var(--heyday-ed2go-link) !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
+    background: #fff !important;
+    border-bottom: 1px solid #e5e8eb !important;
+}
+
+/* Getting Started and Pretest have no left icon space */
+body.local-heyday-courseplayer .heyday-primary-menu .heyday-main-nav-link.has-no-icon {
+    grid-template-columns: minmax(0, 1fr) 24px !important;
+    padding-left: 20px !important;
+}
+
+/* Stop labels from shrinking to G... / P... */
+body.local-heyday-courseplayer .heyday-main-nav-label,
+body.local-heyday-courseplayer .heyday-lesson-group-title,
+body.local-heyday-courseplayer .heyday-gs-sidebar-title,
+body.local-heyday-courseplayer .heyday-lesson-text,
+body.local-heyday-courseplayer .heyday-lesson-text > span {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* Keep main labels wide enough */
+body.local-heyday-courseplayer .heyday-main-nav-label {
+    display: block !important;
+}
+
+/* Simple line-style icons */
+body.local-heyday-courseplayer .heyday-main-nav-icon {
+    width: 18px !important;
+    height: 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #617584 !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+}
+
+body.local-heyday-courseplayer .heyday-icon-home::before {
+    content: "⌂";
+}
+
+body.local-heyday-courseplayer .heyday-icon-scores::before {
+    /* A report/scoresheet glyph, not a ballot-box check (☑), so the Scores nav
+       item is not mistaken for a completion status like the green checkmarks. */
+    content: "▦";
+}
+
+body.local-heyday-courseplayer .heyday-icon-discussions::before {
+    content: "◌";
+}
+
+/* Status icons aligned right */
+body.local-heyday-courseplayer .heyday-nav-status,
+body.local-heyday-courseplayer .heyday-group-status,
+body.local-heyday-courseplayer .heyday-status-icon,
+body.local-heyday-courseplayer .heyday-gs-sidebar-status {
+    justify-self: end !important;
+    margin-left: auto !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #7d8993 !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+}
+
+body.local-heyday-courseplayer .heyday-nav-status.completed,
+body.local-heyday-courseplayer .heyday-group-status.completed,
+body.local-heyday-courseplayer .heyday-status-icon.completed,
+body.local-heyday-courseplayer .heyday-gs-sidebar-status.completed {
+    color: var(--heyday-ed2go-complete) !important;
+    font-weight: 400 !important;
+}
+
+/* Hide the LESSONS heading, like the ed2go screenshot */
+body.local-heyday-courseplayer .heyday-lessons-label {
+    display: none !important;
+}
+
+/* Main lesson rows */
+body.local-heyday-courseplayer .heyday-lesson-group {
+    border-bottom: 0 !important;
+    background: #fff !important;
+}
+
+body.local-heyday-courseplayer .heyday-group-summary-inner {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 18px 0 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: #fff !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group-title {
+    flex: 1 1 auto !important;
+    color: var(--heyday-ed2go-link) !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group.is-active .heyday-lesson-group-title {
+    font-weight: 700 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-group.is-locked .heyday-lesson-group-title,
+body.local-heyday-courseplayer .heyday-lesson-group-title.is-disabled {
+    color: var(--heyday-ed2go-locked) !important;
+}
+
+/* Progress circle like ed2go */
+body.local-heyday-courseplayer .heyday-progress-dot,
+body.local-heyday-courseplayer .heyday-mini-dot {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    background: conic-gradient(#57a9d8 0 45%, #e1e6e8 45% 100%) !important;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.02) !important;
+}
+
+/* Expanded lesson / Getting Started subitems */
+body.local-heyday-courseplayer .heyday-lesson-items,
+body.local-heyday-courseplayer .heyday-gs-sidebar-subnav {
+    padding: 0 !important;
+    border-top: 1px solid #d2dce4 !important;
+    border-right: 4px solid var(--heyday-ed2go-link) !important;
+    background: #edf4f8 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 10px 0 29px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 22px !important;
+    align-items: center !important;
+    gap: 6px !important;
+    color: var(--heyday-ed2go-link) !important;
+    background: #edf4f8 !important;
+    border-bottom: 0 !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.18 !important;
+    text-decoration: none !important;
+    position: relative !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.depth-1 {
+    padding-left: 29px !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.depth-2 {
+    padding-left: 38px !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.depth-3 {
+    padding-left: 47px !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title {
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 10px 0 29px !important;
+    display: flex !important;
+    align-items: center !important;
+    color: var(--heyday-ed2go-link) !important;
+    background: #dceaf2 !important;
+    border-bottom: 0 !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.18 !important;
+}
+
+/* Current item blue triangle */
+body.local-heyday-courseplayer .heyday-lesson-item .heyday-current-arrow,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link .heyday-current-arrow {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.is-current,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current {
+    background: #e1eef5 !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-lesson-item.is-current .heyday-current-arrow::before,
+body.local-heyday-courseplayer .heyday-gs-sidebar-link.is-current .heyday-current-arrow::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-top: 9px solid transparent !important;
+    border-bottom: 9px solid transparent !important;
+    border-left: 9px solid var(--heyday-ed2go-link) !important;
+}
+
+/* Hide sidebar release text/status words */
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar .heyday-release-note,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar .heyday-lesson-text small {
+    display: none !important;
+}
+
+/* Locked rows */
+body.local-heyday-courseplayer .heyday-lesson-item.is-locked,
+body.local-heyday-courseplayer .heyday-final-exam-link.is-locked {
+    color: var(--heyday-ed2go-locked) !important;
+    background: #fff !important;
+}
+
+/* Resources / Final Exam rows */
+body.local-heyday-courseplayer .heyday-after-lessons-menu {
+    padding-bottom: 22px !important;
+}
+
+body.local-heyday-courseplayer .heyday-final-exam-link {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 18px 0 20px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 22px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: var(--heyday-ed2go-link) !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
+    background: #fff !important;
+    border-bottom: 0 !important;
+}
+
+/* ===========================================================
+   2026061403 - Teacher editing bridge for Moodle course structure
+   -----------------------------------------------------------
+   The learner shell remains clean. Teachers/managers get small,
+   permission-controlled links back to Moodle's native editing page,
+   where they can add sections, subsections, resources and activities.
+   =========================================================== */
+body.local-heyday-courseplayer .heyday-teacher-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 10px;
+}
+
+body.local-heyday-courseplayer .heyday-teacher-tool {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 6px 10px;
+    border: 1px solid rgba(0, 115, 168, .45);
+    border-radius: 3px;
+    background: #ffffff;
+    color: var(--heyday-accent) !important;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+body.local-heyday-courseplayer .heyday-teacher-tool:hover,
+body.local-heyday-courseplayer .heyday-teacher-tool:focus {
+    background: #eef8fd;
+    border-color: var(--heyday-accent);
+    color: #005f8c !important;
+    text-decoration: none !important;
+}
+
+@media (max-width: 900px) {
+    body.local-heyday-courseplayer .heyday-teacher-tools {
+        width: 100%;
+        order: 5;
+        justify-content: flex-end;
+        margin: 8px 0 0;
+    }
+
+    body.local-heyday-courseplayer .heyday-player-topbar {
+        flex-wrap: wrap;
+    }
+}
+
+/* ===========================================================
+   2026061404 - Teacher native Moodle editing shortcuts
+   -----------------------------------------------------------
+   Teachers/admins can open the normal Moodle + Adaptable course
+   editing UI, content bank, and course settings from every player
+   page, including the Home dashboard where the card header is hidden.
+   Learners do not see these controls because the template only renders
+   them when Moodle editing capability is present.
+   =========================================================== */
+body.local-heyday-courseplayer .heyday-topbar-teacher-tools {
+    height: var(--heyday-topbar-height, 42px);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    border-left: 1px solid rgba(255, 255, 255, .18);
+}
+
+body.local-heyday-courseplayer .heyday-topbar-teacher-tool {
+    min-height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 9px;
+    border: 1px solid rgba(255, 255, 255, .42);
+    border-radius: 3px;
+    background: rgba(255, 255, 255, .08);
+    color: #ffffff !important;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+body.local-heyday-courseplayer .heyday-topbar-teacher-tool:hover,
+body.local-heyday-courseplayer .heyday-topbar-teacher-tool:focus {
+    background: #ffffff;
+    color: var(--heyday-accent, #0073a8) !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-teacher-tools {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 1050px) {
+    body.local-heyday-courseplayer .heyday-topbar-teacher-tools {
+        display: none !important;
+    }
+}
+
+
+
+/* ===========================================================
+   2026061408 - Reference ed2go master shell alignment
+   -----------------------------------------------------------
+   This block intentionally comes last. It normalises the reusable
+   master shell so child local_heyday_* plugins inherit the same
+   learner-facing page layout shown in the ed2go reference.
+   =========================================================== */
+body.local-heyday-courseplayer.local-heyday-masterplayer {
+    --heyday-topbar-height: 42px;
+    --heyday-sidebar-width: 380px;
+    --heyday-content-max: 980px;
+    --heyday-content-inner-max: 900px;
+    --heyday-accent: #0073a8;
+    --heyday-page-bg: #f4f5f7;
+    --heyday-card-bg: #fff;
+    --heyday-complete: #54a221;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-shell {
+    grid-template-columns: var(--heyday-sidebar-width) minmax(0, 1fr) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
+    width: var(--heyday-sidebar-width) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar::after {
+    left: calc(var(--heyday-sidebar-width) - 1px) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-main {
+    padding: 24px 32px 40px !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-card {
+    width: min(100%, var(--heyday-content-max)) !important;
+    min-height: 540px !important;
+    margin: 0 auto !important;
+    padding: 26px 48px 50px !important;
+    border: 1px solid #d8dde3 !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-topbar {
+    min-height: 34px !important;
+    margin: 0 0 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 18px !important;
+}
+
+body.local-heyday-courseplayer .heyday-back-link,
+body.local-heyday-courseplayer .heyday-bookmark,
+body.local-heyday-courseplayer .heyday-icon-button {
+    color: var(--heyday-accent) !important;
+    font-size: 24px !important;
+    font-weight: 400 !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-heading {
+    margin: 0 auto 46px !important;
+    text-align: center !important;
+}
+
+body.local-heyday-courseplayer .heyday-course-kicker,
+body.local-heyday-courseplayer .heyday-lesson-kicker {
+    color: #657386 !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.35 !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-heading h1 {
+    margin: 24px 0 0 !important;
+    color: #111827 !important;
+    font-size: 30px !important;
+    font-weight: 400 !important;
+    line-height: 1.25 !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-body {
+    max-width: var(--heyday-content-inner-max) !important;
+    margin: 0 auto !important;
+    color: #1f2933 !important;
+    font-size: 16px !important;
+    line-height: 1.62 !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-body p {
+    margin: 0 0 18px !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-body img,
+body.local-heyday-courseplayer .heyday-inline-lesson-content img {
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 24px auto !important;
+}
+
+/* Completion row exactly below the white card, like ed2go. */
+body.local-heyday-courseplayer .heyday-completion-row {
+    width: min(100%, var(--heyday-content-max)) !important;
+    margin: 42px auto 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+    background: transparent !important;
+    border: 0 !important;
+    color: #111827 !important;
+    font-size: 16px !important;
+    line-height: 1.25 !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-check {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    min-height: 58px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    border: 0 !important;
+    background: var(--heyday-complete) !important;
+    color: #fff !important;
+    font-size: 36px !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-pending {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    min-height: 58px !important;
+    display: inline-flex !important;
+    border-radius: 50% !important;
+    border: 5px solid #d7e7ef !important;
+    background: #fff !important;
+    box-sizing: border-box !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-text a {
+    color: var(--heyday-accent) !important;
+    font-size: 14px !important;
+    text-decoration: none !important;
+}
+
+/* Next Up card: blue left block + white activity block. */
+body.local-heyday-courseplayer .heyday-nextup-row {
+    width: max-content !important;
+    max-width: min(100%, 520px) !important;
+    margin: 32px auto 0 !important;
+    padding: 0 !important;
+    min-height: 58px !important;
+    display: grid !important;
+    grid-template-columns: 92px minmax(180px, 1fr) !important;
+    gap: 0 !important;
+    align-items: stretch !important;
+    border: 1px solid #cfd8dc !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-label {
+    min-width: 92px !important;
+    min-height: 58px !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--heyday-accent) !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-row a {
+    min-height: 58px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    padding: 10px 16px !important;
+    color: var(--heyday-accent) !important;
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+    font-weight: 400 !important;
+    text-decoration: underline !important;
+    background: #fff !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-row a span {
+    display: block !important;
+    margin-top: 2px !important;
+    color: #444 !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-footer {
+    width: min(100%, var(--heyday-content-max)) !important;
+    margin: 38px auto 0 !important;
+    padding: 0 0 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 14px !important;
+    flex-wrap: wrap !important;
+    color: #5f7281 !important;
+    font-size: 12px !important;
+    background: transparent !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-footer a {
+    color: var(--heyday-accent) !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-footer > span {
+    width: 1px !important;
+    height: 18px !important;
+    border-radius: 0 !important;
+    background: #9aa7ad !important;
+}
+
+body.local-heyday-courseplayer .heyday-footer-copyright {
+    flex: 0 0 100% !important;
+    text-align: center !important;
+    margin-top: 4px !important;
+}
+
+/* Keep teacher shortcuts out of the learner card by default. The topbar still
+   offers teacher/admin edit links when the user has Moodle editing capability. */
+body.local-heyday-courseplayer .heyday-teacher-tools:empty {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    body.local-heyday-courseplayer.local-heyday-masterplayer {
+        --heyday-sidebar-width: 100%;
+        --heyday-content-max: 100%;
+        --heyday-content-inner-max: 100%;
+    }
+
+    body.local-heyday-courseplayer .heyday-courseplayer-main {
+        padding: 18px !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-player-card {
+        padding: 22px 18px 34px !important;
+    }
+}
+
+/* ===========================================================
+   2026061409 - Master shell clickable header/footer controls
+   Provider: local_heyday_courseplayer
+   =========================================================== */
+body.local-heyday-courseplayer .heyday-player-icon {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    padding: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--heyday-accent) !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 3px !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon svg {
+    width: 24px !important;
+    height: 24px !important;
+    display: block !important;
+    fill: currentColor !important;
+    pointer-events: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon:hover,
+body.local-heyday-courseplayer .heyday-player-icon:focus {
+    color: #005f8c !important;
+    background: #eef7fc !important;
+    border-color: rgba(0, 115, 168, .18) !important;
+    outline: none !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon:focus-visible {
+    outline: 2px solid var(--heyday-accent) !important;
+    outline-offset: 2px !important;
+}
+
+body.local-heyday-courseplayer .heyday-bookmark.is-bookmarked {
+    background: #eef7fc !important;
+}
+
+body.local-heyday-courseplayer .heyday-bookmark.is-bookmarked svg path {
+    fill: currentColor !important;
+}
+
+body.local-heyday-courseplayer .heyday-print-button,
+body.local-heyday-courseplayer .heyday-fullscreen-button {
+    margin-left: 4px !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-row {
+    position: relative !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-check {
+    position: relative !important;
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-row.is-complete:hover .heyday-completion-check {
+    transform: translateX(2px) scale(1.04) !important;
+    box-shadow: 0 3px 10px rgba(84, 162, 33, .25) !important;
+    filter: brightness(1.03) !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-row.is-complete:hover .heyday-completion-check::after {
+    content: "›";
+    position: absolute;
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #d7e7ef;
+    color: var(--heyday-complete);
+    font-size: 22px;
+    line-height: 1;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .12);
+}
+
+body.local-heyday-courseplayer .heyday-completion-undo {
+    display: inline-block !important;
+    color: var(--heyday-accent) !important;
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
+    margin-top: 3px !important;
+    border-radius: 2px !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-undo:hover,
+body.local-heyday-courseplayer .heyday-completion-undo:focus {
+    color: #005f8c !important;
+    text-decoration: underline !important;
+    outline: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-undo:focus-visible {
+    outline: 2px solid var(--heyday-accent) !important;
+    outline-offset: 2px !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row,
+body.local-heyday-courseplayer a.heyday-nextup-row:visited {
+    width: max-content !important;
+    max-width: min(100%, 520px) !important;
+    margin: 28px auto 0 !important;
+    display: grid !important;
+    grid-template-columns: 92px minmax(180px, 1fr) !important;
+    min-height: 58px !important;
+    padding: 0 !important;
+    border: 1px solid #cfd8dc !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    overflow: hidden !important;
+    transition: box-shadow .16s ease, transform .16s ease, border-color .16s ease !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row:hover,
+body.local-heyday-courseplayer a.heyday-nextup-row:focus {
+    transform: translateY(-1px) !important;
+    border-color: rgba(0, 115, 168, .45) !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, .14) !important;
+    text-decoration: none !important;
+    outline: none !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row:focus-visible {
+    outline: 2px solid var(--heyday-accent) !important;
+    outline-offset: 3px !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-body {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    padding: 10px 16px !important;
+    min-width: 0 !important;
+    background: #fff !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-title {
+    color: var(--heyday-accent) !important;
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+    text-decoration: underline !important;
+    overflow-wrap: anywhere !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row:hover .heyday-nextup-title {
+    color: #005f8c !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-type {
+    color: #444 !important;
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+    text-decoration: none !important;
+    margin-top: 2px !important;
+}
+
+@media print {
+    body.local-heyday-courseplayer .heyday-player-icon,
+    body.local-heyday-courseplayer .heyday-completion-row,
+    body.local-heyday-courseplayer a.heyday-nextup-row {
+        display: none !important;
+    }
+}
+
+/* ===========================================================
+   2026061410 - Proportional ed2go header controls and auto-complete UI
+   Provider: local_heyday_courseplayer master shell
+   =========================================================== */
+body.local-heyday-courseplayer.local-heyday-masterplayer {
+    --heyday-sidebar-width: 424px;
+    --heyday-content-max: 1120px;
+    --heyday-content-inner-max: 920px;
+}
+
+/* Keep teacher/admin editing shortcuts in the black topbar only. The content
+   card should match the learner-facing ed2go reference with only learner tools. */
+body.local-heyday-courseplayer .heyday-player-card .heyday-teacher-tools {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-main {
+    padding: 24px clamp(26px, 4.25vw, 58px) 40px !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-card {
+    width: min(100%, var(--heyday-content-max)) !important;
+    max-width: var(--heyday-content-max) !important;
+    min-height: 560px !important;
+    padding: 30px clamp(36px, 4.25vw, 64px) 54px !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-topbar {
+    min-height: 44px !important;
+    height: 44px !important;
+    margin: 0 0 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+body.local-heyday-courseplayer .heyday-topbar-spacer {
+    flex: 1 1 auto !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    padding: 8px !important;
+    border-radius: 4px !important;
+    color: var(--heyday-accent) !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon svg {
+    width: 28px !important;
+    height: 28px !important;
+}
+
+body.local-heyday-courseplayer .heyday-bookmark svg {
+    width: 29px !important;
+    height: 29px !important;
+}
+
+body.local-heyday-courseplayer .heyday-print-button svg {
+    width: 30px !important;
+    height: 30px !important;
+}
+
+body.local-heyday-courseplayer .heyday-fullscreen-button svg {
+    width: 28px !important;
+    height: 28px !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon:hover,
+body.local-heyday-courseplayer .heyday-player-icon:focus {
+    background: #eef7fc !important;
+    border-color: rgba(0, 115, 168, .2) !important;
+    transform: translateY(-1px);
+}
+
+body.local-heyday-courseplayer .heyday-player-heading {
+    margin: 0 auto 52px !important;
+}
+
+body.local-heyday-courseplayer .heyday-course-kicker,
+body.local-heyday-courseplayer .heyday-lesson-kicker {
+    font-size: 16px !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-heading h1 {
+    margin-top: 28px !important;
+    font-size: 31px !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-body {
+    max-width: var(--heyday-content-inner-max) !important;
+    font-size: 17px !important;
+    line-height: 1.62 !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-body img,
+body.local-heyday-courseplayer .heyday-inline-lesson-content img {
+    margin: 30px auto !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-row {
+    width: min(100%, var(--heyday-content-max)) !important;
+    margin: 44px auto 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-row.is-pending.is-completing .heyday-completion-pending {
+    border-top-color: var(--heyday-accent) !important;
+    animation: heydayCompletionSpin .8s linear infinite;
+}
+
+@keyframes heydayCompletionSpin {
+    to { transform: rotate(360deg); }
+}
+
+body.local-heyday-courseplayer .heyday-completion-row.is-auto-completed .heyday-completion-check {
+    animation: heydayCompletionPop .22s ease-out;
+}
+
+@keyframes heydayCompletionPop {
+    0% { transform: scale(.88); }
+    100% { transform: scale(1); }
+}
+
+body.local-heyday-courseplayer .heyday-completion-check,
+body.local-heyday-courseplayer .heyday-completion-pending {
+    width: 62px !important;
+    height: 62px !important;
+    min-width: 62px !important;
+    min-height: 62px !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-text {
+    font-size: 17px !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-undo {
+    cursor: pointer !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row,
+body.local-heyday-courseplayer a.heyday-nextup-row:visited {
+    margin-top: 32px !important;
+    grid-template-columns: 92px minmax(190px, 1fr) !important;
+    min-height: 62px !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-label {
+    min-height: 62px !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row:hover,
+body.local-heyday-courseplayer a.heyday-nextup-row:focus {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .16) !important;
+}
+
+@media (max-width: 1200px) {
+    body.local-heyday-courseplayer.local-heyday-masterplayer {
+        --heyday-content-max: 1040px;
+        --heyday-content-inner-max: 880px;
+    }
+}
+
+@media (max-width: 900px) {
+    body.local-heyday-courseplayer.local-heyday-masterplayer {
+        --heyday-sidebar-width: 100%;
+        --heyday-content-max: 100%;
+        --heyday-content-inner-max: 100%;
+    }
+
+    body.local-heyday-courseplayer .heyday-courseplayer-main {
+        padding: 18px !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-player-card {
+        padding: 24px 20px 36px !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-player-icon {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-player-icon svg {
+        width: 25px !important;
+        height: 25px !important;
+    }
+}
+
+/* ===========================================================
+   2026061411 - Reference header controls, compact print menu,
+   proportional card width, and stronger view-to-complete logic.
+   Provider: local_heyday_courseplayer master shell
+   =========================================================== */
+body.local-heyday-courseplayer.local-heyday-masterplayer {
+    --heyday-content-reference-max: 1120px;
+    --heyday-icon-size: clamp(34px, 2.15vw, 42px);
+    --heyday-icon-svg-size: clamp(23px, 1.55vw, 28px);
+}
+
+/* Make the card follow the available browser width like the ed2go reference,
+   without becoming oversized on small windows. */
+body.local-heyday-courseplayer .heyday-courseplayer-main {
+    padding: 22px clamp(18px, 3.1vw, 48px) 40px !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-card {
+    width: min(100%, calc(100vw - var(--heyday-sidebar-width) - 72px), max(var(--heyday-content-max), var(--heyday-content-reference-max))) !important;
+    max-width: var(--heyday-content-max) !important;
+    padding: 28px clamp(34px, 4vw, 62px) 52px !important;
+}
+
+/* Keep the player header clean: learner icons only inside the card. */
+body.local-heyday-courseplayer .heyday-player-card .heyday-teacher-tools,
+body.local-heyday-courseplayer .heyday-player-topbar .heyday-teacher-tools,
+body.local-heyday-courseplayer .heyday-player-topbar .heyday-teacher-tool {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-topbar {
+    min-height: var(--heyday-icon-size) !important;
+    height: var(--heyday-icon-size) !important;
+    margin: 0 0 4px !important;
+    gap: clamp(4px, .7vw, 9px) !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon {
+    width: var(--heyday-icon-size) !important;
+    height: var(--heyday-icon-size) !important;
+    min-width: var(--heyday-icon-size) !important;
+    padding: calc((var(--heyday-icon-size) - var(--heyday-icon-svg-size)) / 2) !important;
+    border: 1px solid transparent !important;
+    color: var(--heyday-accent) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon svg,
+body.local-heyday-courseplayer .heyday-bookmark svg,
+body.local-heyday-courseplayer .heyday-print-button svg,
+body.local-heyday-courseplayer .heyday-fullscreen-button svg {
+    width: var(--heyday-icon-svg-size) !important;
+    height: var(--heyday-icon-svg-size) !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon:hover,
+body.local-heyday-courseplayer .heyday-player-icon:focus,
+body.local-heyday-courseplayer .heyday-print-menu-wrap.is-open .heyday-print-button {
+    background: #eef7fc !important;
+    border-color: #d6e8f2 !important;
+    transform: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon:focus-visible {
+    outline: 2px solid var(--heyday-accent) !important;
+    outline-offset: 2px !important;
+}
+
+/* Compact print menu like the supplied ed2go reference. */
+body.local-heyday-courseplayer .heyday-print-menu-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.local-heyday-courseplayer .heyday-print-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 1060;
+    min-width: 178px;
+    padding: 6px 0;
+    background: #fff;
+    border: 1px solid #cfd7dc;
+    border-radius: 3px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .16);
+}
+
+body.local-heyday-courseplayer .heyday-print-menu[hidden] {
+    display: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-print-menu button {
+    width: 100%;
+    min-height: 32px;
+    padding: 7px 14px;
+    display: block;
+    border: 0;
+    background: #fff;
+    color: #2d3742;
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+body.local-heyday-courseplayer .heyday-print-menu button:hover,
+body.local-heyday-courseplayer .heyday-print-menu button:focus {
+    background: #eef7fc;
+    color: var(--heyday-accent);
+    outline: none;
+}
+
+body.local-heyday-courseplayer .heyday-player-heading {
+    margin: 0 auto 50px !important;
+}
+
+body.local-heyday-courseplayer .heyday-course-kicker,
+body.local-heyday-courseplayer .heyday-lesson-kicker {
+    font-size: clamp(13px, 1vw, 15px) !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-heading h1 {
+    font-size: clamp(26px, 2vw, 32px) !important;
+    margin-top: 26px !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-body {
+    max-width: min(940px, 100%) !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-viewed-sentinel {
+    width: 1px;
+    height: 1px;
+    margin: 0 auto;
+    pointer-events: none;
+}
+
+/* Activity completion: keep it centered and visibly interactive when it updates. */
+body.local-heyday-courseplayer .heyday-completion-row {
+    width: min(100%, calc(100vw - var(--heyday-sidebar-width) - 72px), max(var(--heyday-content-max), var(--heyday-content-reference-max))) !important;
+    justify-content: center !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-row.is-completing .heyday-completion-text > div::after {
+    content: "...";
+}
+
+body.local-heyday-courseplayer .heyday-completion-row.is-auto-completed .heyday-completion-check {
+    box-shadow: 0 0 0 6px rgba(84, 162, 33, .12) !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-undo {
+    display: inline-block;
+    margin-top: 2px;
+    color: var(--heyday-accent) !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-undo:hover,
+body.local-heyday-courseplayer .heyday-completion-undo:focus {
+    text-decoration: underline !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row,
+body.local-heyday-courseplayer a.heyday-nextup-row:visited {
+    width: max-content !important;
+    max-width: min(100%, 520px) !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row:hover .heyday-nextup-title,
+body.local-heyday-courseplayer a.heyday-nextup-row:focus .heyday-nextup-title {
+    text-decoration: underline !important;
+}
+
+@media (max-width: 900px) {
+    body.local-heyday-courseplayer.local-heyday-masterplayer {
+        --heyday-content-reference-max: 100%;
+        --heyday-icon-size: 38px;
+        --heyday-icon-svg-size: 24px;
+    }
+
+    body.local-heyday-courseplayer .heyday-player-card,
+    body.local-heyday-courseplayer .heyday-completion-row {
+        width: 100% !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-print-menu {
+        right: auto;
+        left: 0;
+    }
+}
+
+/* ===========================================================
+   2026061412 - Reference card proportions and shared footer
+   Provider: local_heyday_courseplayer master shell
+   =========================================================== */
+body.local-heyday-courseplayer.local-heyday-masterplayer {
+    --heyday-reference-sidebar-width: 365px;
+    --heyday-reference-card-max: 1120px;
+    --heyday-reference-card-gutter: 188px;
+    --heyday-reference-inner-max: 940px;
+    --heyday-icon-size: clamp(38px, 2.35vw, 46px);
+    --heyday-icon-svg-size: clamp(25px, 1.65vw, 30px);
+}
+
+@media (min-width: 901px) {
+    body.local-heyday-courseplayer.local-heyday-masterplayer {
+        --heyday-sidebar-width: var(--heyday-reference-sidebar-width) !important;
+    }
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-shell {
+    grid-template-columns: var(--heyday-sidebar-width) minmax(0, 1fr) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
+    width: var(--heyday-sidebar-width) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar::after {
+    left: calc(var(--heyday-sidebar-width) - 1px) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-main {
+    padding: 24px clamp(28px, 4.1vw, 70px) 42px !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-card {
+    width: min(100%, calc(100vw - var(--heyday-sidebar-width) - var(--heyday-reference-card-gutter)), var(--heyday-reference-card-max)) !important;
+    max-width: var(--heyday-reference-card-max) !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 26px clamp(42px, 4.5vw, 70px) 48px !important;
+    border: 1px solid #d8dde3 !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-topbar {
+    height: var(--heyday-icon-size) !important;
+    min-height: var(--heyday-icon-size) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: clamp(5px, .7vw, 10px) !important;
+    margin: 0 0 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon {
+    width: var(--heyday-icon-size) !important;
+    height: var(--heyday-icon-size) !important;
+    min-width: var(--heyday-icon-size) !important;
+    padding: calc((var(--heyday-icon-size) - var(--heyday-icon-svg-size)) / 2) !important;
+    border: 1px solid transparent !important;
+    border-radius: 3px !important;
+    background: transparent !important;
+    color: var(--heyday-accent) !important;
+    box-shadow: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon svg {
+    width: var(--heyday-icon-svg-size) !important;
+    height: var(--heyday-icon-svg-size) !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-icon:hover,
+body.local-heyday-courseplayer .heyday-player-icon:focus,
+body.local-heyday-courseplayer .heyday-print-menu-wrap.is-open .heyday-print-button {
+    background: #eef7fc !important;
+    border-color: #d6e8f2 !important;
+    color: #006a9c !important;
+    transform: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-heading {
+    margin: 0 auto 48px !important;
+    text-align: center !important;
+}
+
+body.local-heyday-courseplayer .heyday-course-kicker,
+body.local-heyday-courseplayer .heyday-lesson-kicker {
+    color: #657386 !important;
+    font-size: clamp(14px, 1vw, 16px) !important;
+    line-height: 1.36 !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-heading h1 {
+    margin: 24px 0 0 !important;
+    color: #111827 !important;
+    font-size: clamp(28px, 2vw, 32px) !important;
+    font-weight: 400 !important;
+    line-height: 1.25 !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-body {
+    max-width: min(100%, var(--heyday-reference-inner-max)) !important;
+    margin: 0 auto !important;
+    font-size: 17px !important;
+    line-height: 1.62 !important;
+}
+
+body.local-heyday-courseplayer .heyday-gs-reference-content,
+body.local-heyday-courseplayer .heyday-gs-content {
+    max-width: min(100%, var(--heyday-reference-inner-max)) !important;
+    margin: 0 auto !important;
+    font-size: 17px !important;
+    line-height: 1.62 !important;
+}
+
+body.local-heyday-courseplayer .heyday-content-body img,
+body.local-heyday-courseplayer .heyday-inline-lesson-content img {
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 30px auto !important;
+}
+
+body.local-heyday-courseplayer .heyday-print-menu {
+    top: calc(100% + 4px) !important;
+    right: 0 !important;
+    left: auto !important;
+    min-width: 196px !important;
+    padding: 8px 0 !important;
+    border: 1px solid #cfd7dc !important;
+    border-radius: 3px !important;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .16) !important;
+}
+
+body.local-heyday-courseplayer .heyday-print-menu button {
+    min-height: 34px !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+}
+
+/* Completion and Next Up always come from master_footer.mustache and sit
+   outside the white content card, matching the ed2go reference. */
+body.local-heyday-courseplayer .heyday-completion-row {
+    width: max-content !important;
+    max-width: min(100%, var(--heyday-reference-card-max)) !important;
+    margin: 42px auto 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+    background: transparent !important;
+    border: 0 !important;
+    font-size: 17px !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-check,
+body.local-heyday-courseplayer .heyday-completion-pending {
+    width: 62px !important;
+    height: 62px !important;
+    min-width: 62px !important;
+    min-height: 62px !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-check {
+    background: var(--heyday-complete) !important;
+    color: #fff !important;
+    font-size: 38px !important;
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-text strong,
+body.local-heyday-courseplayer .heyday-completion-text > div {
+    font-weight: 400 !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-undo {
+    display: inline-block !important;
+    margin-top: 3px !important;
+    color: var(--heyday-accent) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-completion-undo:hover,
+body.local-heyday-courseplayer .heyday-completion-undo:focus {
+    text-decoration: underline !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row,
+body.local-heyday-courseplayer a.heyday-nextup-row:visited {
+    width: max-content !important;
+    max-width: min(100%, 520px) !important;
+    margin: 32px auto 0 !important;
+    display: grid !important;
+    grid-template-columns: 92px minmax(190px, 1fr) !important;
+    min-height: 62px !important;
+    border: 1px solid #cfd8dc !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    overflow: hidden !important;
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer a.heyday-nextup-row:hover,
+body.local-heyday-courseplayer a.heyday-nextup-row:focus {
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .16) !important;
+    transform: translateY(-1px) !important;
+    outline: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-label {
+    min-height: 62px !important;
+    background: var(--heyday-accent) !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-body {
+    min-height: 62px !important;
+    padding: 10px 18px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    background: #fff !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-title {
+    color: var(--heyday-accent) !important;
+    font-size: 16px !important;
+    line-height: 1.22 !important;
+    text-decoration: underline !important;
+}
+
+body.local-heyday-courseplayer .heyday-nextup-type {
+    color: #444 !important;
+    font-size: 13px !important;
+    line-height: 1.22 !important;
+    margin-top: 2px !important;
+}
+
+body.local-heyday-courseplayer .heyday-player-footer {
+    margin-top: 36px !important;
+}
+
+@media (max-width: 900px) {
+    body.local-heyday-courseplayer.local-heyday-masterplayer {
+        --heyday-sidebar-width: 100% !important;
+        --heyday-reference-card-gutter: 0px;
+        --heyday-icon-size: 38px;
+        --heyday-icon-svg-size: 24px;
+    }
+
+    body.local-heyday-courseplayer .heyday-courseplayer-main {
+        padding: 18px !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-player-card {
+        width: 100% !important;
+        padding: 22px 18px 34px !important;
+    }
+
+    body.local-heyday-courseplayer .heyday-print-menu {
+        right: auto !important;
+        left: 0 !important;
+    }
+}
+
+
+/* 2026061619 - Make Moodle Subsection sidebar headings real player links. */
+body.local-heyday-courseplayer a.heyday-subsection-title.is-clickable {
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+body.local-heyday-courseplayer a.heyday-subsection-title.is-clickable:hover,
+body.local-heyday-courseplayer a.heyday-subsection-title.is-clickable:focus {
+    text-decoration: underline !important;
+    color: var(--heyday-ed2go-link) !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title.is-current {
+    background: #e1eef5 !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title.is-current .heyday-current-arrow {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 0 !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title.is-current .heyday-current-arrow::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-top: 9px solid transparent !important;
+    border-bottom: 9px solid transparent !important;
+    border-left: 9px solid var(--heyday-ed2go-link) !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-title-text {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* 2026061620 - Ensure Moodle Subsection child activity text is a real clickable sidebar link. */
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar a.heyday-lesson-item,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar a.heyday-subsection-title {
+    display: grid !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar a.heyday-subsection-title {
+    grid-template-columns: minmax(0, 1fr) !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar a.heyday-lesson-item .heyday-lesson-text,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar a.heyday-lesson-item .heyday-lesson-text span,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar a.heyday-subsection-title .heyday-subsection-title-text {
+    pointer-events: none !important;
+}
+
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar a.heyday-lesson-item:hover,
+body.local-heyday-courseplayer .heyday-courseplayer-sidebar a.heyday-subsection-title:hover {
+    background: #dcecf5 !important;
+    text-decoration: none !important;
+}
+
+/* 2026062101 - Nested chapter/subsection accordion. Each chapter is now a
+   <details> whose <summary> reuses .heyday-subsection-title. Hide the native
+   disclosure triangle and make the whole row a pointer toggle, matching the
+   ed2go behavior where only the current lesson path stays expanded. */
+body.local-heyday-courseplayer .heyday-subsection-group {
+    display: block !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-group > summary {
+    list-style: none !important;
+    cursor: pointer !important;
+}
+
+body.local-heyday-courseplayer .heyday-subsection-group > summary::-webkit-details-marker,
+body.local-heyday-courseplayer .heyday-subsection-group > summary::marker {
+    display: none !important;
+}
+
+/* The nested children wrapper must not re-indent or add its own chrome; the
+   per-row depth-* classes already handle indentation. */
+body.local-heyday-courseplayer .heyday-subsection-items {
+    display: block !important;
+}

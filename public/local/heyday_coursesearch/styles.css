@@ -1,0 +1,650 @@
+/* Heyday Course Search - ed2go-style course search page
+   Moodle 5.0+ / Adaptable 500.x
+   Version 1.0.2
+
+   IMPORTANT:
+   This version keeps Moodle/Adaptable's default black top utility header
+   visible. It hides only the course-page chrome inside the main content area.
+*/
+
+body.path-local-heyday_coursesearch {
+    background: #f4f6f8 !important;
+}
+
+/* Keep the real Moodle/Adaptable top utility header visible. */
+body.path-local-heyday_coursesearch header,
+body.path-local-heyday_coursesearch nav.navbar,
+body.path-local-heyday_coursesearch .navbar,
+body.path-local-heyday_coursesearch .navbar-dark,
+body.path-local-heyday_coursesearch .navbar.fixed-top,
+body.path-local-heyday_coursesearch #header,
+body.path-local-heyday_coursesearch #header1,
+body.path-local-heyday_coursesearch #header2,
+body.path-local-heyday_coursesearch #header3,
+body.path-local-heyday_coursesearch #above-header,
+body.path-local-heyday_coursesearch #top-header,
+body.path-local-heyday_coursesearch #adaptable-top-header,
+body.path-local-heyday_coursesearch .top-header,
+body.path-local-heyday_coursesearch .above-header,
+body.path-local-heyday_coursesearch .usermenu,
+body.path-local-heyday_coursesearch [data-region="user-menu"],
+body.path-local-heyday_coursesearch .popover-region {
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* Hide course/admin chrome that should not appear on the ed2go-style search page.
+   Do NOT hide #header1/#header2/#header3/.navbar here, because that removes
+   the top Search / Help / Tour / User menu in Adaptable. */
+body.path-local-heyday_coursesearch #page-header,
+body.path-local-heyday_coursesearch .page-header-headings,
+body.path-local-heyday_coursesearch .breadcrumb,
+body.path-local-heyday_coursesearch .breadcrumb-nav,
+body.path-local-heyday_coursesearch #page-navbar,
+body.path-local-heyday_coursesearch .secondary-navigation,
+body.path-local-heyday_coursesearch .tertiary-navigation,
+body.path-local-heyday_coursesearch .moremenu,
+body.path-local-heyday_coursesearch .context-header-settings-menu,
+body.path-local-heyday_coursesearch .page-header-settings-menu,
+body.path-local-heyday_coursesearch .header-settings-menu,
+body.path-local-heyday_coursesearch [data-region="settings-menu"],
+body.path-local-heyday_coursesearch .course-content-header,
+body.path-local-heyday_coursesearch .courseheader,
+body.path-local-heyday_coursesearch .activity-header,
+body.path-local-heyday_coursesearch .activity-navigation,
+body.path-local-heyday_coursesearch .urlselect,
+body.path-local-heyday_coursesearch #jump-to-activity,
+body.path-local-heyday_coursesearch .tool_usertours-resettourcontainer {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide only the dark documentation/mobile footer bars, not the top header. */
+body.path-local-heyday_coursesearch #page-footer,
+body.path-local-heyday_coursesearch footer,
+body.path-local-heyday_coursesearch .logininfo,
+body.path-local-heyday_coursesearch .homelink {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Keep main content clean and wide, like ed2go. */
+body.path-local-heyday_coursesearch #page,
+body.path-local-heyday_coursesearch #page-wrapper,
+body.path-local-heyday_coursesearch #region-main-box,
+body.path-local-heyday_coursesearch #region-main,
+body.path-local-heyday_coursesearch [role="main"] {
+    background: #f4f6f8 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+body.path-local-heyday_coursesearch #region-main .card,
+body.path-local-heyday_coursesearch #region-main .card-body,
+body.path-local-heyday_coursesearch #region-main > div {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+body.path-local-heyday_coursesearch #region-main {
+    min-height: calc(100vh - 80px) !important;
+}
+
+/* Main search panel. Lower margin assumes the default black top header remains visible. */
+.hcs-wrap {
+    max-width: 980px !important;
+    margin: 110px auto 70px auto !important;
+    color: #2d3b45 !important;
+    font-family: inherit !important;
+}
+
+.hcs-form {
+    display: flex !important;
+    width: min(850px, 92vw) !important;
+    margin: 0 auto 58px auto !important;
+    border: 2px solid #67bee6 !important;
+    border-radius: 22px !important;
+    overflow: hidden !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(0, 114, 168, 0.12) !important;
+}
+
+.hcs-form input[type="search"] {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 38px !important;
+    border: 0 !important;
+    outline: 0 !important;
+    padding: 0 16px !important;
+    font-size: 16px !important;
+    color: #2d3b45 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+}
+
+.hcs-form input[type="search"]:focus {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+.hcs-form button {
+    width: 50px !important;
+    min-width: 50px !important;
+    height: 38px !important;
+    border: 0 !important;
+    background: #0879a8 !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+}
+
+.hcs-form button:hover,
+.hcs-form button:focus {
+    background: #006995 !important;
+}
+
+.hcs-instructions {
+    max-width: 850px !important;
+    margin: 0 auto !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    color: #596b7a !important;
+}
+
+.hcs-instructions h2 {
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    margin: 0 0 12px 0 !important;
+    color: #596b7a !important;
+}
+
+.hcs-instructions p {
+    margin: 0 0 12px 0 !important;
+}
+
+.hcs-instructions strong {
+    color: #384754 !important;
+}
+
+.hcs-results {
+    max-width: 850px !important;
+    margin: 0 auto !important;
+}
+
+.hcs-results h2 {
+    font-size: 22px !important;
+    font-weight: 400 !important;
+    margin: 0 0 18px 0 !important;
+    color: #2d3b45 !important;
+}
+
+.hcs-result-card {
+    background: #fff !important;
+    border: 1px solid #d9e0e6 !important;
+    border-radius: 3px !important;
+    padding: 16px 18px !important;
+    margin: 0 0 12px 0 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.hcs-result-title {
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    margin: 0 0 6px 0 !important;
+}
+
+.hcs-result-title a {
+    color: #0072a8 !important;
+    text-decoration: none !important;
+}
+
+.hcs-result-title a:hover {
+    text-decoration: underline !important;
+}
+
+.hcs-result-meta {
+    color: #71808c !important;
+    font-size: 13px !important;
+    margin-bottom: 6px !important;
+}
+
+.hcs-result-summary {
+    color: #3f4c56 !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+.hcs-empty {
+    max-width: 850px !important;
+    margin: 0 auto !important;
+    padding: 14px 16px !important;
+    border: 1px solid #d9e0e6 !important;
+    background: #ffffff !important;
+    color: #596b7a !important;
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+    .hcs-wrap {
+        margin-top: 70px !important;
+        padding: 0 16px !important;
+    }
+
+    .hcs-form {
+        width: 100% !important;
+    }
+}
+
+
+/* =========================================================
+   HEADER CORRECTION - match reference screenshot
+   Keep only: Search icon, Help icon, User menu.
+   Hide: expanded header search box, notifications, messages, Tour text/button.
+   ========================================================= */
+
+/* Remove extra spacing/branding blocks in the top utility area if present. */
+body.path-local-heyday_coursesearch .navbar-brand,
+body.path-local-heyday_coursesearch .site-name,
+body.path-local-heyday_coursesearch .logo,
+body.path-local-heyday_coursesearch .headermenu .login,
+body.path-local-heyday_coursesearch .headermenu .langmenu {
+    display: none !important;
+}
+
+/* Hide notification and message icons so the header matches the reference. */
+body.path-local-heyday_coursesearch .popover-region-notifications,
+body.path-local-heyday_coursesearch .popover-region-messages,
+body.path-local-heyday_coursesearch [data-region="popover-region-notifications"],
+body.path-local-heyday_coursesearch [data-region="popover-region-messages"],
+body.path-local-heyday_coursesearch a[href*="/message/"],
+body.path-local-heyday_coursesearch a[href*="/notifications/"] {
+    display: none !important;
+}
+
+/* Hide any custom Tour button/text on this page. */
+body.path-local-heyday_coursesearch .hsb-tour-button,
+body.path-local-heyday_coursesearch .hsb-tour-text,
+body.path-local-heyday_coursesearch .tool_usertours-resettour,
+body.path-local-heyday_coursesearch .tool_usertours-resettourcontainer,
+body.path-local-heyday_coursesearch [data-key="tool_usertours"],
+body.path-local-heyday_coursesearch a[href*="usertours"] {
+    display: none !important;
+}
+
+/* Collapse the header search form down to a single icon, like the reference screenshot. */
+body.path-local-heyday_coursesearch .simplesearchform,
+body.path-local-heyday_coursesearch form[role="search"],
+body.path-local-heyday_coursesearch .search-input-form {
+    margin: 0 !important;
+}
+
+body.path-local-heyday_coursesearch .simplesearchform .input-group,
+body.path-local-heyday_coursesearch form[role="search"] .input-group,
+body.path-local-heyday_coursesearch .search-input-form .input-group {
+    display: flex !important;
+    align-items: center !important;
+    width: auto !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+body.path-local-heyday_coursesearch .simplesearchform input,
+body.path-local-heyday_coursesearch form[role="search"] input,
+body.path-local-heyday_coursesearch .search-input-form input,
+body.path-local-heyday_coursesearch .simplesearchform .form-control,
+body.path-local-heyday_coursesearch .search-input-form .form-control,
+body.path-local-heyday_coursesearch .simplesearchform .search-input-wrapper,
+body.path-local-heyday_coursesearch .search-input-form .search-input-wrapper {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+body.path-local-heyday_coursesearch .simplesearchform .btn,
+body.path-local-heyday_coursesearch .simplesearchform button,
+body.path-local-heyday_coursesearch form[role="search"] .btn,
+body.path-local-heyday_coursesearch form[role="search"] button,
+body.path-local-heyday_coursesearch .search-input-form .btn,
+body.path-local-heyday_coursesearch .search-input-form button {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    min-width: auto !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 4px !important;
+    border-radius: 0 !important;
+}
+
+body.path-local-heyday_coursesearch .simplesearchform .btn:hover,
+body.path-local-heyday_coursesearch .simplesearchform button:hover,
+body.path-local-heyday_coursesearch form[role="search"] .btn:hover,
+body.path-local-heyday_coursesearch form[role="search"] button:hover,
+body.path-local-heyday_coursesearch .search-input-form .btn:hover,
+body.path-local-heyday_coursesearch .search-input-form button:hover {
+    background: transparent !important;
+    color: #ffffff !important;
+}
+
+/* Keep user menu on one line and aligned to the right. */
+body.path-local-heyday_coursesearch .usermenu,
+body.path-local-heyday_coursesearch [data-region="user-menu"] {
+    white-space: nowrap !important;
+}
+
+/* Reference-like spacing for the top-right utility controls. */
+body.path-local-heyday_coursesearch .navbar,
+body.path-local-heyday_coursesearch header.navbar,
+body.path-local-heyday_coursesearch .fixed-top {
+    min-height: 44px !important;
+}
+
+/* =========================================================
+   v1.0.5 - HARD FIX FOR SEARCH PAGE TOP MENU
+   The previous CSS tried to shrink Adaptable's expanded search form.
+   This version creates a clean ed2go-style topbar and hides the old
+   expanded search field / notification / Tour controls on this page only.
+   ========================================================= */
+
+body.path-local-heyday_coursesearch.hcs-ed2go-topbar-active,
+body.heyday-coursesearch-page.hcs-ed2go-topbar-active,
+body#page-local-heyday_coursesearch-search.hcs-ed2go-topbar-active {
+    padding-top: 42px !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar,
+body.heyday-coursesearch-page #hcs-ed2go-topbar,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+    z-index: 99990 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 0 18px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .hcs-topbar-right,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .hcs-topbar-right,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-right {
+    height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0 !important;
+    color: #ffffff !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .hcs-topbar-item,
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar a.hcs-topbar-item,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .hcs-topbar-item,
+body.heyday-coursesearch-page #hcs-ed2go-topbar a.hcs-topbar-item,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-item,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar a.hcs-topbar-item {
+    height: 42px !important;
+    min-height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 10px !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    line-height: 42px !important;
+    cursor: pointer !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .hcs-topbar-item:hover,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .hcs-topbar-item:hover,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-item:hover {
+    background: #111111 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .hcs-topbar-icon i,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .hcs-topbar-icon i,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-icon i {
+    color: #ffffff !important;
+    font-size: 16px !important;
+    margin: 0 !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .hcs-topbar-separator,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .hcs-topbar-separator,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-separator {
+    display: inline-block !important;
+    width: 1px !important;
+    height: 22px !important;
+    margin: 0 7px !important;
+    background: #444444 !important;
+}
+
+body.path-local-heyday_coursesearch .hcs-original-topbar-hidden,
+body.heyday-coursesearch-page .hcs-original-topbar-hidden,
+body#page-local-heyday_coursesearch-search .hcs-original-topbar-hidden {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Force-hide Adaptable's expanded top search input on the search page only.
+   This does not target the big in-page .hcs-form search field. */
+body.path-local-heyday_coursesearch .simplesearchform:not(.hcs-form),
+body.path-local-heyday_coursesearch .searchform:not(.hcs-form),
+body.path-local-heyday_coursesearch .search-input-form:not(.hcs-form),
+body.path-local-heyday_coursesearch [data-region="search-input"],
+body.path-local-heyday_coursesearch [data-region="search-input-wrapper"],
+body.path-local-heyday_coursesearch .search-input-wrapper,
+body.heyday-coursesearch-page .simplesearchform:not(.hcs-form),
+body.heyday-coursesearch-page .searchform:not(.hcs-form),
+body.heyday-coursesearch-page .search-input-form:not(.hcs-form),
+body.heyday-coursesearch-page [data-region="search-input"],
+body.heyday-coursesearch-page [data-region="search-input-wrapper"],
+body.heyday-coursesearch-page .search-input-wrapper {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide notification/message/tour controls on the search page only. */
+body.path-local-heyday_coursesearch .popover-region-notifications,
+body.path-local-heyday_coursesearch .popover-region-messages,
+body.path-local-heyday_coursesearch [data-region="popover-region-notifications"],
+body.path-local-heyday_coursesearch [data-region="popover-region-messages"],
+body.path-local-heyday_coursesearch .hsb-tour-button,
+body.path-local-heyday_coursesearch .tool_usertours-resettourcontainer,
+body.heyday-coursesearch-page .popover-region-notifications,
+body.heyday-coursesearch-page .popover-region-messages,
+body.heyday-coursesearch-page [data-region="popover-region-notifications"],
+body.heyday-coursesearch-page [data-region="popover-region-messages"],
+body.heyday-coursesearch-page .hsb-tour-button,
+body.heyday-coursesearch-page .tool_usertours-resettourcontainer {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Moved Moodle default user menu remains readable and clickable. */
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .usermenu,
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar [data-region="user-menu"],
+body.heyday-coursesearch-page #hcs-ed2go-topbar .usermenu,
+body.heyday-coursesearch-page #hcs-ed2go-topbar [data-region="user-menu"],
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .usermenu,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar [data-region="user-menu"] {
+    height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: #ffffff !important;
+    position: relative !important;
+    z-index: 100000 !important;
+    white-space: nowrap !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .usermenu *,
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar [data-region="user-menu"] *,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .usermenu *,
+body.heyday-coursesearch-page #hcs-ed2go-topbar [data-region="user-menu"] *,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .usermenu *,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar [data-region="user-menu"] * {
+    color: #ffffff !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .userinitials,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .userinitials,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .userinitials {
+    color: #00334d !important;
+    background: #e9f1f8 !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .dropdown-menu,
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .usermenu .dropdown-menu,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .dropdown-menu,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .usermenu .dropdown-menu,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .dropdown-menu,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .usermenu .dropdown-menu {
+    background: #ffffff !important;
+    color: #111111 !important;
+    z-index: 100001 !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .dropdown-menu *,
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar .usermenu .dropdown-menu *,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .dropdown-menu *,
+body.heyday-coursesearch-page #hcs-ed2go-topbar .usermenu .dropdown-menu *,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .dropdown-menu *,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .usermenu .dropdown-menu * {
+    color: #003399 !important;
+}
+
+/* Pull the main search area up after the old top header is hidden. */
+body.path-local-heyday_coursesearch .hcs-wrap,
+body.heyday-coursesearch-page .hcs-wrap,
+body#page-local-heyday_coursesearch-search .hcs-wrap {
+    margin-top: 82px !important;
+}
+
+
+/* =========================================================
+   v1.0.6 - remove duplicate Help Center and Tour from Search page topbar
+   Final desired topbar: Search | Help | User menu
+   ========================================================= */
+
+body.path-local-heyday_coursesearch #heyday-ed2go-topbar,
+body.heyday-coursesearch-page #heyday-ed2go-topbar,
+body#page-local-heyday_coursesearch-search #heyday-ed2go-topbar,
+body.path-local-heyday_coursesearch .heyday-topbar-item,
+body.heyday-coursesearch-page .heyday-topbar-item,
+body.path-local-heyday_coursesearch .heyday-topbar-right,
+body.heyday-coursesearch-page .heyday-topbar-right,
+body.path-local-heyday_coursesearch .hsb-topbar,
+body.heyday-coursesearch-page .hsb-topbar,
+body.path-local-heyday_coursesearch .hsb-help-button,
+body.path-local-heyday_coursesearch .hsb-help-link,
+body.path-local-heyday_coursesearch .hsb-tour-button,
+body.path-local-heyday_coursesearch .hsb-tour-text,
+body.heyday-coursesearch-page .hsb-help-button,
+body.heyday-coursesearch-page .hsb-help-link,
+body.heyday-coursesearch-page .hsb-tour-button,
+body.heyday-coursesearch-page .hsb-tour-text,
+body.path-local-heyday_coursesearch a[href*="tool_usertours"],
+body.path-local-heyday_coursesearch a[href*="usertours"],
+body.path-local-heyday_coursesearch button[data-action*="tour"],
+body.path-local-heyday_coursesearch [data-key="tool_usertours"],
+body.path-local-heyday_coursesearch .tool_usertours-resettour,
+body.path-local-heyday_coursesearch .tool_usertours-resettourcontainer {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Keep exactly the plugin-created hcs topbar visible. */
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar,
+body.heyday-coursesearch-page #hcs-ed2go-topbar,
+body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar #hcs-topbar-search,
+body.path-local-heyday_coursesearch #hcs-ed2go-topbar #hcs-topbar-help,
+body.heyday-coursesearch-page #hcs-ed2go-topbar #hcs-topbar-search,
+body.heyday-coursesearch-page #hcs-ed2go-topbar #hcs-topbar-help {
+    display: inline-flex !important;
+    visibility: visible !important;
+    width: auto !important;
+    height: 42px !important;
+}

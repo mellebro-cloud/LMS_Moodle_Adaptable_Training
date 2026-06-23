@@ -1,0 +1,378 @@
+/* =========================================================
+   Heyday Scores - ed2go style learner scores page
+   Moodle 5.0.6+ / Adaptable 500.2.6
+   ========================================================= */
+
+/* Remove Moodle secondary course tabs on the custom Scores page */
+.path-local-heyday_scores .secondary-navigation,
+.heyday-scores-page-body .secondary-navigation {
+    display: none !important;
+}
+
+/* Let the custom page align more like the ed2go screenshot */
+.path-local-heyday_scores #page.drawers .main-inner,
+.heyday-scores-page-body #page.drawers .main-inner {
+    max-width: none !important;
+}
+
+.heyday-scores-wrapper {
+    max-width: 960px;
+    margin: 0 24px 40px 24px;
+    padding-top: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Title row */
+.heyday-scores-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.heyday-scores-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 400;
+    color: #222;
+}
+
+.heyday-download-btn {
+    border: 1px solid #0073a8 !important;
+    color: #006fa8 !important;
+    background: #fff !important;
+    border-radius: 4px !important;
+    padding: 8px 13px !important;
+    font-size: 14px !important;
+}
+
+.heyday-download-btn:hover {
+    background: #eef8fd !important;
+}
+
+/* Toolbar */
+.heyday-score-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #d5dce0;
+    background: #fff;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    border-radius: 3px;
+}
+
+.heyday-credit-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #0073a8;
+    color: #006fa8;
+    background: #fff;
+    padding: 7px 12px;
+    border-radius: 4px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.heyday-credit-filter input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+}
+
+.heyday-sort-btn {
+    background: #0073a8;
+    border: 1px solid #0073a8;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.heyday-sort-btn:hover {
+    background: #005f8f;
+}
+
+.heyday-search-wrap {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    min-width: 180px;
+}
+
+.heyday-search-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    border: 1px solid #cfd7dc;
+    border-right: 0;
+    background: #f5f6f7;
+    color: #555;
+    font-size: 14px;
+}
+
+.heyday-score-search {
+    flex: 1;
+    height: 36px;
+    border: 1px solid #cfd7dc;
+    padding: 7px 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+.heyday-score-search:focus {
+    border-color: #0073a8;
+}
+
+/* Score rows */
+.heyday-score-list {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+.heyday-score-row {
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #d5dce0;
+    background: #fff;
+    border-radius: 3px;
+    padding: 0 16px;
+}
+
+.heyday-score-row.is-locked {
+    background: #cfd3d6;
+    border-color: #bfc4c7;
+}
+
+.heyday-score-left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.heyday-score-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.heyday-score-name {
+    color: #006fa8;
+    font-size: 22px;
+    font-weight: 400;
+    text-decoration: underline;
+    line-height: 1.2;
+}
+
+.heyday-score-name:hover {
+    color: #004f75;
+}
+
+.heyday-score-name.locked-name {
+    color: #222;
+    text-decoration: none;
+    cursor: default;
+}
+
+.heyday-score-submitted-date {
+    margin-top: 8px;
+    color: #111;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+/* Left icons */
+.hd-score-icon {
+    width: 26px;
+    height: 26px;
+    margin-right: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 26px;
+    color: #20272b;
+}
+
+.hd-score-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.hd-score-icon-check svg {
+    width: 25px;
+    height: 25px;
+}
+
+.hd-score-icon-document svg,
+.hd-score-icon-assignment svg {
+    width: 23px;
+    height: 23px;
+}
+
+/* Right score area */
+.heyday-score-right {
+    min-width: 165px;
+    text-align: right;
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.heyday-score-percent {
+    color: #c43d13;
+    font-size: 14px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+.heyday-score-status {
+    color: #5b1f00;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+.heyday-score-note {
+    color: #111;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.heyday-score-points {
+    color: #667780;
+    font-size: 14px;
+    line-height: 1.2;
+    margin-top: 2px;
+}
+
+.heyday-score-points-complete {
+    color: #c43d13;
+}
+
+.hd-score-lock {
+    width: 23px;
+    height: 23px;
+    color: #20272b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hd-score-lock svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+}
+
+/* Left course index: keep Scores active look like uploaded screenshot */
+.path-local-heyday_scores #courseindex .courseindex-item.pageitem,
+.heyday-scores-page-body #courseindex .courseindex-item.pageitem {
+    background: #d8eef8 !important;
+    color: #006fa8 !important;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .heyday-scores-wrapper {
+        margin: 0 12px 30px 12px;
+        max-width: none;
+    }
+
+    .heyday-score-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .heyday-search-wrap {
+        flex-basis: 100%;
+    }
+
+    .heyday-score-row {
+        min-height: 92px;
+        padding: 12px;
+    }
+
+    .heyday-score-name {
+        font-size: 18px;
+    }
+
+    .heyday-score-right {
+        min-width: 125px;
+    }
+}
+
+/* =========================================================
+   Heyday Scores pagination: Prev 1 2 Next
+   ========================================================= */
+
+   .heyday-score-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    margin: 18px 0 6px 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.heyday-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid #cfd7dc;
+    border-right: 0;
+    background: #fff;
+    color: #006fa8;
+    font-size: 14px;
+    line-height: 1;
+    text-decoration: none !important;
+}
+
+.heyday-page-btn:last-child {
+    border-right: 1px solid #cfd7dc;
+}
+
+.heyday-page-btn:hover {
+    background: #eef8fd;
+    color: #004f75;
+    text-decoration: none !important;
+}
+
+.heyday-page-btn.is-active {
+    background: #0073a8;
+    color: #fff;
+    border-color: #0073a8;
+    font-weight: 600;
+    cursor: default;
+}
+
+.heyday-page-btn.is-disabled {
+    color: #8a8a8a;
+    background: #f7f7f7;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Hide Moodle course tabs on the custom Scores page */
+.path-local-heyday_scores .secondary-navigation,
+.heyday-scores-page-body .secondary-navigation,
+.path-local-heyday_scores [data-region="secondary-navigation"],
+.heyday-scores-page-body [data-region="secondary-navigation"] {
+    display: none !important;
+}

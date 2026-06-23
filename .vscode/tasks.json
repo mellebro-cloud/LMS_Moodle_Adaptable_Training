@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Locate PHPUnit",
+			"type": "shell",
+			"command": "php -v && where phpunit || echo PHPUnit not found",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Locate PHPUnit",
+			"type": "shell",
+			"command": "php -v; if (Get-Command phpunit -ErrorAction SilentlyContinue) { Write-Host \"phpunit found at\" (Get-Command phpunit).Source } else { Write-Host \"PHPUnit not found\" }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Locate PHPUnit 2",
+			"type": "shell",
+			"command": "php -v; if (Get-Command phpunit -ErrorAction SilentlyContinue) { Write-Host \"phpunit found at\" (Get-Command phpunit).Source } else { Write-Host \"PHPUnit not found\" }",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

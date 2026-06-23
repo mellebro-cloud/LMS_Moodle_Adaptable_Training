@@ -1,0 +1,45 @@
+﻿# Moodle config — contains DB credentials
+/config.php
+public/config.php
+
+# Moodle data directory
+/moodledata/
+C:/moodledata/
+
+# Backups and database dumps
+*.sql
+*.sql.gz
+*.zip
+*.tar.gz
+G:/2018/HEYDAY/Database/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+secrets/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# VS Code
+.vscode/settings.json
+
+# PHP/Composer
+vendor/
+composer.lock
+
+# Moodle build artifacts
+public/theme/adaptable/amd/build/
+public/local/*/amd/build/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PHPUnit/Behat temp
+.phpunit.result.cache
+/public/phpunit.xml

@@ -1,0 +1,387 @@
+/* Heyday Getting Started learner pages - Ed2Go-style larger layout. */
+
+/* Moodle body class can contain either hyphen or underscore depending on rendering/version. */
+body.path-local-heyday-gettingstarted,
+body.path-local-heyday_gettingstarted {
+    background: #f4f6f8 !important;
+}
+
+body.path-local-heyday-gettingstarted #region-main,
+body.path-local-heyday_gettingstarted #region-main {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+body.path-local-heyday-gettingstarted #region-main-box,
+body.path-local-heyday_gettingstarted #region-main-box,
+body.path-local-heyday-gettingstarted #page-content,
+body.path-local-heyday_gettingstarted #page-content {
+    max-width: none !important;
+}
+
+/* Hide Moodle's extra page header/title/navigation around the custom learner card. */
+body.path-local-heyday-gettingstarted #page-header,
+body.path-local-heyday_gettingstarted #page-header,
+body.path-local-heyday-gettingstarted .page-header-headings,
+body.path-local-heyday_gettingstarted .page-header-headings,
+body.path-local-heyday-gettingstarted .activity-header,
+body.path-local-heyday_gettingstarted .activity-header,
+body.path-local-heyday-gettingstarted .activity-navigation,
+body.path-local-heyday_gettingstarted .activity-navigation,
+body.path-local-heyday-gettingstarted .moodle-activity-navigation,
+body.path-local-heyday_gettingstarted .moodle-activity-navigation,
+body.path-local-heyday-gettingstarted .secondary-navigation,
+body.path-local-heyday_gettingstarted .secondary-navigation,
+body.path-local-heyday-gettingstarted .tertiary-navigation,
+body.path-local-heyday_gettingstarted .tertiary-navigation,
+body.path-local-heyday-gettingstarted #region-main > h1,
+body.path-local-heyday_gettingstarted #region-main > h1,
+body.path-local-heyday-gettingstarted #region-main > h2,
+body.path-local-heyday_gettingstarted #region-main > h2,
+body.path-local-heyday-gettingstarted #region-main > .completion-info,
+body.path-local-heyday_gettingstarted #region-main > .completion-info,
+body.path-local-heyday-gettingstarted #region-main > .automatic-completion-conditions,
+body.path-local-heyday_gettingstarted #region-main > .automatic-completion-conditions {
+    display: none !important;
+}
+
+.hgs-wrap {
+    width: calc(100% - 64px);
+    max-width: 1120px;
+    margin: 30px auto 58px auto;
+}
+
+.hgs-card {
+    background: #fff;
+    border: 1px solid #d7dce0;
+    padding: 42px 58px 52px 58px;
+    min-height: 390px;
+    box-sizing: border-box;
+}
+
+.hgs-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.hgs-left-icons,
+.hgs-right-icons {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.hgs-icon {
+    border: 0;
+    background: transparent;
+    color: #0073a8 !important;
+    font-size: 25px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.hgs-icon:hover,
+.hgs-icon:focus {
+    color: #004f76 !important;
+    outline: none;
+}
+
+.hgs-course-title {
+    text-align: center;
+    color: #66727c;
+    font-size: 17px;
+    line-height: 1.38;
+    margin-top: -18px;
+}
+
+.hgs-section-title {
+    display: block;
+    color: #66727c;
+}
+
+.hgs-title {
+    text-align: center;
+    font-size: 34px;
+    line-height: 1.25;
+    font-weight: 400;
+    color: #111;
+    margin: 28px 0 48px 0;
+}
+
+.hgs-content {
+    color: #222;
+    font-size: 18px;
+    line-height: 1.66;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.hgs-content p {
+    margin-bottom: 19px;
+}
+
+.hgs-content ul,
+.hgs-content ol {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding-left: 32px;
+}
+
+.hgs-content li {
+    margin-bottom: 8px;
+}
+
+.hgs-complete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin: 40px auto 34px auto;
+    color: #222;
+    font-size: 17px;
+}
+
+.hgs-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #5ca832;
+    color: #fff;
+    font-size: 34px;
+    font-weight: 700;
+}
+
+.hgs-undo {
+    display: block;
+    color: #0073a8;
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+.hgs-end {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 28px auto 20px auto;
+    color: #333;
+    font-size: 15px;
+}
+
+.hgs-end span {
+    width: 76px;
+    height: 1px;
+    background: #9aa8b1;
+}
+
+.hgs-next {
+    display: flex;
+    width: 345px;
+    margin: 0 auto 48px auto;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+.hgs-next-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 92px;
+    min-height: 72px;
+    background: #0077a6;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.hgs-next-content {
+    flex: 1;
+    min-height: 72px;
+    padding: 12px 14px;
+    border: 1px solid #d7d7d7;
+    border-left: 0;
+    background: #fff;
+    font-size: 14px;
+}
+
+.hgs-next-section {
+    display: block;
+    color: #777;
+    font-size: 13px;
+}
+
+.hgs-next-title {
+    display: block;
+    color: #006fae;
+    text-decoration: underline;
+    font-size: 15px;
+    line-height: 1.25;
+}
+
+.hgs-next-type {
+    display: block;
+    color: #444;
+    font-size: 13px;
+}
+
+.hgs-print-wrap {
+    position: relative;
+}
+
+.hgs-print-menu {
+    display: none;
+    position: absolute;
+    top: 30px;
+    right: 0;
+    width: 205px;
+    z-index: 9999;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 14px rgba(0,0,0,.14);
+}
+
+.hgs-print-menu.is-open {
+    display: block;
+}
+
+.hgs-print-menu button {
+    display: block;
+    width: 100%;
+    padding: 11px 13px;
+    border: 0;
+    background: #fff;
+    text-align: left;
+    color: #222;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.hgs-print-menu button:hover {
+    background: #f2f2f2;
+}
+
+@media (max-width: 1100px) {
+    .hgs-wrap {
+        width: calc(100% - 40px);
+        max-width: 96%;
+    }
+
+    .hgs-card {
+        padding-left: 36px;
+        padding-right: 36px;
+    }
+
+    .hgs-content {
+        font-size: 17px;
+    }
+}
+
+@media (max-width: 760px) {
+    .hgs-wrap {
+        width: calc(100% - 20px);
+        margin-top: 18px;
+    }
+
+    .hgs-card {
+        padding: 28px 20px 36px 20px;
+    }
+
+    .hgs-course-title {
+        margin-top: 8px;
+        font-size: 15px;
+    }
+
+    .hgs-title {
+        font-size: 28px;
+        margin-bottom: 30px;
+    }
+
+    .hgs-content {
+        font-size: 16px;
+    }
+
+    .hgs-next {
+        width: 100%;
+        max-width: 345px;
+    }
+}
+
+@media print {
+    .hgs-topbar,
+    .hgs-complete,
+    .hgs-end,
+    .hgs-next,
+    .drawer,
+    .drawer-left,
+    .drawer-right {
+        display: none !important;
+    }
+
+    .hgs-wrap,
+    .hgs-card {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        border: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+/* 2026061414 - critical fallback so this child plugin always uses the
+   courseplayer master shell instead of Moodle's native drawer/chrome. */
+body.path-local-heyday-gettingstarted nav.navbar,
+body.path-local-heyday_gettingstarted nav.navbar,
+body.path-local-heyday-gettingstarted .navbar.fixed-top,
+body.path-local-heyday_gettingstarted .navbar.fixed-top,
+body.path-local-heyday-gettingstarted #page-header,
+body.path-local-heyday_gettingstarted #page-header,
+body.path-local-heyday-gettingstarted .secondary-navigation,
+body.path-local-heyday_gettingstarted .secondary-navigation,
+body.path-local-heyday-gettingstarted .drawer-toggles,
+body.path-local-heyday_gettingstarted .drawer-toggles,
+body.path-local-heyday-gettingstarted .drawer,
+body.path-local-heyday_gettingstarted .drawer,
+body.path-local-heyday-gettingstarted [data-region="drawer"],
+body.path-local-heyday_gettingstarted [data-region="drawer"],
+body.path-local-heyday-gettingstarted [data-region="courseindex"],
+body.path-local-heyday_gettingstarted [data-region="courseindex"],
+body.path-local-heyday-gettingstarted .courseindex,
+body.path-local-heyday_gettingstarted .courseindex,
+body.path-local-heyday-gettingstarted #courseindex,
+body.path-local-heyday_gettingstarted #courseindex,
+body.path-local-heyday-gettingstarted #page-footer,
+body.path-local-heyday_gettingstarted #page-footer {
+    display: none !important;
+}
+
+body.path-local-heyday-gettingstarted,
+body.path-local-heyday_gettingstarted,
+body.path-local-heyday-gettingstarted #page,
+body.path-local-heyday_gettingstarted #page,
+body.path-local-heyday-gettingstarted #page-wrapper,
+body.path-local-heyday_gettingstarted #page-wrapper,
+body.path-local-heyday-gettingstarted #page-content,
+body.path-local-heyday_gettingstarted #page-content,
+body.path-local-heyday-gettingstarted #region-main,
+body.path-local-heyday_gettingstarted #region-main,
+body.path-local-heyday-gettingstarted .main-inner,
+body.path-local-heyday_gettingstarted .main-inner {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    background: #f4f5f7 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
