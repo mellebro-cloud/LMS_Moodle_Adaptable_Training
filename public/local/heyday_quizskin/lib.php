@@ -81,6 +81,11 @@ function local_heyday_quizskin_is_target(): bool {
         return true;
     }
 
+    // Lesson quizzes (HEYDAY_LESSON<N>_QUIZ) are handled by local_heyday_quiz — skip them here.
+    if (preg_match('/^HEYDAY_LESSON\d+_QUIZ$/i', $idnumber)) {
+        return false;
+    }
+
     $combined = strtolower($cm->name . ' ' . $quiz->name);
 
     return strpos($combined, 'pretest') !== false;
@@ -739,7 +744,49 @@ body#page-mod-quiz-review.heyday-quizskin-page .que.incorrect .specificfeedback,
 body#page-mod-quiz-review.heyday-quizskin-page .que.incorrect .generalfeedback {
     background: #f1d6d6 !important;
     border-color: #e6bcbc !important;
+    border-left: 4px solid #b73434 !important;
     color: #7b1e1e !important;
+}
+
+/* Review: un-hide .outcome block so feedback text is visible. */
+body#page-mod-quiz-review.heyday-quizskin-page .que .outcome {
+    display: block !important;
+}
+
+body#page-mod-quiz-review.heyday-quizskin-page .que .outcome .grade,
+body#page-mod-quiz-review.heyday-quizskin-page .que .outcome .rightanswer {
+    display: none !important;
+}
+
+/* X / check icons inside A B C D capsule. */
+.hdq-ans-x,
+.hdq-ans-check {
+    margin-left: 3px !important;
+    font-size: 11px !important;
+    vertical-align: middle !important;
+}
+
+/* "Incorrect." bold line at top of red feedback box. */
+.hdq-incorrect-prefix {
+    display: block !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    margin-bottom: 6px !important;
+}
+
+/* "This was the correct answer." bar under correct answer row. */
+.hdq-correct-note {
+    margin: 0 0 8px 0 !important;
+    padding: 9px 14px !important;
+    background: #087aa1 !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 0 0 3px 3px !important;
+}
+
+.hdq-correct-note .fa {
+    margin-right: 5px !important;
 }
 
 /* Submit buttons - right aligned together. */
@@ -928,6 +975,79 @@ body.heyday-quizskin-page .submitbtns + .activity-navigation {
     }
 }
 
+/* Summary page — hide content, show submitting overlay. */
+body#page-mod-quiz-summary.heyday-quizskin-page #region-main {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+body#page-mod-quiz-summary.heyday-quizskin-page::after {
+    content: 'Submitting\2026' !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    font-size: 20px !important;
+    color: #555 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    letter-spacing: 0.03em !important;
+}
+
+/* Review score badge — ed2go style above questions. */
+.hdq-score-bar {
+    text-align: center !important;
+    padding: 20px 0 22px 0 !important;
+    border-bottom: 1px solid #e0e6ea !important;
+    margin: -4px 0 26px 0 !important;
+}
+
+.hdq-score-label {
+    font-size: 13px !important;
+    color: #66727c !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    margin: 0 0 6px 0 !important;
+}
+
+.hdq-score-pct {
+    font-size: 54px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    color: #3f8b2b !important;
+    margin: 0 !important;
+}
+
+.hdq-score-pct.hdq-score-fail {
+    color: #b73434 !important;
+}
+
+.hdq-score-detail {
+    font-size: 15px !important;
+    color: #555 !important;
+    margin: 8px 0 0 0 !important;
+}
+
+.hdq-score-status {
+    display: inline-block !important;
+    margin-top: 10px !important;
+    padding: 3px 16px !important;
+    border-radius: 20px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+.hdq-score-status.hdq-pass {
+    background: #dfeeda !important;
+    color: #2d6422 !important;
+}
+
+.hdq-score-status.hdq-fail {
+    background: #f1d6d6 !important;
+    color: #7b1e1e !important;
+}
+
 /* Print mode. */
 @media print {
     body.heyday-quizskin-page .drawer,
@@ -974,8 +1094,8 @@ function local_heyday_quizskin_before_footer(): string {
     require_once($CFG->dirroot . '/course/lib.php');
 
     $coursefullname = format_string($course->fullname);
-    $quiztitle = format_string($quiz->name);
-    $viewurl = (new moodle_url('/local/heyday_pretest/view.php', ['cmid' => $cm->id]))->out(false);
+    $quiztitle      = format_string($quiz->name);
+    $viewurl        = (new moodle_url('/local/heyday_pretest/view.php', ['cmid' => $cm->id]))->out(false);
 
     $introhtml = trim(format_module_intro('quiz', $quiz, $cm->id, false));
 
@@ -989,24 +1109,25 @@ function local_heyday_quizskin_before_footer(): string {
     $nextcm = local_heyday_quizskin_find_l1_learning_objectives($course, (int)$cm->id);
 
     if ($nextcm) {
-        $nexturl = local_heyday_quizskin_cm_url($nextcm)->out(false);
+        $nexturl  = local_heyday_quizskin_cm_url($nextcm)->out(false);
         $nextname = format_string($nextcm->name);
         $nexttype = local_heyday_quizskin_display_type($nextcm);
     } else {
-        $nexturl = (new moodle_url('/course/view.php', ['id' => $course->id]))->out(false);
+        $nexturl  = (new moodle_url('/course/view.php', ['id' => $course->id]))->out(false);
         $nextname = 'Learning Objectives';
         $nexttype = 'activity';
     }
 
     $data = [
-        'course' => $coursefullname,
-        'quiz' => $quiztitle,
-        'viewurl' => $viewurl,
-        'introhtml' => $introhtml,
-        'nexturl' => $nexturl,
+        'course'      => $coursefullname,
+        'quiz'        => $quiztitle,
+        'viewurl'     => $viewurl,
+        'introhtml'   => $introhtml,
+        'quizendtext' => 'End of Pretest',
+        'nexturl'     => $nexturl,
         'nextsection' => 'Lesson 1',
-        'nextname' => $nextname,
-        'nexttype' => $nexttype,
+        'nextname'    => $nextname,
+        'nexttype'    => $nexttype,
     ];
 
     $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
@@ -1202,6 +1323,27 @@ function local_heyday_quizskin_before_footer(): string {
 
         submitBtn.classList.add('hdq-submit-answer');
 
+        /* On the attempt page: intercept click in capture phase so we fire
+           before Moodle's AMD bubble handlers.  Add finishattempt=1 and call
+           form.submit() — jumps directly to processattempt.php, skipping
+           the summary/confirmation page entirely. */
+        if (document.body.id === 'page-mod-quiz-attempt' && !submitBtn.dataset.hdqIntercept) {
+            submitBtn.dataset.hdqIntercept = '1';
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var fi = form.querySelector('input[name="finishattempt"]');
+                if (!fi) {
+                    fi = document.createElement('input');
+                    fi.type = 'hidden';
+                    fi.name = 'finishattempt';
+                    form.appendChild(fi);
+                }
+                fi.value = '1';
+                form.submit();
+            }, true);
+        }
+
         var oldButtonRow = submitArea.querySelector('.hdq-button-row');
         if (oldButtonRow && !oldButtonRow.contains(submitBtn)) {
             oldButtonRow.remove();
@@ -1230,7 +1372,7 @@ function local_heyday_quizskin_before_footer(): string {
 
         var end = document.createElement('div');
         end.className = 'hdq-end';
-        end.innerHTML = '<span></span><strong>End of Pretest</strong><span></span>';
+        end.innerHTML = '<span></span><strong>' + (HDQ.quizendtext || 'End of Quiz') + '</strong><span></span>';
 
         var next = document.createElement('a');
         next.className = 'hdq-next';
@@ -1339,6 +1481,175 @@ function local_heyday_quizskin_before_footer(): string {
         }
     }
 
+    function bypassSummary() {
+        if (document.body.id !== 'page-mod-quiz-summary') {
+            return;
+        }
+
+        /* Use form.submit() — bypasses Moodle's JS confirmation modal.
+           btn.click() triggers AMD handlers that open a dialog and stall. */
+        var form =
+            document.querySelector('form[action*="processattempt"]') ||
+            document.querySelector('form');
+
+        if (!form) { return; }
+
+        /* Ensure finishattempt=1 reaches the server — hidden inputs survive
+           form.submit() but submit button values do not. */
+        var fi = form.querySelector('input[name="finishattempt"]');
+        if (!fi) {
+            fi = document.createElement('input');
+            fi.type = 'hidden';
+            fi.name = 'finishattempt';
+            form.appendChild(fi);
+        }
+        fi.value = '1';
+
+        form.submit();
+    }
+
+    function showScore() {
+        if (document.body.id !== 'page-mod-quiz-review') {
+            return;
+        }
+
+        var card = document.querySelector('.hdq-card');
+        if (!card || card.querySelector('.hdq-score-bar')) {
+            return;
+        }
+
+        var summaryEl = document.querySelector('.quizreviewsummary');
+        var rawText = summaryEl ? (summaryEl.textContent || '') : '';
+
+        var pct = null;
+        var detail = '';
+
+        var pctMatch = rawText.match(/\((\d+(?:\.\d+)?)%\)/);
+        var scoreMatch = rawText.match(/([\d.]+)\s*(?:out of|\/)\s*([\d.]+)/i);
+        var marksMatch = rawText.match(/Marks\s*:?\s*([\d.]+)\s*\/\s*([\d.]+)/i);
+
+        if (pctMatch) {
+            pct = Math.round(parseFloat(pctMatch[1]));
+        }
+
+        if (scoreMatch) {
+            if (pct === null) {
+                var sc = parseFloat(scoreMatch[1]);
+                var tot = parseFloat(scoreMatch[2]);
+                if (tot > 0) { pct = Math.round(sc / tot * 100); }
+            }
+            detail = scoreMatch[1] + ' out of ' + scoreMatch[2] + ' correct';
+        }
+
+        if (marksMatch && pct === null) {
+            var sc2 = parseFloat(marksMatch[1]);
+            var tot2 = parseFloat(marksMatch[2]);
+            if (tot2 > 0) { pct = Math.round(sc2 / tot2 * 100); detail = marksMatch[1] + ' / ' + marksMatch[2] + ' marks'; }
+        }
+
+        if (pct === null) {
+            return;
+        }
+
+        var isPass = pct >= 70;
+        var bar = document.createElement('div');
+        bar.className = 'hdq-score-bar';
+        bar.innerHTML =
+            '<div class="hdq-score-label">Your Score</div>' +
+            '<div class="hdq-score-pct' + (isPass ? '' : ' hdq-score-fail') + '">' + pct + '%</div>' +
+            (detail ? '<div class="hdq-score-detail">' + detail + '</div>' : '') +
+            '<span class="hdq-score-status ' + (isPass ? 'hdq-pass">Passed' : 'hdq-fail">Did not pass') + '</span>';
+
+        var insertPoint = card.querySelector('.hdq-instructions-toggle') ||
+                          card.querySelector('.hdq-title');
+
+        if (insertPoint && insertPoint.parentNode === card) {
+            insertPoint.parentNode.insertBefore(bar, insertPoint.nextSibling);
+        } else {
+            card.appendChild(bar);
+        }
+    }
+
+    /* ── Annotate review: X on wrong, check + note on correct ───── */
+    function annotateReview() {
+        if (document.body.id !== 'page-mod-quiz-review') { return; }
+
+        document.querySelectorAll('.que.incorrect, .que.partiallycorrect').forEach(function(que) {
+            var content = que.querySelector('.content');
+            if (!content || content.dataset.hdqReviewed) { return; }
+            content.dataset.hdqReviewed = '1';
+
+            /* ✕ on the wrong selected answer capsule */
+            var wrongRow = que.querySelector('.answer .incorrect');
+            if (wrongRow) {
+                var num = wrongRow.querySelector('.answernumber');
+                if (num && !num.querySelector('.hdq-ans-x')) {
+                    var xEl = document.createElement('i');
+                    xEl.className = 'fa fa-times hdq-ans-x';
+                    xEl.setAttribute('aria-hidden', 'true');
+                    num.appendChild(xEl);
+                }
+            }
+
+            /* ✓ on correct answer capsule + "This was the correct answer." bar */
+            var correctRow = que.querySelector('.answer .correct');
+            if (correctRow) {
+                var num2 = correctRow.querySelector('.answernumber');
+                if (num2 && !num2.querySelector('.hdq-ans-check')) {
+                    var chk = document.createElement('i');
+                    chk.className = 'fa fa-check hdq-ans-check';
+                    chk.setAttribute('aria-hidden', 'true');
+                    num2.appendChild(chk);
+                }
+                if (!que.querySelector('.hdq-correct-note')) {
+                    var note = document.createElement('div');
+                    note.className = 'hdq-correct-note';
+                    note.innerHTML = '<i class="fa fa-check-circle" aria-hidden="true"></i> This was the correct answer.';
+                    correctRow.insertAdjacentElement('afterend', note);
+                }
+            }
+
+            /* "Incorrect." prefix inside the red feedback box */
+            var feedbackEl = que.querySelector(
+                '.outcome .feedback, .outcome .specificfeedback, .outcome .generalfeedback, ' +
+                '.feedback, .specificfeedback, .generalfeedback'
+            );
+            if (feedbackEl && !feedbackEl.querySelector('.hdq-incorrect-prefix')) {
+                var pfx = document.createElement('span');
+                pfx.className = 'hdq-incorrect-prefix';
+                pfx.innerHTML = '<i class="fa fa-times-circle" aria-hidden="true"></i> Incorrect.';
+                feedbackEl.insertBefore(pfx, feedbackEl.firstChild);
+            } else if (!feedbackEl) {
+                var formulation = que.querySelector('.formulation');
+                if (formulation && !formulation.querySelector('.hdq-fallback-incorrect')) {
+                    var fb = document.createElement('div');
+                    fb.className = 'hdq-fallback-incorrect';
+                    fb.style.cssText = 'margin:8px 0 0 58px;padding:10px 14px;background:#f1d6d6;border:1px solid #e6bcbc;border-left:4px solid #b73434;color:#7b1e1e;font-size:14px;border-radius:3px;font-weight:700;';
+                    fb.innerHTML = '<i class="fa fa-times-circle" aria-hidden="true"></i> Incorrect.';
+                    formulation.appendChild(fb);
+                }
+            }
+        });
+
+        /* Correct questions: ✓ on answer capsule only */
+        document.querySelectorAll('.que.correct').forEach(function(que) {
+            var content = que.querySelector('.content');
+            if (!content || content.dataset.hdqReviewed) { return; }
+            content.dataset.hdqReviewed = '1';
+
+            var correctRow = que.querySelector('.answer .correct');
+            if (correctRow) {
+                var num = correctRow.querySelector('.answernumber');
+                if (num && !num.querySelector('.hdq-ans-check')) {
+                    var chk = document.createElement('i');
+                    chk.className = 'fa fa-check hdq-ans-check';
+                    chk.setAttribute('aria-hidden', 'true');
+                    num.appendChild(chk);
+                }
+            }
+        });
+    }
+
     function init() {
         buildShell();
         cleanQuiz();
@@ -1346,6 +1657,9 @@ function local_heyday_quizskin_before_footer(): string {
         improveButtons();
         addNextUp();
         wireControls();
+        bypassSummary();
+        showScore();
+        annotateReview();
     }
 
     ready(init);

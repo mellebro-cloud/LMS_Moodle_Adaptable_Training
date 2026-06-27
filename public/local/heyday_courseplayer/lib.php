@@ -37,7 +37,7 @@ function local_heyday_courseplayer_page_for_cm_record(stdClass $cm): string {
     $name = strtolower(trim((string)($cm->name ?? '')));
     $modname = (string)($cm->modname ?? '');
 
-    if (strpos($name, 'pretest') !== false || strpos($name, 'pre-test') !== false) {
+    if (preg_match('/\bpre[\s\-_]*test\b/i', $name)) {
         return 'pretest';
     }
 

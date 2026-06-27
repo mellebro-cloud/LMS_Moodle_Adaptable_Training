@@ -519,6 +519,17 @@ function local_heyday_lessons_build_structure(stdClass $course, int $currentcmid
             continue;
         }
 
+        // Hidden sections are never shown in the learner-facing sidebar (even for admins).
+        if (!$sectioninfo->visible) {
+            continue;
+        }
+
+        // Delegated subsection backing sections (component = 'mod_subsection') must not
+        // appear as top-level lesson groups — they are owned by their parent subsection CM.
+        if (!empty($sectioninfo->component)) {
+            continue;
+        }
+
         $title = local_heyday_lessons_section_title($course, $sectioninfo);
         $kind = local_heyday_lessons_classify_title($title);
         $sectioncms = $modinfo->sections[$sectionnum] ?? [];

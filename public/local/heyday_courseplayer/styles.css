@@ -4596,3 +4596,778 @@ body.local-heyday-courseplayer .heyday-subsection-group > summary::marker {
 body.local-heyday-courseplayer .heyday-subsection-items {
     display: block !important;
 }
+
+/* ── Pretest card ─────────────────────────────────────────────────────────── */
+body.local-heyday-courseplayer .heyday-pretest-card {
+    background: #ffffff;
+    border: 1px solid var(--heyday-soft-border);
+    border-radius: 4px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+body.local-heyday-courseplayer .heyday-pretest-card__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+body.local-heyday-courseplayer .heyday-pretest-card__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+body.local-heyday-courseplayer .heyday-pretest-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+body.local-heyday-courseplayer .heyday-pretest-badge--notstarted {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+body.local-heyday-courseplayer .heyday-pretest-badge--inprogress {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+body.local-heyday-courseplayer .heyday-pretest-badge--complete {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+body.local-heyday-courseplayer .heyday-pretest-card__desc {
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.65;
+    margin-bottom: 24px;
+}
+
+body.local-heyday-courseplayer .heyday-pretest-card__actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* ── heyday_pretest card rendered inside the player ──────────────────────── */
+/* .heyday-player-card already provides white bg, border, and padding.       */
+/* .hd-pretest-page sits inside .heyday-content-body — no extra card needed. */
+body.local-heyday-courseplayer .hd-pretest-page {
+    margin: 0 0 40px 0;
+}
+
+body.local-heyday-courseplayer .hd-pretest-card {
+    background: transparent;
+    border: 0;
+    padding: 0;
+}
+
+body.local-heyday-courseplayer .hd-pretest-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+body.local-heyday-courseplayer .hd-pretest-topbar-left,
+body.local-heyday-courseplayer .hd-pretest-topbar-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+body.local-heyday-courseplayer .hd-icon-btn {
+    border: 0;
+    background: transparent;
+    color: #0074ad;
+    font-size: 20px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+body.local-heyday-courseplayer .hd-icon-btn:hover { color: #004f76; text-decoration: none; }
+
+body.local-heyday-courseplayer .hd-pretest-course-title {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+body.local-heyday-courseplayer .hd-pretest-title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 400;
+    margin: 0 0 20px 0;
+    color: #111;
+}
+
+body.local-heyday-courseplayer .hd-instructions-toggle-wrap { margin-bottom: 14px; }
+
+body.local-heyday-courseplayer .hd-instructions-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 6px 12px;
+    background: #fff;
+    border: 1px solid #a9cfe5;
+    border-radius: 4px;
+    color: #006fae;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+body.local-heyday-courseplayer .hd-instructions-toggle:hover { background: #f5fbff; }
+
+body.local-heyday-courseplayer .hd-instructions-panel.is-hidden { display: none; }
+
+body.local-heyday-courseplayer .hd-pretest-body {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #222;
+}
+
+body.local-heyday-courseplayer .hd-pretest-rules {
+    margin-top: 16px;
+    border: 1px solid #d7dce0;
+    border-radius: 4px;
+    padding: 12px 18px;
+    background: #fff;
+}
+
+body.local-heyday-courseplayer .hd-pretest-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 28px;
+}
+
+body.local-heyday-courseplayer .hd-skip-link {
+    color: #006fae;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+body.local-heyday-courseplayer .hd-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 86px;
+    min-height: 42px;
+    padding: 9px 20px;
+    background: #3f8b2b;
+    border: 0;
+    border-radius: 4px;
+    color: #fff !important;
+    font-weight: 700;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+body.local-heyday-courseplayer .hd-primary-btn:hover { background: #327121; }
+
+/* Form inside .hd-pretest-actions flex row: act as transparent wrapper */
+body.local-heyday-courseplayer .hd-pretest-actions form {
+    display: contents;
+}
+
+body.local-heyday-courseplayer .hd-print-wrapper { position: relative; }
+
+body.local-heyday-courseplayer .hd-print-menu {
+    display: none;
+    position: absolute;
+    top: 28px; right: 0;
+    z-index: 9999;
+    width: 190px;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 14px rgba(0,0,0,.12);
+}
+
+body.local-heyday-courseplayer .hd-print-menu.is-open { display: block; }
+
+body.local-heyday-courseplayer .hd-print-menu button {
+    display: block; width: 100%;
+    padding: 10px 12px; border: 0;
+    background: #fff; text-align: left;
+    font-size: 13px; cursor: pointer;
+}
+
+body.local-heyday-courseplayer .hd-print-menu button:hover { background: #f2f2f2; }
+
+body.local-heyday-courseplayer .hd-end-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 30px auto 16px auto;
+    color: #333;
+    font-size: 14px;
+}
+
+body.local-heyday-courseplayer .hd-end-separator span {
+    width: 70px; height: 1px; background: #9aa8b1;
+}
+
+body.local-heyday-courseplayer .hd-next-card {
+    display: flex;
+    width: 300px;
+    margin: 0 auto 40px auto;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+body.local-heyday-courseplayer .hd-next-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 82px;
+    background: #0077a6;
+    color: #fff;
+    font-weight: 700;
+    min-height: 64px;
+    font-size: 14px;
+}
+
+body.local-heyday-courseplayer .hd-next-content {
+    flex: 1;
+    border: 1px solid #d7d7d7;
+    border-left: 0;
+    background: #fff;
+    padding: 10px 12px;
+    font-size: 12px;
+}
+
+body.local-heyday-courseplayer .hd-next-section { display: block; color: #777; }
+body.local-heyday-courseplayer .hd-next-title   { display: block; color: #006fae; text-decoration: underline; font-size: 13px; }
+
+/* ── Pretest quiz iframe ─────────────────────────────────────────────────── */
+body.local-heyday-courseplayer .hd-pretest-iframe {
+    display: none;
+    width: 100%;
+    border: 0;
+}
+
+/* When the iframe is active (.heyday-player-card has padding: 26px 48px 50px).
+   Negative margins cancel the card's left/right/bottom padding so the quiz
+   fills edge-to-edge. The content-body max-width is also released. */
+body.local-heyday-courseplayer.hd-iframe-active .heyday-content-body {
+    max-width: 100% !important;
+}
+
+body.local-heyday-courseplayer.hd-iframe-active .hd-pretest-iframe {
+    display: block;
+    width: calc(100% + 96px) !important;
+    margin: 0 -48px -50px !important;
+    /* height is set by JS (hdResizeFrame) so no internal scroll is needed */
+    height: 500px;              /* fallback before first JS resize */
+    overflow: hidden !important; /* suppress both scrollbars inside iframe */
+    border-radius: 0 0 3px 3px !important;
+}
+
+/* Clip the wider iframe (padding-box exact fit) to stop the outer page from
+   showing a horizontal scrollbar. overflow-y stays auto so the page can
+   still scroll vertically when the quiz is long. */
+body.local-heyday-courseplayer.hd-iframe-active .heyday-player-card {
+    overflow-x: hidden !important;
+}
+
+/* Hide the master-shell heading while quiz is running in the iframe */
+body.local-heyday-courseplayer.hd-iframe-active .heyday-player-heading {
+    display: none !important;
+}
+
+/* While quiz iframe is active: hide master_footer completion + Next Up.
+   The quiz page (heyday_pretest/lib.php) renders its own Next Up inside
+   the iframe, so the outer ones would be confusing / unreachable. */
+body.local-heyday-courseplayer.hd-iframe-active .heyday-completion-row,
+body.local-heyday-courseplayer.hd-iframe-active a.heyday-nextup-row {
+    display: none !important;
+}
+
+/* =========================================================
+   HEYDAY COURSE PLAYER - ED2GO STYLE QUIZ SKIN
+   Scope: lesson quiz pages rendered inside local_heyday_courseplayer
+   ========================================================= */
+
+/* ---- Remove duplicated inner Moodle chrome inside embedded quiz ---- */
+.path-local-heyday_courseplayer .quizattempt ~ .secondary-navigation,
+.path-local-heyday_courseplayer .quizattempt ~ .breadcrumb,
+.path-local-heyday_courseplayer .quizattempt ~ .navbar,
+.path-local-heyday_courseplayer .quizattempt ~ #page-footer,
+.path-local-heyday_courseplayer .quizattempt ~ .drawer-toggles,
+.path-local-heyday_courseplayer .quizattempt ~ .header-actions-container,
+.path-local-heyday_courseplayer .quizattempt ~ .activity-header,
+.path-local-heyday_courseplayer .quizattempt ~ .page-header-headings,
+.path-local-heyday_courseplayer .quizattempt ~ .pagelayout-report #page-header,
+.path-local-heyday_courseplayer .quizattempt ~ .usermenu,
+.path-local-heyday_courseplayer .quizattempt ~ .editmode-switch-form,
+.path-local-heyday_courseplayer .quizattempt ~ .moremenu,
+.path-local-heyday_courseplayer .quizattempt ~ .secondary-navigation,
+.path-local-heyday_courseplayer .quizattempt ~ .top-navigation,
+.path-local-heyday_courseplayer .quizattempt ~ .nav-tabs,
+.path-local-heyday_courseplayer .quizattempt ~ .course-content-header,
+.path-local-heyday_courseplayer .quizattempt ~ .course-content-footer {
+    display: none !important;
+}
+
+/* also hide common duplicated Moodle chrome if it appears above quiz content */
+.path-local-heyday_courseplayer .quizattempt .navbar,
+.path-local-heyday_courseplayer .quizattempt .breadcrumb,
+.path-local-heyday_courseplayer .quizattempt .secondary-navigation,
+.path-local-heyday_courseplayer .quizattempt #page-footer,
+.path-local-heyday_courseplayer .quizattempt .drawer-toggles,
+.path-local-heyday_courseplayer .quizattempt .header-actions-container,
+.path-local-heyday_courseplayer .quizattempt .activity-header,
+.path-local-heyday_courseplayer .quizattempt .page-header-headings,
+.path-local-heyday_courseplayer .quizattempt .usermenu,
+.path-local-heyday_courseplayer .quizattempt .editmode-switch-form,
+.path-local-heyday_courseplayer .quizattempt .moremenu,
+.path-local-heyday_courseplayer .quizattempt .nav-tabs {
+    display: none !important;
+}
+
+/* ---- Main quiz wrapper ---- */
+.path-local-heyday_courseplayer .quizattempt,
+.path-local-heyday_courseplayer .quiz-summary,
+.path-local-heyday_courseplayer .quizreviewsummary,
+.path-local-heyday_courseplayer .quizreviewsummary + form,
+.path-local-heyday_courseplayer .submitbtns,
+.path-local-heyday_courseplayer .mod_quiz-next-nav {
+    max-width: 980px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.path-local-heyday_courseplayer .quizattempt {
+    background: #fff;
+    border: 1px solid #e2e2e2;
+    padding: 28px 28px 18px 28px;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* ---- Hide unnecessary quiz nav block ---- */
+.path-local-heyday_courseplayer #mod_quiz_navblock,
+.path-local-heyday_courseplayer .qn_buttons,
+.path-local-heyday_courseplayer .othernav {
+    display: none !important;
+}
+
+/* ---- Question block ---- */
+.path-local-heyday_courseplayer .quizattempt .que {
+    position: relative;
+    border: 0;
+    border-top: 1px dashed #d7d7d7;
+    padding: 28px 0 18px 82px;
+    margin: 0;
+    background: transparent;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que:first-child {
+    border-top: 0;
+    padding-top: 8px;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que .info {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    width: 58px;
+    text-align: center;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que .info .no {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #6f7f89;
+    color: #fff;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1;
+    margin: 0 auto;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que.correct .info .no {
+    background: #4f9625;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que.incorrect .info .no {
+    background: #c33a33;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que .content {
+    margin: 0;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que .qtext {
+    font-size: 19px;
+    line-height: 1.4;
+    color: #1f1f1f;
+    font-weight: 500;
+    margin: 0 0 16px 0;
+}
+
+/* ---- Answer rows ---- */
+.path-local-heyday_courseplayer .quizattempt .answer {
+    margin-top: 10px;
+}
+
+.path-local-heyday_courseplayer .quizattempt .answer div[class^="r"] {
+    background: #f2f2f2;
+    border: 1px solid #ededed;
+    margin: 0 0 9px 0;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.path-local-heyday_courseplayer .quizattempt .answer input[type="radio"],
+.path-local-heyday_courseplayer .quizattempt .answer input[type="checkbox"] {
+    margin: 0 14px 0 16px;
+    transform: scale(1.15);
+}
+
+.path-local-heyday_courseplayer .quizattempt .answer label {
+    width: 100%;
+    margin: 0;
+    padding: 10px 14px 10px 0;
+    color: #0f6fad;
+    font-size: 16px;
+    line-height: 1.35;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.path-local-heyday_courseplayer .quizattempt .answer .answernumber {
+    display: inline-block;
+    min-width: 28px;
+    color: #3d4850;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+/* ---- selected answer before submit ---- */
+.path-local-heyday_courseplayer .quizattempt .answer input[type="radio"]:checked + label,
+.path-local-heyday_courseplayer .quizattempt .answer input[type="checkbox"]:checked + label {
+    color: #ffffff;
+}
+
+.path-local-heyday_courseplayer .quizattempt .answer div:has(input[type="radio"]:checked),
+.path-local-heyday_courseplayer .quizattempt .answer div:has(input[type="checkbox"]:checked) {
+    background: #0b74a9;
+    border-color: #0b74a9;
+}
+
+/* ---- feedback after submit / review ---- */
+.path-local-heyday_courseplayer .quizattempt .rightanswer,
+.path-local-heyday_courseplayer .quizattempt .outcome,
+.path-local-heyday_courseplayer .quizattempt .feedback {
+    margin: 8px 0 12px 0;
+    padding: 11px 14px;
+    border: 0;
+    border-radius: 2px;
+    font-size: 15px;
+    line-height: 1.35;
+    box-sizing: border-box;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que.correct .feedback,
+.path-local-heyday_courseplayer .quizattempt .que.correct .outcome,
+.path-local-heyday_courseplayer .quizattempt .que.correct .rightanswer {
+    background: #dbead3;
+    color: #406b1f;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que.incorrect .feedback,
+.path-local-heyday_courseplayer .quizattempt .que.incorrect .outcome,
+.path-local-heyday_courseplayer .quizattempt .que.incorrect .rightanswer {
+    background: #f3d8d8;
+    color: #8b2d2d;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que.correct div[class^="r"].correct,
+.path-local-heyday_courseplayer .quizattempt .que.correct div[class^="r"].rightanswer,
+.path-local-heyday_courseplayer .quizattempt .que.incorrect div[class^="r"].rightanswer {
+    background: #4a9424 !important;
+    border-color: #4a9424 !important;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que.incorrect div[class^="r"].incorrect {
+    background: #c33a33 !important;
+    border-color: #c33a33 !important;
+}
+
+.path-local-heyday_courseplayer .quizattempt .que.correct div[class^="r"].correct label,
+.path-local-heyday_courseplayer .quizattempt .que.correct div[class^="r"].rightanswer label,
+.path-local-heyday_courseplayer .quizattempt .que.incorrect div[class^="r"].rightanswer label,
+.path-local-heyday_courseplayer .quizattempt .que.incorrect div[class^="r"].incorrect label {
+    color: #ffffff !important;
+}
+
+/* ---- clear choice ---- */
+.path-local-heyday_courseplayer .quizattempt .im-controls,
+.path-local-heyday_courseplayer .quizattempt .prompt {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.path-local-heyday_courseplayer .quizattempt a {
+    color: #0f6fad;
+    text-decoration: none;
+}
+
+.path-local-heyday_courseplayer .quizattempt a:hover {
+    text-decoration: underline;
+}
+
+/* ---- summary page / submit all and finish ---- */
+.path-local-heyday_courseplayer table.generaltable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.path-local-heyday_courseplayer table.generaltable th,
+.path-local-heyday_courseplayer table.generaltable td {
+    border: 1px solid #e6e6e6;
+    padding: 12px 14px;
+    font-size: 16px;
+}
+
+.path-local-heyday_courseplayer table.generaltable th {
+    background: #f7f7f7;
+    font-weight: 600;
+}
+
+.path-local-heyday_courseplayer .submitbtns,
+.path-local-heyday_courseplayer .mod_quiz-next-nav,
+.path-local-heyday_courseplayer .confirmation-buttons,
+.path-local-heyday_courseplayer .singlebutton {
+    margin-top: 18px;
+    text-align: right;
+}
+
+/* ---- Buttons ---- */
+.path-local-heyday_courseplayer .btn,
+.path-local-heyday_courseplayer input[type="submit"],
+.path-local-heyday_courseplayer button {
+    border-radius: 3px;
+    box-shadow: none;
+}
+
+.path-local-heyday_courseplayer .btn-primary,
+.path-local-heyday_courseplayer input[type="submit"].btn-primary,
+.path-local-heyday_courseplayer button.btn-primary,
+.path-local-heyday_courseplayer input[name="next"],
+.path-local-heyday_courseplayer input[name="finishattempt"],
+.path-local-heyday_courseplayer input[name="savechanges"] {
+    background: #5d9728 !important;
+    border: 1px solid #5d9728 !important;
+    color: #fff !important;
+    font-weight: 600;
+    padding: 10px 18px;
+}
+
+.path-local-heyday_courseplayer .btn-secondary,
+.path-local-heyday_courseplayer button.btn-secondary,
+.path-local-heyday_courseplayer input[type="submit"].btn-secondary,
+.path-local-heyday_courseplayer input[name="previous"],
+.path-local-heyday_courseplayer input[name="save"] {
+    background: #ffffff !important;
+    border: 1px solid #7d7d7d !important;
+    color: #333 !important;
+    font-weight: 500;
+    padding: 10px 18px;
+}
+
+/* ---- modal ---- */
+.path-local-heyday_courseplayer .modal-content {
+    border-radius: 6px;
+    border: 2px solid #1c78bd;
+}
+
+.path-local-heyday_courseplayer .modal-header {
+    border-bottom: 1px solid #dddddd;
+}
+
+.path-local-heyday_courseplayer .modal-footer {
+    border-top: 1px solid #dddddd;
+}
+
+/* ---- spacing cleanup ---- */
+.path-local-heyday_courseplayer .quizattempt .formulation,
+.path-local-heyday_courseplayer .quizattempt .ablock {
+    margin-bottom: 0;
+}
+
+.path-local-heyday_courseplayer .quizattempt .history,
+.path-local-heyday_courseplayer .quizattempt .commentlink,
+.path-local-heyday_courseplayer .quizattempt .questionflag {
+    display: none !important;
+}
+
+/* =========================================================
+   HeyDay Course Player - remove duplicated Moodle chrome
+   Scope: only local_heyday_courseplayer pages
+   ========================================================= */
+
+/* Hide duplicated Moodle header/navigation rendered inside the player card */
+body.local-heyday-courseplayer .heyday-player-card .navbar,
+body.local-heyday-courseplayer .heyday-player-card .primary-navigation,
+body.local-heyday-courseplayer .heyday-player-card .secondary-navigation,
+body.local-heyday-courseplayer .heyday-player-card .moremenu,
+body.local-heyday-courseplayer .heyday-player-card .breadcrumb,
+body.local-heyday-courseplayer .heyday-player-card #page-header,
+body.local-heyday-courseplayer .heyday-player-card .page-header-headings,
+body.local-heyday-courseplayer .heyday-player-card .activity-header,
+body.local-heyday-courseplayer .heyday-player-card .editmode-switch-form,
+body.local-heyday-courseplayer .heyday-player-card .header-actions-container,
+body.local-heyday-courseplayer .heyday-player-card .usermenu,
+body.local-heyday-courseplayer .heyday-player-card .navbar-nav,
+body.local-heyday-courseplayer .heyday-player-card .navbar-brand,
+body.local-heyday-courseplayer .heyday-player-card .logo,
+body.local-heyday-courseplayer .heyday-player-card .drawer-toggles,
+body.local-heyday-courseplayer .heyday-player-card .drawer-toggler,
+body.local-heyday-courseplayer .heyday-player-card [data-region="drawer-toggle"],
+body.local-heyday-courseplayer .heyday-player-card [data-region="right-hand-drawer"],
+body.local-heyday-courseplayer .heyday-player-card #page-footer {
+    display: none !important;
+}
+
+/* Some Moodle quiz pages render the chrome inside #page-wrapper / #page.
+   Hide only the chrome, not the quiz content. */
+body.local-heyday-courseplayer .heyday-content-body #page-wrapper > header,
+body.local-heyday-courseplayer .heyday-content-body #page > header,
+body.local-heyday-courseplayer .heyday-content-body #page-navbar,
+body.local-heyday-courseplayer .heyday-content-body #page-header,
+body.local-heyday-courseplayer .heyday-content-body .secondary-navigation,
+body.local-heyday-courseplayer .heyday-content-body .activity-header,
+body.local-heyday-courseplayer .heyday-content-body .drawer-toggles,
+body.local-heyday-courseplayer .heyday-content-body .drawer-toggler,
+body.local-heyday-courseplayer .heyday-content-body .editmode-switch-form,
+body.local-heyday-courseplayer .heyday-content-body .usermenu,
+body.local-heyday-courseplayer .heyday-content-body .navbar {
+    display: none !important;
+}
+
+/* Keep the actual quiz centered after removing inner header */
+body.local-heyday-courseplayer .heyday-player-card #page,
+body.local-heyday-courseplayer .heyday-player-card #page-content,
+body.local-heyday-courseplayer .heyday-player-card #region-main,
+body.local-heyday-courseplayer .heyday-player-card .region_main_settings_menu_proxy {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* Remove inner grey Moodle side gutters around embedded quiz content */
+body.local-heyday-courseplayer .heyday-player-card .main-inner,
+body.local-heyday-courseplayer .heyday-player-card .container,
+body.local-heyday-courseplayer .heyday-player-card .container-fluid {
+    max-width: none !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Clean summary of attempt page */
+body.local-heyday-courseplayer .heyday-player-card .quizsummaryofattempt {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+body.local-heyday-courseplayer .heyday-player-card .quizsummaryofattempt h2,
+body.local-heyday-courseplayer .heyday-player-card .quizsummaryofattempt h3 {
+    font-weight: 500;
+}
+
+body.local-heyday-courseplayer .heyday-player-card table.generaltable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+body.local-heyday-courseplayer .heyday-player-card table.generaltable th {
+    background: #fff;
+    border-bottom: 1px solid #d8d8d8;
+    padding: 13px 14px;
+    font-weight: 600;
+}
+
+body.local-heyday-courseplayer .heyday-player-card table.generaltable td {
+    border-top: 1px solid #e2e2e2;
+    padding: 13px 14px;
+}
+
+/* Center Moodle quiz summary buttons */
+body.local-heyday-courseplayer .heyday-player-card .submitbtns,
+body.local-heyday-courseplayer .heyday-player-card .quizsummaryofattempt .submitbtns,
+body.local-heyday-courseplayer .heyday-player-card .singlebutton {
+    text-align: center;
+    margin-top: 26px;
+}
+
+/* Style buttons closer to ed2go */
+body.local-heyday-courseplayer .heyday-player-card .btn-primary,
+body.local-heyday-courseplayer .heyday-player-card input[type="submit"].btn-primary,
+body.local-heyday-courseplayer .heyday-player-card button.btn-primary {
+    background: #0073a8 !important;
+    border-color: #0073a8 !important;
+    color: #fff !important;
+    border-radius: 4px;
+    font-weight: 600;
+    padding: 9px 18px;
+}
+
+body.local-heyday-courseplayer .heyday-player-card .btn-secondary,
+body.local-heyday-courseplayer .heyday-player-card button.btn-secondary,
+body.local-heyday-courseplayer .heyday-player-card input[type="submit"].btn-secondary {
+    background: #d9dee3 !important;
+    border-color: #d9dee3 !important;
+    color: #222 !important;
+    border-radius: 4px;
+    font-weight: 500;
+    padding: 9px 18px;
+}
+
+/* Keep Moodle final-submit modal functional but cleaner */
+body.local-heyday-courseplayer .modal-content {
+    border: 2px solid #0877b8;
+    border-radius: 7px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+}
+
+body.local-heyday-courseplayer .modal-header {
+    border-bottom: 1px solid #d8dde3;
+}
+
+body.local-heyday-courseplayer .modal-footer {
+    border-top: 1px solid #d8dde3;
+}
+
+body.local-heyday-courseplayer .modal-footer .btn-primary {
+    background: #0073a8 !important;
+    border-color: #0073a8 !important;
+}

@@ -12,7 +12,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_heyday_courseplayer';
-$plugin->version = 2026062104;
+$plugin->version = 2026062702;
 $plugin->requires  = 2025051200;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2026062104-h5p-inline';
+$plugin->release   = '2026062702-lessonquiz-route-to-heyday-quiz';

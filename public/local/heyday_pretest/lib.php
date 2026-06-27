@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Local plugin callbacks for Heyday Pretest.
 // This file restyles Moodle core quiz attempt/review/summary pages for Pretest only.
 
@@ -253,18 +253,46 @@ function local_heyday_pretest_before_footer() {
         $nextsection = 'Lesson 1';
     }
 
-    $coursejson = json_encode($coursefullname, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-    $quizjson = json_encode($quizname, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-    $viewurljson = json_encode($viewurl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-    $nexturljson = json_encode($nexturl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-    $nextnamejson = json_encode($nextname, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-    $nexttypejson = json_encode($nexttype, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-    $nextsectionjson = json_encode($nextsection, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    // Player pretest URL — used by Save and Close when the quiz is inside the player iframe.
+    $playerurl = (new moodle_url('/local/heyday_courseplayer/index.php', [
+        'id'   => $course->id,
+        'page' => 'pretest',
+    ]))->out(false);
+
+    $coursejson     = json_encode($coursefullname, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $quizjson       = json_encode($quizname,       JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $viewurljson    = json_encode($viewurl,         JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $playerurljson  = json_encode($playerurl,       JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $nexturljson    = json_encode($nexturl,         JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $nextnamejson   = json_encode($nextname,        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $nexttypejson   = json_encode($nexttype,        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $nextsectionjson = json_encode($nextsection,    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
     echo <<<HTML
 <style>
 body.path-mod-quiz.heyday-pretest-core-page {
     background: #f4f6f8 !important;
+}
+
+/* Suppress horizontal scroll inside the iframe — the player outer page scrolls instead */
+body.heyday-pretest-core-page,
+body.heyday-pretest-core-page #page,
+body.heyday-pretest-core-page #page-wrapper,
+body.heyday-pretest-core-page .main-inner,
+body.heyday-pretest-core-page #region-main-box,
+body.heyday-pretest-core-page #region-main {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+}
+
+/* Constrain wide media / tables so they don't break out of the quiz container */
+body.heyday-pretest-core-page img,
+body.heyday-pretest-core-page table,
+body.heyday-pretest-core-page pre,
+body.heyday-pretest-core-page video,
+body.heyday-pretest-core-page canvas {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 body.heyday-pretest-core-page #page-header,
@@ -295,8 +323,31 @@ body.heyday-pretest-core-page .tertiary-navigation,
 body.heyday-pretest-core-page .quizattemptcounts,
 body.heyday-pretest-core-page .quizattemptsummary,
 body.heyday-pretest-core-page .quizreviewsummary,
-body.heyday-pretest-core-page .mod_quiz-prev-nav {
+body.heyday-pretest-core-page .mod_quiz-prev-nav,
+body.heyday-pretest-core-page header.navbar,
+body.heyday-pretest-core-page nav.navbar,
+body.heyday-pretest-core-page .fixed-top,
+body.heyday-pretest-core-page [data-region="drawers"],
+body.heyday-pretest-core-page .drawers,
+body.heyday-pretest-core-page .drawer,
+body.heyday-pretest-core-page .drawer-left,
+body.heyday-pretest-core-page .drawer-right,
+body.heyday-pretest-core-page [data-block="quiz_navblock"],
+body.heyday-pretest-core-page .block_quiz_navblock,
+body.heyday-pretest-core-page .qn_buttons,
+body.heyday-pretest-core-page .questionflagpostfix,
+body.heyday-pretest-core-page .othernav,
+body.heyday-pretest-core-page #mod_quiz_navblock,
+body.heyday-pretest-core-page .quiznavblock {
     display: none !important;
+}
+
+/* Remove top padding Adaptable adds for its fixed navbar */
+body.heyday-pretest-core-page #page,
+body.heyday-pretest-core-page #page-wrapper,
+body.heyday-pretest-core-page .main-inner {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
 }
 
 body.heyday-pretest-core-page .questionflag,
@@ -434,30 +485,35 @@ body.heyday-pretest-core-page .que:first-of-type {
     border-top: 0 !important;
 }
 
+body.heyday-pretest-core-page .que {
+    display: flex !important;
+    gap: 14px !important;
+    align-items: flex-start !important;
+}
+
 body.heyday-pretest-core-page .que .info {
     float: none !important;
-    width: 46px !important;
-    position: absolute !important;
-    left: -18px !important;
-    top: 24px !important;
+    flex-shrink: 0 !important;
+    width: 36px !important;
+    position: static !important;
     background: transparent !important;
     border: 0 !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 2px 0 0 0 !important;
 }
 
 body.heyday-pretest-core-page .que .info .no {
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    min-width: 34px !important;
-    height: 34px !important;
-    border-radius: 0 14px 14px 0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
     background: #6f7c85 !important;
     color: #fff !important;
     font-weight: 700 !important;
-    font-size: 15px !important;
-    padding: 0 8px !important;
+    font-size: 14px !important;
+    padding: 0 !important;
 }
 
 body.heyday-pretest-core-page .que.correct .info .no {
@@ -470,7 +526,9 @@ body.heyday-pretest-core-page .que.partiallycorrect .info .no {
 }
 
 body.heyday-pretest-core-page .que .content {
-    margin-left: 54px !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
     padding: 0 !important;
 }
 
@@ -488,62 +546,198 @@ body.heyday-pretest-core-page .qtext {
     margin-bottom: 14px !important;
 }
 
-body.heyday-pretest-core-page .answer {
-    margin-top: 8px !important;
+/* ── fieldset.ablock (wraps the answer list) ─────────────────────────────── */
+/* Reset browser fieldset defaults: border, padding, min-width:min-content.   */
+body.heyday-pretest-core-page .ablock {
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 8px 0 0 0 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
 }
 
+body.heyday-pretest-core-page .ablock > legend,
+body.heyday-pretest-core-page .ablock .prompt {
+    display: none !important;
+}
+
+/* ── Answer list ─────────────────────────────────────────────────────────── */
+body.heyday-pretest-core-page .answer {
+    margin: 0 !important;
+}
+
+/*
+ * Moodle 5.2 multichoice row (from renderer.php):
+ *
+ *   div.r0                               ← answer row
+ *     input[type=radio]                  ← flex child 1
+ *     div.d-flex.w-auto                  ← flex child 2  [data-region="answer-label"]
+ *       span.answernumber                ← "a." letter badge
+ *       div.flex-fill.ms-1              ← answer text  (may contain <p>)
+ *
+ * Strategy:
+ *   - Row: align-items:stretch  → children fill full row height
+ *   - Radio: align-self:center  → stays vertically centred in the stretched row
+ *   - [data-region="answer-label"]: align-items:stretch → answernumber fills height
+ *   - .answernumber: align-self:stretch → gray badge spans full row
+ *   - .flex-fill: flex-direction:column + justify-content:center → <p> stacks vertically, centred
+ */
 body.heyday-pretest-core-page .answer > div,
 body.heyday-pretest-core-page .answer .r0,
 body.heyday-pretest-core-page .answer .r1 {
-    min-height: 38px !important;
     display: flex !important;
-    align-items: center !important;
-    margin: 9px 0 !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    min-height: 44px !important;
+    margin: 5px 0 !important;
     padding: 0 !important;
-    background: #f5f5f5 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
+    background: #f5f7f9 !important;
+    border: 1px solid #dde2e7 !important;
+    border-radius: 3px !important;
+    overflow: hidden !important;      /* clips .answernumber to border-radius */
+    cursor: pointer !important;
+    text-align: left !important;
+    transition: background 0.1s, border-color 0.1s !important;
+    /* Reset anything Bootstrap/Moodle may have set */
+    list-style: none !important;
+    box-shadow: none !important;
 }
 
-body.heyday-pretest-core-page .answer label {
-    display: flex !important;
-    align-items: center !important;
-    width: 100% !important;
-    min-height: 38px !important;
-    margin: 0 !important;
-    padding: 0 12px !important;
-    color: #006fae !important;
-    font-size: 14px !important;
-    line-height: 1.35 !important;
+body.heyday-pretest-core-page .answer > div:hover,
+body.heyday-pretest-core-page .answer .r0:hover,
+body.heyday-pretest-core-page .answer .r1:hover {
+    background: #e4edf6 !important;
+    border-color: #9bbdd4 !important;
 }
 
+body.heyday-pretest-core-page .answer > div:has(input:checked),
+body.heyday-pretest-core-page .answer .r0:has(input:checked),
+body.heyday-pretest-core-page .answer .r1:has(input:checked) {
+    background: #d8ecfb !important;
+    border-color: #006fae !important;
+    border-left-width: 4px !important;
+}
+
+/* ── Radio / checkbox ────────────────────────────────────────────────────── */
 body.heyday-pretest-core-page .answer input[type="radio"],
 body.heyday-pretest-core-page .answer input[type="checkbox"] {
-    margin: 0 8px 0 12px !important;
-    transform: scale(1.05);
+    /* Force native appearance — Bootstrap/Adaptable may override it */
+    -webkit-appearance: auto !important;
+    appearance: auto !important;
+    display: block !important;
+    opacity: 1 !important;
+    position: static !important;
+    visibility: visible !important;
+    /* Sizing and position within the row */
+    flex-shrink: 0 !important;
+    align-self: center !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0 10px 0 14px !important;
+    padding: 0 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    /* No interference from theme */
+    border: revert !important;
+    background: revert !important;
+    accent-color: #006fae !important;
 }
 
+/* ── Label wrapper div ───────────────────────────────────────────────────── */
+body.heyday-pretest-core-page .answer [data-region="answer-label"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;           /* override Bootstrap w-auto */
+}
+
+/* ── Letter badge (a / b / c / d) ───────────────────────────────────────── */
 body.heyday-pretest-core-page .answer .answernumber {
-    display: inline-flex !important;
+    display: flex !important;
+    align-self: stretch !important;
     align-items: center !important;
     justify-content: center !important;
-    min-width: 36px !important;
-    height: 38px !important;
+    flex-shrink: 0 !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    margin: 0 !important;
     background: #d7dde1 !important;
-    color: #333 !important;
-    margin-right: 10px !important;
-    font-weight: 400 !important;
+    color: #444 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    border-right: 1px solid #c2c9cf !important;
 }
 
+/* ── Answer text (div.flex-fill.ms-1) ───────────────────────────────────── */
+/*
+ * Use display:block (not flex) so the <p> inside remains a normal block element
+ * that fills 100% of the available width and wraps naturally. Making .flex-fill
+ * a flex container (display:flex + flex-direction:column) caused the <p> to
+ * be treated as a flex item with align-items:flex-start, which broke text
+ * wrapping for long answers (Q2, Q3, Q4, Q6, Q8).
+ *
+ * flex:1 1 auto stays so this element still grows within [data-region="answer-label"].
+ * padding-top/bottom of 11px centres single-line text in the 44px min-height row.
+ */
+body.heyday-pretest-core-page .answer .flex-fill {
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 11px 14px 11px 10px !important;
+    margin: 0 !important;
+    font-size: 14px !important;
+    color: #1a1a1a !important;
+    line-height: 1.45 !important;
+}
+
+/* Strip <p> margins and reset display — they inflate row height */
+body.heyday-pretest-core-page .answer .flex-fill p,
+body.heyday-pretest-core-page .answer .flex-fill p:last-child {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: inherit !important;
+    line-height: inherit !important;
+}
+
+/* ── Fallback: plain <label> for older question types ────────────────────── */
+body.heyday-pretest-core-page .answer label {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    flex: 1 !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 8px 14px !important;
+    color: #1a1a1a !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    cursor: pointer !important;
+}
+
+/* ── Review: correct / incorrect row colouring ───────────────────────────── */
+/* Target .answernumber + .flex-fill (Moodle 5.2) as well as label (fallback) */
 body.heyday-pretest-core-page .que.correct .answer .correct,
+body.heyday-pretest-core-page .que.correct .answer .correct .flex-fill,
+body.heyday-pretest-core-page .que.correct .answer .correct .answernumber,
 body.heyday-pretest-core-page .que.correct .answer .correct label {
     background: #3f8b2b !important;
     color: #fff !important;
 }
 
 body.heyday-pretest-core-page .que.incorrect .answer .incorrect,
+body.heyday-pretest-core-page .que.incorrect .answer .incorrect .flex-fill,
+body.heyday-pretest-core-page .que.incorrect .answer .incorrect .answernumber,
 body.heyday-pretest-core-page .que.incorrect .answer .incorrect label,
 body.heyday-pretest-core-page .que.partiallycorrect .answer .incorrect,
+body.heyday-pretest-core-page .que.partiallycorrect .answer .incorrect .flex-fill,
+body.heyday-pretest-core-page .que.partiallycorrect .answer .incorrect .answernumber,
 body.heyday-pretest-core-page .que.partiallycorrect .answer .incorrect label {
     background: #b73434 !important;
     color: #fff !important;
@@ -562,9 +756,12 @@ body.heyday-pretest-core-page .que .rightanswer {
 body.heyday-pretest-core-page .submitbtns,
 body.heyday-pretest-core-page .quizattemptsummary .submitbtns {
     display: flex !important;
-    justify-content: flex-end !important;
+    justify-content: space-between !important;
+    align-items: center !important;
     gap: 10px !important;
-    margin-top: 28px !important;
+    margin-top: 32px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #e0e5ea !important;
 }
 
 body.heyday-pretest-core-page input[type="submit"],
@@ -583,10 +780,23 @@ body.heyday-pretest-core-page button[name="submitbutton"] {
 }
 
 body.heyday-pretest-core-page .hd-save-close {
+    display: inline-flex !important;
+    align-items: center !important;
     background: #fff !important;
-    border: 1px solid #333 !important;
+    border: 1px solid #8a9baa !important;
+    border-radius: 3px !important;
     color: #222 !important;
-    padding: 8px 14px !important;
+    padding: 8px 18px !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+body.heyday-pretest-core-page .hd-save-close:hover {
+    background: #f4f6f8 !important;
+    border-color: #555 !important;
+    color: #111 !important;
     text-decoration: none !important;
 }
 
@@ -677,13 +887,17 @@ body.heyday-pretest-core-page .hd-save-close {
 (function() {
     document.body.classList.add('heyday-pretest-core-page');
 
-    var courseName = {$coursejson};
-    var quizName = {$quizjson};
-    var viewUrl = {$viewurljson};
-    var nextUrl = {$nexturljson};
-    var nextName = {$nextnamejson};
-    var nextType = {$nexttypejson};
+    var courseName  = {$coursejson};
+    var quizName    = {$quizjson};
+    var viewUrl     = {$viewurljson};
+    var playerUrl   = {$playerurljson};
+    var nextUrl     = {$nexturljson};
+    var nextName    = {$nextnamejson};
+    var nextType    = {$nexttypejson};
     var nextSection = {$nextsectionjson};
+    // When running inside the player iframe, navigate the top frame.
+    var inIframe = (window !== window.top);
+    var closeUrl = inIframe ? playerUrl : viewUrl;
 
     function ready(fn) {
         if (document.readyState !== 'loading') {
@@ -718,14 +932,42 @@ body.heyday-pretest-core-page .hd-save-close {
             '.homelink',
             '.helplink',
             '.footer-popover',
-            '.footer-content-popover'
+            '.footer-content-popover',
+            /* Adaptable / Moodle 5.x */
+            'header.navbar',
+            'nav.navbar',
+            '.fixed-top',
+            '[data-region="drawers"]',
+            '.drawers',
+            '.drawer',
+            '.drawer-left',
+            '.drawer-right',
+            '[data-block="quiz_navblock"]',
+            '.block_quiz_navblock',
+            '.qn_buttons',
+            '#mod_quiz_navblock',
+            '.quiznavblock',
+            '.questionflagpostfix',
+            '.othernav',
+            '.tertiary-navigation',
+            '.quizattemptcounts',
+            '.quizattemptsummary',
+            '.quizreviewsummary',
+            '.mod_quiz-prev-nav'
         ];
 
         selectors.forEach(function(selector) {
             document.querySelectorAll(selector).forEach(function(el) {
-                el.style.display = 'none';
+                el.style.setProperty('display', 'none', 'important');
             });
         });
+
+        /* Remove top padding Adaptable adds for fixed navbar */
+        var pageEl = document.getElementById('page') || document.getElementById('page-wrapper');
+        if (pageEl) {
+            pageEl.style.setProperty('padding-top', '0', 'important');
+            pageEl.style.setProperty('margin-top', '0', 'important');
+        }
     }
 
     function buildTopShell() {
@@ -811,6 +1053,16 @@ body.heyday-pretest-core-page .hd-save-close {
         document.querySelectorAll('.questionflag, .editquestion').forEach(function(el) {
             el.style.display = 'none';
         });
+
+        // Clean blank <p> tags from answers AND question text (Q11/Q12 etc.)
+        var cleanEmptyP = function(container) {
+            container.querySelectorAll('p').forEach(function(p) {
+                var t = (p.textContent || '').replace(/ /g, '').trim();
+                if (t === '') { p.parentNode && p.parentNode.removeChild(p); }
+            });
+        };
+        document.querySelectorAll('.answer .flex-fill').forEach(cleanEmptyP);
+        document.querySelectorAll('.qtext').forEach(cleanEmptyP);
     }
 
     function improveButtons() {
@@ -830,9 +1082,15 @@ body.heyday-pretest-core-page .hd-save-close {
 
         if (!submitArea.querySelector('.hd-save-close')) {
             var saveClose = document.createElement('a');
-            saveClose.href = viewUrl;
+            saveClose.href = closeUrl;
             saveClose.className = 'hd-save-close';
             saveClose.textContent = 'Save and Close';
+            saveClose.addEventListener('click', function(e) {
+                if (inIframe) {
+                    e.preventDefault();
+                    window.top.location.href = playerUrl;
+                }
+            });
             submitArea.insertBefore(saveClose, submitArea.firstChild);
         }
 
@@ -863,6 +1121,7 @@ body.heyday-pretest-core-page .hd-save-close {
         var next = document.createElement('a');
         next.className = 'hd-core-next';
         next.href = nextUrl;
+        if (inIframe) { next.target = '_top'; }
         next.innerHTML =
             '<span class="hd-core-next-label">Next Up</span>' +
             '<span class="hd-core-next-content">' +

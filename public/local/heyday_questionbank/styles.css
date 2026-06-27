@@ -1,0 +1,255 @@
+body.local-heyday-questionbank {
+    background: #f4f6f8;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.local-heyday-questionbank .hq-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 18px 56px;
+}
+
+.local-heyday-questionbank .hq-card {
+    background: #fff;
+    border: 1px solid #d7dce0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.local-heyday-questionbank .hq-title {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.local-heyday-questionbank .hq-subtitle {
+    color: #607085;
+    margin-bottom: 22px;
+}
+
+.local-heyday-questionbank .hq-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+    gap: 24px;
+}
+
+.local-heyday-questionbank .hq-label {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.local-heyday-questionbank .hq-input,
+.local-heyday-questionbank .hq-textarea {
+    width: 100%;
+    border: 1px solid #c9d2dc;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 15px;
+}
+
+.local-heyday-questionbank .hq-textarea {
+    min-height: 520px;
+    font-family: Consolas, Monaco, monospace;
+    line-height: 1.45;
+}
+
+.local-heyday-questionbank .hq-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.local-heyday-questionbank .hq-btn {
+    border: 1px solid #0073a8;
+    background: #0073a8;
+    color: #fff;
+    border-radius: 4px;
+    padding: 10px 18px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.local-heyday-questionbank .hq-btn-secondary {
+    background: #fff;
+    color: #0073a8;
+}
+
+.local-heyday-questionbank .hq-help {
+    background: #eef7fc;
+    border-left: 4px solid #0073a8;
+    padding: 14px 16px;
+    margin: 18px 0;
+    color: #23465d;
+}
+
+.local-heyday-questionbank .hq-error {
+    background: #f8d7da;
+    border-left: 4px solid #b53333;
+    color: #7a1f1f;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+}
+
+/* ============================================================
+   PREVIEW PANEL — Ed2Go-style quiz review layout
+   ============================================================ */
+
+.local-heyday-questionbank .hq-preview-title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 400;
+    color: #111;
+    margin: 0 0 28px;
+    line-height: 1.25;
+}
+
+/* Question block */
+.local-heyday-questionbank .hq-question {
+    position: relative;
+    padding: 26px 0 22px 58px;
+    border-top: 1px dashed #c8d0d6;
+}
+
+.local-heyday-questionbank .hq-question:first-of-type {
+    border-top: 0;
+}
+
+/* Question number badge — grey, right-half pill (ed2go style) */
+.local-heyday-questionbank .hq-number {
+    position: absolute;
+    left: 0;
+    top: 26px;
+    width: 40px;
+    height: 36px;
+    border-radius: 0 17px 17px 0;
+    background: #6d7a83;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 36px;
+}
+
+/* Question text */
+.local-heyday-questionbank .hq-qtext {
+    font-size: 16px;
+    font-weight: 400;
+    color: #111;
+    line-height: 1.48;
+    margin: 0 0 16px;
+}
+
+/* Answer row — flat grey, no outer radius (ed2go) */
+.local-heyday-questionbank .hq-answer {
+    display: flex;
+    align-items: stretch;
+    min-height: 42px;
+    margin: 9px 0;
+    background: #f5f5f5;
+    border: 1px solid transparent;
+    border-radius: 0;
+    overflow: hidden;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+}
+
+/* Hover — ed2go blue highlight */
+.local-heyday-questionbank .hq-answer:hover {
+    background: #f7f7f7;
+    border-color: #b8d8e8;
+    box-shadow: 0 0 8px rgba(0, 116, 173, 0.28);
+}
+
+/* Letter capsule — left-half pill, grey (ed2go answernumber) */
+.local-heyday-questionbank .hq-answer-label {
+    min-width: 64px;
+    width: 64px;
+    background: #d8dde0;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 400;
+    border-radius: 21px 0 0 21px;
+    flex-shrink: 0;
+}
+
+/* Radio circle inside capsule */
+.local-heyday-questionbank .hq-radio {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #555;
+    border-radius: 50%;
+    background: #fff;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+/* Answer text — blue, ed2go style */
+.local-heyday-questionbank .hq-answer-text {
+    flex: 1;
+    padding: 11px 14px;
+    color: #006fae;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.42;
+    display: flex;
+    align-items: center;
+}
+
+/* Correct answer — green (ed2go review correct state) */
+.local-heyday-questionbank .hq-answer.is-correct {
+    background: #3f8b2b;
+    border-color: transparent;
+}
+
+.local-heyday-questionbank .hq-answer.is-correct .hq-answer-label {
+    background: #367825;
+    color: #fff;
+}
+
+.local-heyday-questionbank .hq-answer.is-correct .hq-radio {
+    border-color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.local-heyday-questionbank .hq-answer.is-correct .hq-answer-text {
+    color: #fff;
+    font-weight: 600;
+}
+
+.local-heyday-questionbank .hq-answer.is-correct:hover {
+    background: #367825;
+    box-shadow: none;
+}
+
+/* Feedback box — green tint (correct answer feedback, ed2go review) */
+.local-heyday-questionbank .hq-feedback {
+    margin: 4px 0 10px 0;
+    padding: 10px 14px;
+    background: #dfeeda;
+    color: #2d6422;
+    border: 1px solid #c9dfc1;
+    border-radius: 3px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+    .local-heyday-questionbank .hq-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .local-heyday-questionbank .hq-question {
+        padding-left: 50px;
+    }
+}

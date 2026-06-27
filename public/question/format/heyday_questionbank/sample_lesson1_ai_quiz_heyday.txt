@@ -1,0 +1,47 @@
+Q1: Which type of AI is most commonly in use today?
+A. Artificial super intelligence
+B. Artificial general intelligence
+C. Artificial wide intelligence
+D. Artificial narrow intelligence
+Answer: D
+Feedback D: This was the correct answer.
+
+Q2: Which of these is the best example of artificial intelligence?
+A. A spreadsheet application that calculates data using functions
+B. An application that plays a game against a human and gets better at it over time
+C. A network communication device such as a switch or router
+D. An operating system such as Windows or Linux
+Answer: B
+Feedback B: Correct!
+
+Q3: Which type of AI may raise some ethical challenges because it involves AI programs that have human-like consciousness?
+A. Artificial super intelligence
+B. Artificial narrow intelligence
+C. Artificial general intelligence
+D. Artificial human intelligence
+Answer: A
+Feedback A: This was the correct answer.
+
+Q4: Which of these types of AI compares two pictures to determine if they are similar enough to be considered a match?
+A. Mapping application
+B. Biometric authentication
+C. Smart home appliance
+D. Recommendation engine
+Answer: B
+Feedback B: This was the correct answer.
+
+Q5: What type of AI, developed in the 1980s, asked human experts for input on how to behave in different scenarios and used that information to build a body of knowledge?
+A. Machine learning
+B. Turing test
+C. Expert systems
+D. Deep learning
+Answer: C
+Feedback C: This was the correct answer.
+
+Q6: What are the two main factors that have led to recent advances in AI research and development?
+A. Data availability and climate change
+B. Computing advances and satellites
+C. Multi-national treaties and computing advances
+D. Computing advances and data availability
+Answer: D
+Feedback D: This was the correct answer.

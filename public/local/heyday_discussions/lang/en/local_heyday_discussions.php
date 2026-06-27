@@ -38,3 +38,4 @@ $string['nextup'] = 'Next Up';
 $string['activity'] = 'activity';
 $string['print'] = 'Print';
 $string['fullscreen'] = 'Fullscreen';
+$string['invalidlessonno'] = 'Invalid lesson number. Must be between 1 and 99.';

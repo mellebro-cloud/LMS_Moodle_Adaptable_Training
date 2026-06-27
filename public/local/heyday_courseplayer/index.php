@@ -44,7 +44,7 @@ $completionaction = optional_param('completionaction', '', PARAM_ALPHA);
 
 $requestedcmid = $cmid > 0 ? $cmid : $qmid;
 
-$allowedpages = ['auto', 'home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'lessons', 'lesson', 'resources', 'finalexam'];
+$allowedpages = ['auto', 'home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'lessons', 'lesson', 'lessonquiz', 'resources', 'finalexam'];
 if (!in_array($pagekey, $allowedpages, true)) {
     $pagekey = 'home';
     $autoplayerrequest = false;
@@ -737,7 +737,21 @@ function local_heyday_courseplayer_is_final_exam_cm(cm_info $cm): bool {
  * @return bool
  */
 function local_heyday_courseplayer_is_pretest_cm(cm_info $cm): bool {
-    return (bool)preg_match('/\bpre\s*test\b|\bpretest\b/i', core_text::strtolower(trim($cm->name)));
+    return (bool)preg_match('/\bpre[\s\-_]*test\b/i', core_text::strtolower(trim($cm->name)));
+}
+
+/**
+ * Check whether an activity is a Lesson Quiz (idnumber HEYDAY_LESSON<N>_QUIZ or name pattern).
+ *
+ * @param cm_info $cm Course module.
+ * @return bool
+ */
+function local_heyday_courseplayer_is_lesson_quiz_cm(cm_info $cm): bool {
+    $idnumber = strtoupper(trim($cm->idnumber ?? ''));
+    if (preg_match('/^HEYDAY_LESSON\d+_QUIZ$/i', $idnumber)) {
+        return true;
+    }
+    return (bool)preg_match('/\blesson\s*\d+\s+quiz\b/i', core_text::strtolower(trim($cm->name)));
 }
 
 /**
@@ -1265,6 +1279,17 @@ function local_heyday_courseplayer_collect_section_items(
             }
         }
 
+        // Quiz modules in a "Lesson N Quiz" section get their own type so the
+        // sidebar links route to ?page=lessonquiz and open the quiz skin card.
+        if ($cm->modname === 'quiz' && local_heyday_courseplayer_is_lesson_quiz_cm($cm)) {
+            $items[] = [
+                'type'  => 'lessonquiz',
+                'cm'    => $cm,
+                'depth' => $depth,
+            ];
+            continue;
+        }
+
         $items[] = [
             'type' => 'cm',
             'cm' => $cm,
@@ -1305,7 +1330,7 @@ function local_heyday_courseplayer_collect_lesson_groups(course_modinfo $modinfo
         if (isset($delegatedsectionnums[$sectionnum]) || local_heyday_courseplayer_is_delegated_section($section, (int)$course->id)) {
             continue;
         }
-        if (!$section->visible && !has_capability('moodle/course:viewhiddensections', $context)) {
+        if (!$section->visible) {
             continue;
         }
 
@@ -1338,7 +1363,7 @@ function local_heyday_courseplayer_collect_lesson_groups(course_modinfo $modinfo
                 }
 
                 $childsection = $sections[$childnum];
-                if (!$childsection->visible && !has_capability('moodle/course:viewhiddensections', $context)) {
+                if (!$childsection->visible) {
                     continue;
                 }
 
@@ -1432,7 +1457,7 @@ function local_heyday_courseplayer_item_cm(?array $item): ?cm_info {
     if (!$item) {
         return null;
     }
-    if (in_array(($item['type'] ?? ''), ['cm', 'lessonpage', 'pretest', 'finalexam', 'resource'], true)) {
+    if (in_array(($item['type'] ?? ''), ['cm', 'lessonpage', 'pretest', 'finalexam', 'resource', 'lessonquiz'], true)) {
         return $item['cm'];
     }
     return null;
@@ -1571,10 +1596,6 @@ function local_heyday_courseplayer_item_url(stdClass $course, array $item): mood
     // dedicated pretest shell (local/heyday_pretest/view.php) is used instead
     // of the raw Moodle quiz page.
     if (($item['type'] ?? '') === 'pretest') {
-        $pretestpath = '/local/heyday_pretest/view.php';
-        if (!empty($CFG->dirroot) && file_exists($CFG->dirroot . $pretestpath)) {
-            return new moodle_url($pretestpath, $params);
-        }
         return local_heyday_courseplayer_url($course, 'pretest', $params);
     }
 
@@ -1583,6 +1604,16 @@ function local_heyday_courseplayer_item_url(stdClass $course, array $item): mood
     }
     if (($item['type'] ?? '') === 'resource') {
         return local_heyday_courseplayer_url($course, 'resources', $params);
+    }
+
+    if (($item['type'] ?? '') === 'lessonquiz') {
+        if ($cm && is_file($CFG->dirroot . '/local/heyday_quiz/index.php')) {
+            return new moodle_url('/local/heyday_quiz/index.php', [
+                'id'   => $course->id,
+                'cmid' => $cm->id,
+            ]);
+        }
+        return local_heyday_courseplayer_url($course, 'lessonquiz', $params);
     }
 
     return local_heyday_courseplayer_url($course, 'lesson', $params);
@@ -2207,7 +2238,13 @@ function local_heyday_courseplayer_render_item_content(stdClass $course, array $
     if (($item['type'] ?? '') === 'pretest') {
         $buttontext = get_string('openpretest', 'local_heyday_courseplayer');
         $message = get_string('interactiveactivityscreen', 'local_heyday_courseplayer');
-        $actionurl = local_heyday_courseplayer_pretest_plugin_url($cm) ?: $actionurl;
+        // Open the native quiz page directly. heydaynative=1 bypasses the
+        // before_http_headers hook so the user reaches the quiz attempt pages.
+        if ($cm->url) {
+            $nativeurl = new moodle_url($cm->url);
+            $nativeurl->param('heydaynative', 1);
+            $actionurl = $nativeurl;
+        }
     } else if (($item['type'] ?? '') === 'finalexam') {
         $buttontext = get_string('openfinalexam', 'local_heyday_courseplayer');
         $message = get_string('interactiveactivityscreen', 'local_heyday_courseplayer');
@@ -3406,6 +3443,472 @@ function local_heyday_courseplayer_render_resources(stdClass $course, completion
 }
 
 /**
+ * Render the ed2go-style pretest card inside the player.
+ *
+ * @param stdClass $course Course record.
+ * @param array<string,mixed> $item Pretest item.
+ * @param completion_info $completion Moodle completion object.
+ * @return string
+ */
+function local_heyday_courseplayer_render_pretest_card(
+    stdClass $course,
+    array $item,
+    completion_info $completion,
+    array $lessongroups = []
+): string {
+    global $DB, $USER;
+
+    $cm = local_heyday_courseplayer_item_cm($item);
+    if (!$cm) {
+        return '';
+    }
+
+    // --- Quiz attempt state (mirrors heyday_pretest/view.php logic) ---
+    $inprogressattempt = null;
+    $finishedattempt   = null;
+
+    if ($cm->modname === 'quiz') {
+        $inprogressrecords = $DB->get_records_sql(
+            "SELECT * FROM {quiz_attempts}
+              WHERE quiz = :quizid AND userid = :userid AND state = :state AND preview = 0
+           ORDER BY timemodified DESC, attempt DESC",
+            ['quizid' => $cm->instance, 'userid' => $USER->id, 'state' => 'inprogress'],
+            0, 1
+        );
+        $inprogressattempt = reset($inprogressrecords) ?: null;
+
+        $finishedrecords = $DB->get_records_sql(
+            "SELECT * FROM {quiz_attempts}
+              WHERE quiz = :quizid AND userid = :userid AND state = :state AND preview = 0
+           ORDER BY timemodified DESC, attempt DESC",
+            ['quizid' => $cm->instance, 'userid' => $USER->id, 'state' => 'finished'],
+            0, 1
+        );
+        $finishedattempt = reset($finishedrecords) ?: null;
+    }
+
+    // --- Button (Start / Resume / Review Results) ---
+    if ($inprogressattempt) {
+        $buttontext = 'Resume';
+        $buttonurl  = new moodle_url('/mod/quiz/attempt.php', [
+            'attempt' => $inprogressattempt->id,
+            'cmid'    => $cm->id,
+        ]);
+    } else if ($finishedattempt) {
+        $buttontext = 'Review Results';
+        $buttonurl  = new moodle_url('/mod/quiz/review.php', [
+            'attempt' => $finishedattempt->id,
+        ]);
+    } else {
+        $buttontext = 'Start';
+        $buttonurl  = new moodle_url('/mod/quiz/startattempt.php', [
+            'cmid'    => $cm->id,
+            'sesskey' => sesskey(),
+        ]);
+    }
+
+    // --- Skip It → first available lesson item ---
+    $skipurl  = local_heyday_courseplayer_url($course, 'lessons');
+    $nextname = get_string('lessons', 'local_heyday_courseplayer');
+    $nextsect = 'Lesson 1';
+    foreach ($lessongroups as $group) {
+        foreach ($group['items'] ?? [] as $litem) {
+            $lcm = local_heyday_courseplayer_item_cm($litem);
+            if ($lcm) {
+                $skipurl  = local_heyday_courseplayer_item_url($course, $litem);
+                $nextname = format_string($lcm->name);
+                break 2;
+            }
+        }
+    }
+
+    // --- Course heading ---
+    $courseheading = format_string($course->fullname);
+
+    // --- Button / iframe URL ---
+    $iframeurl = null;
+    if ($inprogressattempt) {
+        $iframeurl = (new moodle_url('/mod/quiz/attempt.php', [
+            'attempt' => $inprogressattempt->id,
+            'cmid'    => $cm->id,
+        ]))->out(false);
+    } else if ($finishedattempt) {
+        $iframeurl = (new moodle_url('/mod/quiz/review.php', [
+            'attempt' => $finishedattempt->id,
+        ]))->out(false);
+    }
+
+    $starturl    = (new moodle_url('/mod/quiz/startattempt.php'))->out(false);
+    $iframeurljs = json_encode($iframeurl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $sesskey     = sesskey();
+
+    // --- Build HTML ---
+    ob_start();
+    ?>
+<div class="hd-pretest-page" id="hd-pretest-page">
+
+  <!-- ── Landing card ───────────────────────────────────────────────────── -->
+  <!-- Note: back/bookmark/print/fullscreen topbar + course kicker + h1     -->
+  <!-- are already rendered by master_shell / master_header.mustache.       -->
+  <div id="hdPretestCardArea">
+    <section class="hd-pretest-card">
+
+      <div class="hd-instructions-toggle-wrap">
+        <button type="button" class="hd-instructions-toggle" id="hdPretestInstructionsToggle" aria-expanded="true">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>
+          <span>Show / Hide Instructions</span>
+        </button>
+      </div>
+
+      <div class="hd-pretest-body hd-instructions-panel" id="hdPretestInstructionsPanel">
+        <p>This pretest is optional, and it's meant to help you gauge how much you already know about the subject matter of this course.</p>
+        <p>As you go through the pretest, you'll be able to save your answer choices and change them up until you submit your pretest for a score.
+           To exit the pretest, click the <strong>Save and Close</strong> button at the bottom of the page.
+           To submit the pretest, click the <strong>Submit</strong> button at the bottom of the page.
+           Once you click Submit you will be asked to confirm you are ready to submit the pretest.
+           Upon clicking Submit, you will be presented with your score for the pretest.</p>
+        <div class="hd-pretest-rules">
+          <ul>
+            <li>You have one attempt.
+              <ul>
+                <li>Your grade is determined by your only attempt.</li>
+                <li>This is not for credit and does not affect your overall grade.</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="hd-pretest-actions">
+        <a class="hd-skip-link" href="<?php echo $skipurl->out(false); ?>">Skip It</a>
+
+        <?php if (!$inprogressattempt && !$finishedattempt): ?>
+          <!-- Start: POST to startattempt.php inside the iframe -->
+          <form id="hdPretestStartForm" method="post"
+                action="<?php echo $starturl; ?>"
+                target="hdPretestQuizFrame"
+                onsubmit="hdPretestShowFrame()">
+            <input type="hidden" name="cmid"     value="<?php echo (int)$cm->id; ?>">
+            <input type="hidden" name="sesskey"  value="<?php echo s($sesskey); ?>">
+            <button type="submit" class="hd-primary-btn">Start</button>
+          </form>
+        <?php else: ?>
+          <!-- Resume / Review: load iframe on click -->
+          <a class="hd-primary-btn" href="<?php echo s($iframeurl ?? ''); ?>"
+             onclick="hdPretestLoadFrame(<?php echo $iframeurljs; ?>); return false;">
+            <?php echo s($buttontext); ?>
+          </a>
+        <?php endif; ?>
+      </div>
+
+    </section>
+
+  </div><!-- #hdPretestCardArea -->
+  <!-- Note: Activity Complete + Next Up are rendered by master_footer.mustache
+       below this card, matching the same structure used for lesson pages. -->
+
+  <!-- ── Quiz iframe (hidden until Start/Resume/Review clicked) ─────────── -->
+  <iframe id="hdPretestQuizFrame" name="hdPretestQuizFrame"
+          src="about:blank"
+          class="hd-pretest-iframe"
+          allowfullscreen></iframe>
+
+</div><!-- .hd-pretest-page -->
+
+<script>
+(function(){
+  var cardArea  = document.getElementById('hdPretestCardArea');
+  var quizFrame = document.getElementById('hdPretestQuizFrame');
+
+  // ── Iframe auto-resize ────────────────────────────────────────────────
+  // Sets the iframe height to match its document content so no internal
+  // scrollbar appears. The outer player page scrolls instead.
+  var hdRszTimer = null;
+  var hdRszObserver = null;
+  var hdRszPoll = null;
+
+  function hdResizeFrame() {
+    if (!quizFrame) return;
+    try {
+      var doc = quizFrame.contentDocument || quizFrame.contentWindow.document;
+      if (!doc || !doc.body) return;
+      var h = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight, 500);
+      quizFrame.style.height = h + 'px';
+    } catch(e) {}
+  }
+
+  function hdScheduleResize() {
+    if (hdRszTimer) clearTimeout(hdRszTimer);
+    hdRszTimer = setTimeout(hdResizeFrame, 80);
+  }
+
+  function hdAttachResizeObserver() {
+    if (hdRszObserver) { try { hdRszObserver.disconnect(); } catch(e) {} hdRszObserver = null; }
+    if (hdRszPoll)     { clearInterval(hdRszPoll); hdRszPoll = null; }
+    try {
+      var doc = quizFrame.contentDocument || quizFrame.contentWindow.document;
+      if (!doc || !doc.body) return;
+      if (window.ResizeObserver) {
+        hdRszObserver = new ResizeObserver(hdScheduleResize);
+        hdRszObserver.observe(doc.body);
+      }
+      // Polling fallback — catches height changes from quiz JS (e.g. answer feedback)
+      hdRszPoll = setInterval(hdResizeFrame, 800);
+      setTimeout(function(){ if (hdRszPoll) { clearInterval(hdRszPoll); hdRszPoll = null; } }, 120000);
+    } catch(e) {}
+  }
+
+  // ── Show / load ───────────────────────────────────────────────────────
+  function hdPretestShowFrame() {
+    if (cardArea)  cardArea.style.display = 'none';
+    document.body.classList.add('hd-iframe-active');
+    if (quizFrame) quizFrame.style.display = 'block';
+  }
+  window.hdPretestShowFrame = hdPretestShowFrame;
+
+  function hdPretestLoadFrame(url) {
+    if (quizFrame) quizFrame.src = url;
+    hdPretestShowFrame();
+  }
+  window.hdPretestLoadFrame = hdPretestLoadFrame;
+
+  // ── Iframe load handler ───────────────────────────────────────────────
+  if (quizFrame) {
+    quizFrame.addEventListener('load', function() {
+      try {
+        var loc = quizFrame.contentWindow.location.href;
+        if (loc === 'about:blank') return;
+        // If Save-and-Close navigated back to the player pretest, reload outer page.
+        if (loc.indexOf('heyday_courseplayer') !== -1 && loc.indexOf('page=pretest') !== -1) {
+          window.location.reload();
+          return;
+        }
+      } catch(e) {}
+      if (document.body.classList.contains('hd-iframe-active')) {
+        setTimeout(hdResizeFrame, 50);         // immediate first resize
+        setTimeout(hdAttachResizeObserver, 250); // then watch for dynamic changes
+      }
+    });
+
+    // Re-measure on outer window resize (viewport width change)
+    window.addEventListener('resize', hdScheduleResize);
+  }
+
+  // ── Instructions toggle ────────────────────────────────────────────────
+  var toggle = document.getElementById('hdPretestInstructionsToggle');
+  var panel  = document.getElementById('hdPretestInstructionsPanel');
+  if (toggle && panel) {
+    toggle.addEventListener('click', function(){
+      var hidden = panel.classList.toggle('is-hidden');
+      toggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+    });
+  }
+})();
+</script>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render the ed2go-style lesson quiz card inside the player.
+ *
+ * Mirrors render_pretest_card() but for a quiz embedded in a lesson group
+ * child section (e.g. "Lesson 1 Quiz"). The iframe's "Save and Close" returns
+ * to ?page=lessonquiz&cmid=N so the outer page reloads the landing card.
+ *
+ * @param stdClass $course Course record.
+ * @param array<string,mixed> $item Lesson quiz item (type='lessonquiz').
+ * @param completion_info $completion Moodle completion object.
+ * @return string
+ */
+function local_heyday_courseplayer_render_lesson_quiz_card(
+    stdClass $course,
+    array $item,
+    completion_info $completion
+): string {
+    global $DB, $USER;
+
+    $cm = local_heyday_courseplayer_item_cm($item);
+    if (!$cm) {
+        return '';
+    }
+
+    $inprogressattempt = null;
+    $finishedattempt   = null;
+
+    if ($cm->modname === 'quiz') {
+        $inprogressrecords = $DB->get_records_sql(
+            "SELECT * FROM {quiz_attempts}
+              WHERE quiz = :quizid AND userid = :userid AND state = :state AND preview = 0
+           ORDER BY timemodified DESC, attempt DESC",
+            ['quizid' => $cm->instance, 'userid' => $USER->id, 'state' => 'inprogress'],
+            0, 1
+        );
+        $inprogressattempt = reset($inprogressrecords) ?: null;
+
+        $finishedrecords = $DB->get_records_sql(
+            "SELECT * FROM {quiz_attempts}
+              WHERE quiz = :quizid AND userid = :userid AND state = :state AND preview = 0
+           ORDER BY timemodified DESC, attempt DESC",
+            ['quizid' => $cm->instance, 'userid' => $USER->id, 'state' => 'finished'],
+            0, 1
+        );
+        $finishedattempt = reset($finishedrecords) ?: null;
+    }
+
+    if ($inprogressattempt) {
+        $buttontext = 'Resume';
+        $iframeurl = (new moodle_url('/mod/quiz/attempt.php', [
+            'attempt' => $inprogressattempt->id,
+            'cmid'    => $cm->id,
+        ]))->out(false);
+    } else if ($finishedattempt) {
+        $buttontext = 'Review Results';
+        $iframeurl = (new moodle_url('/mod/quiz/review.php', [
+            'attempt' => $finishedattempt->id,
+        ]))->out(false);
+    } else {
+        $buttontext = 'Start Quiz';
+        $iframeurl = null;
+    }
+
+    $starturl    = (new moodle_url('/mod/quiz/startattempt.php'))->out(false);
+    $iframeurljs = json_encode($iframeurl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    $sesskey     = sesskey();
+
+    ob_start();
+    ?>
+<div class="hd-pretest-page" id="hd-lessonquiz-page">
+
+  <div id="hdLessonQuizCardArea">
+    <section class="hd-pretest-card">
+
+      <div class="hd-instructions-toggle-wrap">
+        <button type="button" class="hd-instructions-toggle" id="hdLessonQuizInstructionsToggle" aria-expanded="true">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>
+          <span>Show / Hide Instructions</span>
+        </button>
+      </div>
+
+      <div class="hd-pretest-body hd-instructions-panel" id="hdLessonQuizInstructionsPanel">
+        <p>This quiz covers the material from this lesson. Answer all questions, then click <strong>Submit Answers</strong>.</p>
+        <p>To save your progress and return later, click <strong>Save and Close</strong> at the bottom of the page.</p>
+      </div>
+
+      <div class="hd-pretest-actions">
+        <?php if (!$inprogressattempt && !$finishedattempt): ?>
+          <form id="hdLessonQuizStartForm" method="post"
+                action="<?php echo $starturl; ?>"
+                target="hdLessonQuizFrame"
+                onsubmit="hdLessonQuizShowFrame()">
+            <input type="hidden" name="cmid"    value="<?php echo (int)$cm->id; ?>">
+            <input type="hidden" name="sesskey" value="<?php echo s($sesskey); ?>">
+            <button type="submit" class="hd-primary-btn">Start Quiz</button>
+          </form>
+        <?php else: ?>
+          <a class="hd-primary-btn" href="<?php echo s($iframeurl ?? ''); ?>"
+             onclick="hdLessonQuizLoadFrame(<?php echo $iframeurljs; ?>); return false;">
+            <?php echo s($buttontext); ?>
+          </a>
+        <?php endif; ?>
+      </div>
+
+    </section>
+  </div>
+
+  <iframe id="hdLessonQuizFrame" name="hdLessonQuizFrame"
+          src="about:blank"
+          class="hd-pretest-iframe"
+          allowfullscreen></iframe>
+
+</div>
+
+<script>
+(function(){
+  var cardArea  = document.getElementById('hdLessonQuizCardArea');
+  var quizFrame = document.getElementById('hdLessonQuizFrame');
+
+  var hdRszTimer = null;
+  var hdRszObserver = null;
+  var hdRszPoll = null;
+
+  function hdResizeFrame() {
+    if (!quizFrame) return;
+    try {
+      var doc = quizFrame.contentDocument || quizFrame.contentWindow.document;
+      if (!doc || !doc.body) return;
+      var h = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight, 500);
+      quizFrame.style.height = h + 'px';
+    } catch(e) {}
+  }
+
+  function hdScheduleResize() {
+    if (hdRszTimer) clearTimeout(hdRszTimer);
+    hdRszTimer = setTimeout(hdResizeFrame, 80);
+  }
+
+  function hdAttachResizeObserver() {
+    if (hdRszObserver) { try { hdRszObserver.disconnect(); } catch(e) {} hdRszObserver = null; }
+    if (hdRszPoll)     { clearInterval(hdRszPoll); hdRszPoll = null; }
+    try {
+      var doc = quizFrame.contentDocument || quizFrame.contentWindow.document;
+      if (!doc || !doc.body) return;
+      if (window.ResizeObserver) {
+        hdRszObserver = new ResizeObserver(hdScheduleResize);
+        hdRszObserver.observe(doc.body);
+      }
+      hdRszPoll = setInterval(hdResizeFrame, 800);
+      setTimeout(function(){ if (hdRszPoll) { clearInterval(hdRszPoll); hdRszPoll = null; } }, 120000);
+    } catch(e) {}
+  }
+
+  function hdLessonQuizShowFrame() {
+    if (cardArea)  cardArea.style.display = 'none';
+    document.body.classList.add('hd-iframe-active');
+    if (quizFrame) quizFrame.style.display = 'block';
+  }
+  window.hdLessonQuizShowFrame = hdLessonQuizShowFrame;
+
+  function hdLessonQuizLoadFrame(url) {
+    if (quizFrame) quizFrame.src = url;
+    hdLessonQuizShowFrame();
+  }
+  window.hdLessonQuizLoadFrame = hdLessonQuizLoadFrame;
+
+  if (quizFrame) {
+    quizFrame.addEventListener('load', function() {
+      try {
+        var loc = quizFrame.contentWindow.location.href;
+        if (loc === 'about:blank') return;
+        // "Save and Close" navigates back to ?page=lessonquiz → reload outer page.
+        if (loc.indexOf('heyday_courseplayer') !== -1 && loc.indexOf('page=lessonquiz') !== -1) {
+          window.location.reload();
+          return;
+        }
+      } catch(e) {}
+      if (document.body.classList.contains('hd-iframe-active')) {
+        setTimeout(hdResizeFrame, 50);
+        setTimeout(hdAttachResizeObserver, 250);
+      }
+    });
+    window.addEventListener('resize', hdScheduleResize);
+  }
+
+  var toggle = document.getElementById('hdLessonQuizInstructionsToggle');
+  var panel  = document.getElementById('hdLessonQuizInstructionsPanel');
+  if (toggle && panel) {
+    toggle.addEventListener('click', function(){
+      var hidden = panel.classList.toggle('is-hidden');
+      toggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+    });
+  }
+})();
+</script>
+    <?php
+    return ob_get_clean();
+}
+
+/**
  * Render named page content.
  *
  * @param string $pagekey Page key.
@@ -3455,7 +3958,7 @@ function local_heyday_courseplayer_render_named_page(
         if ($cm && !local_heyday_courseplayer_item_available($pretestitem)) {
             return local_heyday_courseplayer_render_locked_card(get_string('pretest', 'local_heyday_courseplayer'), local_heyday_courseplayer_locked_message($cm));
         }
-        return local_heyday_courseplayer_render_item_content($pretestitem);
+        return local_heyday_courseplayer_render_pretest_card($course, $pretestitem, $completion, $lessongroups);
     }
     if ($pagekey === 'resources') {
         return local_heyday_courseplayer_render_resources($course, $completion, $resourceitems);
@@ -3537,14 +4040,15 @@ if (in_array($pagekey, ['lesson', 'lessons'], true)) {
     }
 } else if ($pagekey === 'pretest') {
     $activeitem = $pretestitem;
-    if ($pretestitem && $pretestcm) {
-        $pretestpluginurl = local_heyday_courseplayer_pretest_plugin_url($pretestcm);
-        if ($pretestpluginurl) {
-            redirect($pretestpluginurl);
-        }
-    }
 } else if ($pagekey === 'finalexam') {
     $activeitem = $finalitem;
+} else if ($pagekey === 'lessonquiz') {
+    $activeitem = local_heyday_courseplayer_find_requested_item($lessongroups, [], $requestedcm, 0);
+    // Fallback: wrap the raw CM if it is a valid lesson quiz.
+    if (!$activeitem && $requestedcm && local_heyday_courseplayer_is_lesson_quiz_cm($requestedcm)
+            && local_heyday_courseplayer_should_show_cm($requestedcm, $context)) {
+        $activeitem = ['type' => 'lessonquiz', 'cm' => $requestedcm, 'depth' => 0];
+    }
 } else if ($pagekey === 'resources' && $requestedcm) {
     $activeitem = local_heyday_courseplayer_find_requested_item([], $resourceitems, $requestedcm, 0);
 
@@ -3581,8 +4085,10 @@ if ($activeitem && $activecm && $activecm->modname === 'h5pactivity') {
 if ($pagekey === 'lessons') {
     $pagekey = 'lesson';
 }
-if (!$activeitem && in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam'], true)) {
-    $activetitle = get_string($pagekey, 'local_heyday_courseplayer');
+if (!$activeitem && in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam', 'lessonquiz'], true)) {
+    $activetitle = in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam'], true)
+        ? get_string($pagekey, 'local_heyday_courseplayer')
+        : 'Lesson Quiz';
 }
 $gettingstartedcm = null;
 $gettingstartednext = null;
@@ -3915,6 +4421,14 @@ if (in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pret
         $finalitem,
         $gspage
     );
+} else if ($pagekey === 'lessonquiz') {
+    if (!$activeitem) {
+        echo html_writer::div(html_writer::tag('p', 'Quiz not found.'), 'heyday-empty-state');
+    } else if ($activeislocked && $activecm) {
+        echo local_heyday_courseplayer_render_locked_card($activetitle, local_heyday_courseplayer_locked_message_for_name($activetitle, $activecm));
+    } else {
+        echo local_heyday_courseplayer_render_lesson_quiz_card($course, $activeitem, $completion);
+    }
 } else if (!$activeitem) {
     echo html_writer::div(html_writer::tag('p', get_string('selectlesson', 'local_heyday_courseplayer')), 'heyday-intro-card');
 } else if ($activeislocked && $activecm) {
