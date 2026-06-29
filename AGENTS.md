@@ -1,85 +1,944 @@
-# HeyDayTraining Academy — Moodle 5.02 + Adaptable
+# AGENTS.md
+
+## Project Identity
+
+This repository is for the **Short Term Certification Training LMS** built on:
+
+* Moodle 5.2+
+* Adaptable 502.1.1
+* XAMPP on Windows
+* Main template course ID: `105`
+
+Primary goal:
+
+Build and maintain one complete reusable ed2go-style selected-course learner player first in:
+
+`C:\xampp\moodle502\moodle\public\local\heyday_courseplayer`
+
+Component name:
+
+`local_heyday_courseplayer`
+
+After the master course player is stable, other Moodle + Adaptable learner-facing pages should follow the same visual pattern safely.
+
+---
 
 ## Environment
 
-- **Site:** HeyDayTraining Academy — http://localhost/moodle
-- **OS:** Windows 10, XAMPP Apache port 80
-- **Database:** MariaDB 10.11.18 (Windows service — do NOT start MySQL in XAMPP)
-  - Host: 127.0.0.1:3306 | DB: moodle_db | User: moodleuser
-- **PHP:** 8.3.31 at C:/xampp/php/php.exe
-- **Xdebug:** v3.5.3 (port 9003, idekey=VSCODE)
-- **Courses:** 103 courses in production DB
-- **Backups:** G:\2018\HEYDAY\Database\Moodle\Backup
+Moodle root:
 
-## Local project paths
+`C:\xampp\moodle502\moodle`
 
-- **Project root:** C:\xampp\moodle502\moodle
-- **Moodle code root:** C:\xampp\moodle502\moodle\public
-- **Moodle data:** C:\moodledata
-- **Adaptable theme:** public/theme/adaptable
-- **Local plugins:** public/local
+Public web root:
 
-## Important working paths
+`C:\xampp\moodle502\moodle\public`
 
-- Theme root: public/theme/adaptable
-- Templates: public/theme/adaptable/templates
-- Layout files: public/theme/adaptable/layout
-- SCSS: public/theme/adaptable/scss
-- JavaScript source: public/theme/adaptable/amd/src
-- JavaScript build: public/theme/adaptable/amd/build
-- Language strings: public/theme/adaptable/lang/en
+Local plugins path:
 
-## Custom local plugins (public/local/)
+`C:\xampp\moodle502\moodle\public\local`
 
-- heyday_coursehome — custom course home page
-- heyday_courseplayer — course player UI
-- heyday_discussions — discussion enhancements
-- heyday_lessons — lesson enhancements
-- heyday_quizskin — quiz UI skin
-- heyday_scores — score display
-- heyday_pretest — pre-test system
-- heyday_gettingstarted — onboarding
-- heyday_helptour — help tours
-- heyday_coursesearch — course search
-- ai_manager — AI integration layer
-- edugears — learning gears
-- kopere_mobile — mobile support
+Moodle data:
 
-## Coding standards
+`C:\moodledata`
 
-- Frankenstyle naming enforced (local_heyday_*, theme_adaptable)
-- phpcs moodle standard v3.7.0 (squizlabs/php_codesniffer 3.13.5)
-- Mustache templates for all HTML output
-- AMD modules for all JavaScript (no inline JS)
-- SCSS only — no raw CSS edits in theme
+Database:
 
-## Theme: Adaptable
+`moodle_db`
 
-- themedesignermode=false in config.php (set true ONLY when editing SCSS, then revert)
-- Prefer Adaptable admin settings UI before any code change
-- Prefer CSS/SCSS before Mustache/PHP changes
-- Always explain upgrade risk before changing files inside theme/adaptable
+PHP executable:
 
-## Critical rules
+`C:\xampp\php\php.exe`
 
-- Do NOT modify Moodle core unless explicitly asked
-- Do NOT modify public/config.php unless explicitly asked
-- Do NOT commit secrets, passwords, DB credentials, SQL dumps, ZIP backups, or private keys
-- Do NOT touch C:\moodledata except to explain what it is
-- Do NOT touch G:\2018\HEYDAY\Database\Moodle\Backup except to explain backup/restore steps
-- Keep changes small and reviewable
+Correct Moodle CLI path:
 
-## Before editing — always explain
+`C:\xampp\moodle502\moodle\admin\cli`
 
-1. Files you will inspect
-2. Files you expect to change
-3. Whether Moodle cache purge is required
-4. Whether the change affects Adaptable upgrade safety
+Do not use:
 
-## After editing — always provide
+`C:\xampp\moodle502\moodle\public\admin\cli`
 
-1. Files changed
-2. Summary of change
-3. Cache purge instructions (Admin > Development > Purge all caches)
-4. Manual test checklist
-5. Rollback method
+---
+
+## Important Local URLs
+
+Use these URLs only when Moodle is configured at:
+
+`http://localhost/moodle/`
+
+Main site:
+
+`http://localhost/moodle/`
+
+Dashboard:
+
+`http://localhost/moodle/my/`
+
+Course 105:
+
+`http://localhost/moodle/course/view.php?id=105`
+
+Master course player:
+
+`http://localhost/moodle/local/heyday_courseplayer/index.php?id=105`
+
+Adaptable settings:
+
+`http://localhost/moodle/admin/settings.php?section=themesettingadaptable`
+
+Environment check:
+
+`http://localhost/moodle/admin/environment.php?version=5.2`
+
+If URLs do not work, check:
+
+`C:\xampp\moodle502\moodle\config.php`
+
+Use `$CFG->wwwroot`. Do not guess URLs from folder names.
+
+---
+
+## Required CLI Commands
+
+Purge Moodle caches:
+
+```powershell
+C:\xampp\php\php.exe C:\xampp\moodle502\moodle\admin\cli\purge_caches.php
+```
+
+Run Moodle upgrade after plugin version changes:
+
+```powershell
+C:\xampp\php\php.exe C:\xampp\moodle502\moodle\admin\cli\upgrade.php --non-interactive
+```
+
+---
+
+# Layer 2: Course Player / Inside Selected Course
+
+## Core Architecture Rule
+
+Layer 2 is the selected-course learner experience.
+
+It begins after a learner clicks **Enter**, **Continue**, or **Go to Course** from the dashboard, My Classroom page, or catalog course card.
+
+There must be only one full selected-course learner shell:
+
+`local_heyday_courseplayer`
+
+The master route is:
+
+`local_heyday_courseplayer/index.php?id=COURSEID&page=PAGE&cmid=CMID&subpage=SUBPAGE`
+
+For the main template course:
+
+`http://localhost/moodle/local/heyday_courseplayer/index.php?id=105`
+
+Final rule:
+
+* one selected-course learner shell
+* one sidebar
+* one routing system
+* one completion, lock, and release-date system
+* one Next Up system
+* Moodle core remains the real learning engine
+* Adaptable remains the global theme only
+* `local_heyday_courseplayer` owns the ed2go-style selected-course learner experience
+
+---
+
+## Responsibility Boundaries
+
+### Moodle Core Owns
+
+Moodle remains the source of truth for:
+
+* course structure
+* sections
+* subsections
+* pages
+* quizzes
+* forums
+* assignments
+* files
+* folders
+* H5P activities
+* completion tracking
+* availability restrictions
+* release dates
+* grades
+* quiz attempts
+* assignment submissions
+* forum posts
+* permissions
+* groups
+* roles
+
+Do not replace Moodle core functionality.
+
+The courseplayer may wrap, route, style, and simplify learner presentation, but it must preserve Moodle behavior.
+
+---
+
+### Adaptable Owns
+
+Adaptable is responsible only for the global Moodle shell:
+
+* site header
+* logo
+* colors
+* fonts
+* footer
+* general Moodle appearance
+* global learner-facing style
+
+Do not force Adaptable to rebuild the lesson player.
+
+Do not use broad Adaptable Additional HTML or global JavaScript to rebuild selected-course pages.
+
+---
+
+### `local_heyday_courseplayer` Owns
+
+`local_heyday_courseplayer` owns the selected-course learner experience:
+
+* black or near-black top player bar
+* sticky white left sidebar
+* light gray page background
+* centered white content card
+* ed2go-style page layout
+* active sidebar state
+* completion checks
+* locked states
+* release-date messages
+* Next Up flow
+* routing
+* Moodle clutter reduction inside the player
+
+---
+
+## Required Learner Sequence
+
+The courseplayer must read the real Moodle course structure and convert it into this learner sequence:
+
+Home
+→ Scores
+→ Discussions
+→ Learning Objectives
+→ Getting Started
+→ Pretest
+→ Lessons
+→ Resources
+→ Final Exam
+
+The sidebar must show:
+
+* Home
+* Scores
+* Discussions
+* Learning Objectives
+* Getting Started
+* Pretest
+* Lesson groups
+* Resources
+* Final Exam
+
+Lesson groups may expand to show:
+
+* Lesson Introduction
+* Learning Objectives
+* Chapter pages
+* Lesson Review
+* Lesson Assignment
+* Lesson Discussion Area
+* Lesson Quiz
+* Resources for Further Learning
+
+---
+
+## Sidebar Rules
+
+The sidebar must be generated by `local_heyday_courseplayer`.
+
+Requirements:
+
+* active item has a blue left indicator or arrow
+* completed items show green checkmarks
+* in-progress items show blue dots or progress indicators
+* locked items show lock icons
+* locked items stay visible but muted
+* locked items are not clickable unless Moodle says they are available
+* locked items must not look active
+* locked items must not look completed
+* long titles wrap cleanly
+* sidebar scrolls independently
+* content area must not jump or flicker
+
+Release-date text must come from Moodle availability restrictions when available.
+
+Examples:
+
+`Lesson 9: Cryptocurrencies will be available on Jun 10, 2026 10:00 AM GMT+3`
+
+`Final Exam will be available on Jun 19, 2026 10:00 AM GMT+3`
+
+---
+
+## Central Router
+
+All selected-course learner pages must route through:
+
+`local_heyday_courseplayer/index.php`
+
+Route format:
+
+`index.php?id=COURSEID&page=PAGE&cmid=CMID&subpage=SUBPAGE`
+
+Example routes:
+
+```text
+index.php?id=105&page=home
+index.php?id=105&page=scores
+index.php?id=105&page=discussions
+index.php?id=105&page=objectives
+index.php?id=105&page=gettingstarted&subpage=overview
+index.php?id=105&page=gettingstarted&subpage=syllabus
+index.php?id=105&page=gettingstarted&subpage=navigating
+index.php?id=105&page=pretest&cmid=CMID
+index.php?id=105&page=lesson&cmid=CMID
+index.php?id=105&page=assignment&cmid=CMID
+index.php?id=105&page=discussion&cmid=CMID
+index.php?id=105&page=quiz&cmid=CMID
+index.php?id=105&page=resources
+index.php?id=105&page=finalexam&cmid=CMID
+```
+
+---
+
+## Central Services Required
+
+`local_heyday_courseplayer` should centralize or coordinate:
+
+* course structure reader
+* section and subsection reader
+* sidebar builder
+* activity resolver
+* page renderer
+* completion service
+* availability and release-date service
+* grade and score service
+* Next Up service
+* quiz bridge
+* forum/discussion bridge
+* assignment bridge
+* resource renderer
+* H5P renderer
+* final exam resolver
+* Moodle clutter reduction helper
+
+Do not duplicate these services across many local plugins.
+
+---
+
+# Related Plugin Roles
+
+Older standalone local plugins must not remain independent full learner shells.
+
+Their useful logic should be moved into, called by, or redirected into `local_heyday_courseplayer`.
+
+Final plugin role map:
+
+## `local_heyday_courseplayer`
+
+Main selected-course learner shell.
+
+Owns:
+
+* shell
+* sidebar
+* router
+* completion
+* availability
+* release dates
+* Next Up
+* renderer coordination
+
+## `local_heyday_coursehome`
+
+Home feature/helper only.
+
+Must not create an independent full learner shell.
+
+## `local_heyday_scores`
+
+Scores feature/helper only.
+
+Must not create an independent full learner shell.
+
+## `local_heyday_discussions`
+
+Discussion/forum feature module only.
+
+It may render ed2go-style discussion lists and discussion views, but it must be called by the courseplayer or redirect into the courseplayer.
+
+Moodle forums remain functional and authoritative.
+
+## `local_heyday_gettingstarted`
+
+Getting Started content/helper only.
+
+Must not create an independent full learner shell.
+
+## `local_heyday_pretest`
+
+Pretest helper or legacy redirect only.
+
+Moodle Quiz remains the real pretest engine.
+
+## `local_heyday_lessons`
+
+Lesson structure/service logic only.
+
+Must not create an independent full learner shell.
+
+## `local_heyday_quiz`
+
+Quiz bridge/renderer used by courseplayer.
+
+Moodle Quiz remains the real quiz engine.
+
+## `local_heyday_quizskin`
+
+Merge into quiz bridge, retire, or reduce to CSS-only helper.
+
+## `local_heyday_questionbank`
+
+Admin/course-authoring helper only.
+
+Not a learner shell.
+
+## `local_heyday_helptour`
+
+Support/tour utility only.
+
+Not a learner shell.
+
+---
+
+# Legacy URL Redirect Rule
+
+Legacy plugin learner URLs should redirect into the master courseplayer route.
+
+Examples:
+
+`local_heyday_scores/index.php?id=105`
+
+should redirect to:
+
+`local_heyday_courseplayer/index.php?id=105&page=scores`
+
+`local_heyday_discussions/index.php?id=105`
+
+should redirect to:
+
+`local_heyday_courseplayer/index.php?id=105&page=discussions`
+
+`local_heyday_pretest/index.php?id=105`
+
+should redirect to:
+
+`local_heyday_courseplayer/index.php?id=105&page=pretest`
+
+Do not maintain separate player shells in these plugins.
+
+---
+
+# Page Requirements
+
+## Home
+
+Route:
+
+`index.php?id=105&page=home`
+
+Must show:
+
+* course fullname
+* shortname or section code
+* banner image when available
+* completion circle
+* score circle
+* next incomplete activity
+* Continue button
+* clean card layout
+
+---
+
+## Scores
+
+Route:
+
+`index.php?id=105&page=scores`
+
+Must show:
+
+* ed2go-style list/card rows
+* activity name
+* type
+* status
+* grade or score on the right
+* locked items muted
+* toolbar/search/filter when available
+* download button when available
+
+Use Moodle gradebook data.
+
+---
+
+## Discussions
+
+Routes:
+
+```text
+index.php?id=105&page=discussions
+index.php?id=105&page=discussion&cmid=CMID
+```
+
+Must show:
+
+* all course-level and lesson-level discussions
+* one clean row/card per discussion
+* discussion title
+* lesson association when available
+* metadata when available
+* unread/new state when available
+* locked state when restricted
+* closed state when Moodle closes new posts
+* muted styling for locked or closed discussions
+* no duplicated forum rows
+
+Should support ed2go-style tabs progressively:
+
+* All
+* Mine
+* New
+* Bookmarks
+
+Closed discussion message:
+
+`This discussion has been closed to new posts by learners.`
+
+Do not break Moodle forum permissions.
+
+---
+
+## Learning Objectives
+
+Route:
+
+`index.php?id=105&page=objectives`
+
+The source should remain Moodle content where possible.
+
+Can be:
+
+* Moodle Page activity
+* generated course-level objectives page
+* summary from lesson objective pages
+
+---
+
+## Getting Started
+
+Routes:
+
+```text
+index.php?id=105&page=gettingstarted&subpage=overview
+index.php?id=105&page=gettingstarted&subpage=syllabus
+index.php?id=105&page=gettingstarted&subpage=navigating
+```
+
+Must show:
+
+* Course Overview
+* Syllabus
+* Navigating this Course
+* centered page title
+* action icons
+* completion status
+* divider
+* Next Up card
+
+Do not use nested player shells.
+
+Important bug rule:
+
+Do not call:
+
+`local_heyday_courseplayer_gettingstarted_definitions($course, $context, $lessongroups)`
+
+before:
+
+`$lessongroups = local_heyday_courseplayer_collect_lesson_groups($modinfo, $sections, $course, $context);`
+
+Always confirm `$lessongroups` exists and is an array before using it.
+
+---
+
+## Pretest
+
+Route:
+
+`index.php?id=105&page=pretest&cmid=CMID`
+
+Moodle Quiz remains the source of truth.
+
+Preserve:
+
+* attempts
+* question behavior
+* grades
+* access rules
+* time limits
+* review settings
+* permissions
+
+Courseplayer may style:
+
+* pretest landing card
+* Show/Hide Instructions
+* question container
+* Save and Close alignment
+* Submit Answers alignment
+* completion status
+* Next Up flow
+
+---
+
+## Lessons
+
+Common routes:
+
+```text
+index.php?id=105&page=lesson&cmid=CMID
+index.php?id=105&page=quiz&cmid=CMID
+index.php?id=105&page=discussion&cmid=CMID
+index.php?id=105&page=assignment&cmid=CMID
+```
+
+Lessons must show:
+
+* sidebar visible
+* centered reading card
+* course title
+* lesson title
+* chapter/page title
+* top-left back/bookmark icons
+* top-right print/fullscreen icons
+* responsive images
+* readable headings and paragraphs
+* normal scrolling
+* completion status
+* Next Up card
+
+Supported Moodle activities:
+
+* Page
+* Book, when used
+* Quiz
+* Assignment
+* Forum
+* File
+* Folder
+* URL
+* H5P
+* Label/Text and media area when needed
+
+---
+
+## Lesson Discussions
+
+Each lesson discussion is a real Moodle Forum activity.
+
+It must appear:
+
+1. inside the lesson group in the sidebar
+2. as a linked row inside the main Discussions page
+
+Do not duplicate the same Moodle forum as fake content.
+
+---
+
+## Lesson Assignments
+
+Route:
+
+`index.php?id=105&page=assignment&cmid=CMID`
+
+Preserve Moodle Assignment behavior:
+
+* submission status
+* due dates
+* cutoff dates
+* grading status
+* files
+* online text
+* feedback
+* permissions
+
+---
+
+## Lesson Quizzes
+
+Route:
+
+`index.php?id=105&page=quiz&cmid=CMID`
+
+Preserve Moodle Quiz behavior:
+
+* attempts
+* question behavior
+* grading
+* review
+* access restrictions
+* permissions
+
+---
+
+## Resources
+
+Route:
+
+`index.php?id=105&page=resources`
+
+Resources appear after Lessons and before Final Exam.
+
+May include:
+
+* files
+* folders
+* URLs
+* pages
+* H5P activities
+* downloadable documents
+* external references
+
+---
+
+## Final Exam
+
+Route:
+
+`index.php?id=105&page=finalexam&cmid=CMID`
+
+Moodle Quiz remains the real exam engine.
+
+Must show:
+
+* Final Exam menu item after Resources
+* locked state when unavailable
+* release-date text from Moodle restrictions
+* exam instruction card
+* attempt button when available
+* grade/pass status after completion
+* completion notice or Next Up after submission
+
+Locked Final Exam must remain visible but muted.
+
+It must not look active or completed before it is available or passed.
+
+---
+
+# CSS Rules
+
+Scope all courseplayer CSS to:
+
+```css
+body.local-heyday-courseplayer
+```
+
+or:
+
+```css
+.local-heyday-courseplayer
+```
+
+Do not write broad CSS that affects:
+
+* Moodle admin pages
+* normal course pages
+* Adaptable settings
+* dashboard
+* login page
+* quiz pages outside the player
+* forum pages outside the player
+* site-wide Moodle layout
+
+CSS-only changes require Moodle cache purge.
+
+PHP/plugin version changes require version bump and Moodle upgrade.
+
+---
+
+# Plugin Safety Checks Before Editing
+
+Before changing `local_heyday_courseplayer`, check:
+
+* folder name
+* component name
+* `version.php`
+* plugin version number
+* language file location
+* CSS scope
+
+Expected plugin folder:
+
+`C:\xampp\moodle502\moodle\public\local\heyday_courseplayer`
+
+Expected component:
+
+`local_heyday_courseplayer`
+
+Expected important files:
+
+```text
+index.php
+view.php
+settings.php
+styles.css
+version.php
+lang\en\local_heyday_courseplayer.php
+```
+
+The language file belongs in:
+
+`lang\en`
+
+not in the plugin root.
+
+---
+
+# Editing Rules
+
+When modifying this project:
+
+1. Diagnose from screenshot, uploaded file, or existing code first.
+2. Inspect files before changing them.
+3. Do not guess file contents.
+4. Work one plugin or one file at a time.
+5. Give the smallest safe fix first.
+6. Give complete copy/paste code only for the exact file or block needed.
+7. If PHP/plugin code changes, bump `version.php`.
+8. If CSS-only changes, purge Moodle caches only.
+9. Do not generate a plugin ZIP unless explicitly requested.
+10. Do not edit Moodle core files.
+11. Do not edit Adaptable source files unless absolutely required.
+12. Preserve Moodle core functionality and availability restrictions.
+13. Avoid global Additional HTML unless required.
+14. Always state exactly where code should be pasted.
+15. Always give purge/cache and rollback steps.
+
+---
+
+# Forbidden Changes
+
+Do not:
+
+* edit Moodle core files
+* hard-code Course 105 in reusable code unless creating a temporary test-only fix
+* build separate learner shells in helper plugins
+* duplicate sidebars in old plugins
+* bypass Moodle availability restrictions
+* make unavailable items clickable
+* fake quiz attempts
+* fake forum posts
+* fake assignment submissions
+* remove Moodle permissions
+* use global CSS that changes admin pages
+* use broad JavaScript observers that rebuild menus and cause flickering
+* use `public\admin\cli`
+
+---
+
+# Moodle Clutter Reduction Rule
+
+Inside the courseplayer only, reduce duplicate Moodle learner clutter such as:
+
+* duplicate breadcrumbs
+* duplicate course index
+* duplicate blocks
+* drawer clutter
+* secondary navigation clutter
+* duplicate Help
+* duplicate Tour
+* duplicate Search
+* unnecessary forum administration tabs
+* unnecessary activity footer navigation when replaced by Next Up
+
+Do not remove required Moodle quiz, forum, assignment, grading, attempt, submission, or permission functionality.
+
+---
+
+# Testing Checklist
+
+After changes, test:
+
+1. Open:
+
+   `http://localhost/moodle/local/heyday_courseplayer/index.php?id=105`
+
+2. Confirm the same shell remains visible across:
+
+   * Home
+   * Scores
+   * Discussions
+   * Learning Objectives
+   * Getting Started
+   * Pretest
+   * Lessons
+   * Resources
+   * Final Exam
+
+3. Confirm the sidebar does not duplicate or flicker.
+
+4. Confirm locked items are visible but muted.
+
+5. Confirm release-date text appears when Moodle availability provides a date.
+
+6. Confirm completed items show green checks.
+
+7. Confirm active item has blue indicator.
+
+8. Confirm Next Up points to the next valid available item.
+
+9. Confirm Moodle quizzes still submit normally.
+
+10. Confirm Moodle forums still follow Moodle posting permissions.
+
+11. Confirm Moodle assignments still preserve submission behavior.
+
+12. Confirm old plugin URLs redirect into the courseplayer instead of displaying separate shells.
+
+---
+
+# Rollback Rule
+
+For every code change, preserve a rollback path.
+
+Preferred rollback:
+
+1. Restore the previous file from backup or Git.
+2. Purge Moodle caches.
+3. If plugin version was bumped, keep the higher version number unless a full database/plugin rollback is being performed.
+4. Retest Course 105.
+
+Purge command:
+
+```powershell
+C:\xampp\php\php.exe C:\xampp\moodle502\moodle\admin\cli\purge_caches.php
+```
+
+Upgrade command, only after plugin version changes:
+
+```powershell
+C:\xampp\php\php.exe C:\xampp\moodle502\moodle\admin\cli\upgrade.php --non-interactive
+```

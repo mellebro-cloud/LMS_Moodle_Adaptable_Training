@@ -102,6 +102,19 @@
       "files": ["**/yui/**/*.css"],
       "rules": {
       }
+    },
+    {
+      # HeyDay custom plugins: ed2go-style player legitimately overrides Adaptable/Moodle
+      # with !important and inline data: SVG icons. csstree/validator also false-positives
+      # on clamp()/min()/max(). These are intentional, not Moodle-core-contributed code.
+      "files": ["**/local/heyday_*/**/*.css", "**/local/heyday_*/*.css"],
+      "rules": {
+        "declaration-no-important": null,
+        "keyframe-declaration-no-important": null,
+        "function-url-scheme-disallowed-list": null,
+        "csstree/validator": null,
+        "max-line-length": null
+      }
     }
   ]
 }
