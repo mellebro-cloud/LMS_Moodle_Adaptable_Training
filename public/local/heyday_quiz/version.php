@@ -12,7 +12,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_heyday_quiz';
-$plugin->version   = 2026062709;
+$plugin->version   = 2026062901;
 $plugin->requires  = 2026042000;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.5-fix-summary-bypass-form-submit';
+$plugin->release   = '2026062901-redirect-to-courseplayer';

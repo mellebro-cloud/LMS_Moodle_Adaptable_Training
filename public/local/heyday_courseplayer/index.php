@@ -1125,12 +1125,20 @@ function local_heyday_courseplayer_is_lesson_child_section_name(string $sectionn
         return false;
     }
 
-    $lower = core_text::strtolower($plain);
     $quotedlesson = preg_quote((string)$parentlessonno, '/');
 
-    // Same-lesson support sections such as "Lesson 1 Introduction" and
-    // "Lesson 1 Review" are child subsections, not separate HeyDay lessons.
-    if (preg_match('/^lesson\s*' . $quotedlesson . '\s+(introduction|intro|overview|content|review|summary|quiz|discussion|assignment|key\s*terms|flashcards|next\s*steps)\b/i', $plain)) {
+    // Any section whose name starts with "Lesson N" (same number as the parent)
+    // belongs to that lesson group — e.g. "Lesson 1 Resources for Further Learning",
+    // "Lesson 1 Discussion Area", "Lesson 1 Quiz", "Lesson 1 Introduction".
+    // The fold-loop lesson-number guard fires first for a mismatched number,
+    // so catching all "Lesson N …" titles here is safe.
+    if (preg_match('/^lesson\s*' . $quotedlesson . '[\s:\-]/i', $plain)) {
+        return true;
+    }
+
+    // HeyDay naming convention for subsections: "1.1 Learning Objectives",
+    // "1.2 Key Terms", "2.3 Chapter" etc. — fold these into the parent lesson group.
+    if (preg_match('/^\d+\.\d+\b/i', $plain)) {
         return true;
     }
 
@@ -1279,9 +1287,13 @@ function local_heyday_courseplayer_collect_section_items(
             }
         }
 
-        // Quiz modules in a "Lesson N Quiz" section get their own type so the
-        // sidebar links route to ?page=lessonquiz and open the quiz skin card.
-        if ($cm->modname === 'quiz' && local_heyday_courseplayer_is_lesson_quiz_cm($cm)) {
+        // Any quiz (other than the Pretest or Final Exam, which have their own
+        // dedicated flows) gets the 'lessonquiz' type so its sidebar link routes
+        // to the dedicated HeyDay quiz player (local_heyday_quiz) instead of the
+        // generic "Open Activity" fallback card.
+        if ($cm->modname === 'quiz'
+                && !local_heyday_courseplayer_is_pretest_cm($cm)
+                && !local_heyday_courseplayer_is_final_exam_cm($cm)) {
             $items[] = [
                 'type'  => 'lessonquiz',
                 'cm'    => $cm,
@@ -3355,17 +3367,6 @@ function local_heyday_courseplayer_mark_gettingstarted_complete(
  * @param string $gspage Current Getting Started page key.
  * @return string
  */
-/**
- * Render one ed2go-style Getting Started page inside the master player.
- *
- * @param stdClass $course Course record.
- * @param completion_info $completion Completion object.
- * @param course_modinfo $modinfo Course modinfo.
- * @param context_course $context Course context.
- * @param array<int,array<string,mixed>> $lessongroups Lesson groups.
- * @param string $gspage Current Getting Started page key.
- * @return string
- */
 function local_heyday_courseplayer_render_gettingstarted(
     stdClass $course,
     completion_info $completion,
@@ -3971,7 +3972,7 @@ function local_heyday_courseplayer_render_named_page(
         if ($cm && !local_heyday_courseplayer_item_available($finalitem)) {
             return local_heyday_courseplayer_render_locked_card(get_string('finalexam', 'local_heyday_courseplayer'), local_heyday_courseplayer_locked_message_for_name(get_string('finalexam', 'local_heyday_courseplayer'), $cm));
         }
-        return local_heyday_courseplayer_render_item_content($finalitem);
+        return local_heyday_courseplayer_render_item_content($course, $finalitem);
     }
 
     return html_writer::div(html_writer::tag('p', get_string('selectlesson', 'local_heyday_courseplayer')), 'heyday-empty-state');
@@ -4044,8 +4045,10 @@ if (in_array($pagekey, ['lesson', 'lessons'], true)) {
     $activeitem = $finalitem;
 } else if ($pagekey === 'lessonquiz') {
     $activeitem = local_heyday_courseplayer_find_requested_item($lessongroups, [], $requestedcm, 0);
-    // Fallback: wrap the raw CM if it is a valid lesson quiz.
-    if (!$activeitem && $requestedcm && local_heyday_courseplayer_is_lesson_quiz_cm($requestedcm)
+    // Fallback: wrap the raw CM if it is a quiz (excluding Pretest / Final Exam).
+    if (!$activeitem && $requestedcm && $requestedcm->modname === 'quiz'
+            && !local_heyday_courseplayer_is_pretest_cm($requestedcm)
+            && !local_heyday_courseplayer_is_final_exam_cm($requestedcm)
             && local_heyday_courseplayer_should_show_cm($requestedcm, $context)) {
         $activeitem = ['type' => 'lessonquiz', 'cm' => $requestedcm, 'depth' => 0];
     }
@@ -4065,6 +4068,10 @@ if (in_array($pagekey, ['lesson', 'lessons'], true)) {
 
 $activecm = $activeitem ? local_heyday_courseplayer_item_cm($activeitem) : null;
 $activeislocked = $activeitem ? !local_heyday_courseplayer_item_clickable($activeitem) : false;
+
+// Quiz activities are rendered inline by the courseplayer's generic lesson
+// renderer. local_heyday_quiz acts as a helper library only; its index.php
+// redirects here, so no outbound redirect is issued to avoid a loop.
 $activegroupname = $activeitem ? local_heyday_courseplayer_active_group_name($lessongroups, $activeitem) : '';
 if ($activegroupname === '' && $activecm) {
     try {
