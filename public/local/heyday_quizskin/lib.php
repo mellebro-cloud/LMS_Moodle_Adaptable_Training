@@ -1095,7 +1095,9 @@ function local_heyday_quizskin_before_footer(): string {
 
     $coursefullname = format_string($course->fullname);
     $quiztitle      = format_string($quiz->name);
-    $viewurl        = (new moodle_url('/local/heyday_pretest/view.php', ['cmid' => $cm->id]))->out(false);
+    $viewurl        = (new moodle_url('/local/heyday_courseplayer/index.php', [
+        'id' => $course->id, 'page' => 'pretest', 'cmid' => $cm->id,
+    ]))->out(false);
 
     $introhtml = trim(format_module_intro('quiz', $quiz, $cm->id, false));
 

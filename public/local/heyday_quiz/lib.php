@@ -73,7 +73,7 @@ function local_heyday_quiz_get_context(): ?array {
 function local_heyday_quiz_is_target(): bool {
     global $PAGE;
 
-    $allowedpagetypes = ['mod-quiz-attempt', 'mod-quiz-review', 'mod-quiz-summary'];
+    $allowedpagetypes = ['mod-quiz-view', 'mod-quiz-attempt', 'mod-quiz-review', 'mod-quiz-summary'];
     if (!in_array($PAGE->pagetype, $allowedpagetypes, true)) {
         return false;
     }
@@ -123,6 +123,50 @@ function local_heyday_quiz_is_target(): bool {
 
     // Name-based fallback: "quiz" or "learning check" in the quiz name.
     return str_contains($quizname, 'quiz') || str_contains($quizname, 'learning check');
+}
+
+/**
+ * Return a tiny inline <script> to inject into <head> on attempt/summary pages.
+ *
+ * The script patches EventTarget.prototype.addEventListener to track every
+ * beforeunload handler that Moodle's AMD modules register on window, and
+ * exposes window._hdqzDropBU() which removes them all (plus window.onbeforeunload).
+ * This lets us suppress the "Leave site?" dialog reliably without relying on
+ * stopImmediatePropagation, which Chrome may still honour even when e.returnValue
+ * is cleared afterward.
+ *
+ * @return string  HTML <script> tag, or empty string for non-target pages.
+ */
+function local_heyday_quiz_early_head_script(): string {
+    global $PAGE;
+
+    if (!in_array($PAGE->pagetype, ['mod-quiz-attempt', 'mod-quiz-summary'], true)) {
+        return '';
+    }
+
+    if (!local_heyday_quiz_is_target()) {
+        return '';
+    }
+
+    return '<script id="hdqz-bu-interceptor">' .
+           '(function(){' .
+               'if(typeof EventTarget==="undefined"){return;}' .
+               'var _a=EventTarget.prototype.addEventListener,_h=[];' .
+               'EventTarget.prototype.addEventListener=function(t,f,o){' .
+                   'if(this===window&&t==="beforeunload"){' .
+                       '_h.push([f,typeof o==="object"?o:{capture:!!o}]);' .
+                   '}' .
+                   'return _a.call(this,t,f,o);' .
+               '};' .
+               'window._hdqzDropBU=function(){' .
+                   'window.onbeforeunload=null;' .
+                   '_h.forEach(function(e){' .
+                       'try{window.removeEventListener("beforeunload",e[0],e[1]);}catch(x){}' .
+                   '});' .
+                   '_h.length=0;' .
+               '};' .
+           '}());' .
+           '</script>' . "\n";
 }
 
 /**
@@ -213,27 +257,7 @@ function local_heyday_quiz_display_type(object $cm): string {
 function local_heyday_quiz_return_url(stdClass $course, int $cmid): string {
     global $CFG;
 
-    // Primary: heyday_quiz standalone player — "Save and Close" returns to the same player page.
-    if (is_file($CFG->dirroot . '/local/heyday_quiz/index.php')) {
-        return (new moodle_url('/local/heyday_quiz/index.php', [
-            'id'   => $course->id,
-            'cmid' => $cmid,
-        ]))->out(false);
-    }
-
-    // Fallback: heyday_courseplayer lessonquiz page.
     if (is_file($CFG->dirroot . '/local/heyday_courseplayer/index.php')) {
-        $cm = get_coursemodule_from_id('quiz', $cmid, 0, false, IGNORE_MISSING);
-        if ($cm) {
-            $idnumber = strtoupper(trim((string)($cm->idnumber ?? '')));
-            if (preg_match('/^HEYDAY_LESSON\d+_QUIZ$/i', $idnumber)) {
-                return (new moodle_url('/local/heyday_courseplayer/index.php', [
-                    'id'   => $course->id,
-                    'page' => 'lessonquiz',
-                    'cmid' => $cmid,
-                ]))->out(false);
-            }
-        }
         return (new moodle_url('/local/heyday_courseplayer/index.php', [
             'id'   => $course->id,
             'page' => 'lesson',
@@ -275,8 +299,26 @@ function local_heyday_quiz_lesson_label(stdClass $course, int $cmid): string {
  * @return string HTML <style> block or empty string.
  */
 function local_heyday_quiz_before_standard_html_head(): string {
+    global $PAGE;
+
     if (!local_heyday_quiz_is_target()) {
         return '';
+    }
+
+    // On the native quiz view page, redirect learners to the HeyDay quiz player
+    // immediately (before any page content renders).  Teachers keep native access.
+    if ($PAGE->pagetype === 'mod-quiz-view') {
+        $ctx = local_heyday_quiz_get_context();
+        if (!$ctx) {
+            return '';
+        }
+        [$cm, $quiz, $course] = $ctx;
+        $coursecontext = context_course::instance($course->id);
+        if (has_capability('moodle/course:update', $coursecontext)) {
+            return '';  // Editors see the native view page.
+        }
+        $dest = json_encode(local_heyday_quiz_return_url($course, (int)$cm->id));
+        return "<script>window.location.replace({$dest});</script>\n";
     }
 
     return <<<'HTML'
@@ -291,6 +333,120 @@ body.heyday-quiz-page {
     font-family: Arial, Helvetica, sans-serif !important;
     color: #111 !important;
 }
+
+/* ---- HeyDay outer topnav (black bar) ---- */
+.hdqz-topnav {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important;
+    height: 50px !important;
+    background: #1e1e1e !important;
+    color: #fff !important;
+    z-index: 9900 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 24px !important;
+    font-size: 14px !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+.hdqz-topnav-brand {
+    font-weight: 700 !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* ---- HeyDay outer sidebar ---- */
+.hdqz-sidenav {
+    position: fixed !important;
+    top: 50px !important; left: 0 !important; bottom: 0 !important;
+    width: 250px !important;
+    background: #fff !important;
+    border-right: 1px solid #d4dae0 !important;
+    overflow-y: auto !important;
+    z-index: 9800 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 13px !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+.hdqz-sidenav-mainlink {
+    display: block !important;
+    padding: 9px 16px !important;
+    color: #334155 !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    border-left: 3px solid transparent !important;
+}
+.hdqz-sidenav-mainlink:hover { background: #f0f4f8 !important; color: #0073a8 !important; }
+.hdqz-sidenav-group { border-top: 1px solid #e8ecf0 !important; }
+.hdqz-sidenav-group-hd {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 9px 14px 9px 16px !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    color: #64748b !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    background: #f8f9fa !important;
+}
+.hdqz-sidenav-group-hd:hover { background: #eff3f7 !important; color: #334155 !important; }
+.hdqz-sidenav-item {
+    display: block !important;
+    padding: 7px 16px 7px 22px !important;
+    color: #334155 !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    border-left: 3px solid transparent !important;
+}
+.hdqz-sidenav-item:hover { background: #f0f4f8 !important; color: #0073a8 !important; }
+.hdqz-sidenav-item.is-active {
+    border-left-color: #0073a8 !important;
+    background: #eef7fc !important;
+    color: #0073a8 !important;
+    font-weight: 600 !important;
+}
+.hdqz-sidenav-item.is-locked { color: #94a3b8 !important; pointer-events: none !important; }
+.hdqz-sidenav-afterlink {
+    display: block !important;
+    padding: 9px 16px !important;
+    color: #334155 !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    border-top: 1px solid #e8ecf0 !important;
+}
+.hdqz-sidenav-afterlink:hover { background: #f0f4f8 !important; color: #0073a8 !important; }
+
+/* ---- Layout adjustment for topnav + sidebar ---- */
+body.heyday-quiz-page #page {
+    padding-top: 50px !important;
+    padding-left: 250px !important;
+    margin: 0 !important;
+    min-height: 100vh !important;
+    box-sizing: border-box !important;
+}
+
+/* ---- Hide Moodle navigation chrome ---- */
+body.heyday-quiz-page nav.navbar,
+body.heyday-quiz-page .navbar,
+body.heyday-quiz-page #theme_boost-drawers-courseindex,
+body.heyday-quiz-page [data-region="courseindex"],
+body.heyday-quiz-page .drawer,
+body.heyday-quiz-page .drawer-left,
+body.heyday-quiz-page .drawer-right,
+body.heyday-quiz-page .drawer-toggles,
+body.heyday-quiz-page [data-region="blocks-column"],
+body.heyday-quiz-page #block-region-side-pre,
+body.heyday-quiz-page #block-region-side-post,
+body.heyday-quiz-page .block,
+body.heyday-quiz-page footer,
+body.heyday-quiz-page #page-footer { display: none !important; }
 
 /* Hide Moodle chrome that conflicts with the learner card view. */
 body.heyday-quiz-page #page-header,
@@ -344,10 +500,10 @@ body.heyday-quiz-page .que .info .editquestion {
 
 /* ---- Main content area ---- */
 body.heyday-quiz-page #region-main {
-    width: 1130px !important;
-    max-width: 1130px !important;
-    margin: 0 auto 90px auto !important;
-    padding: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 32px 90px 32px !important;
     background: transparent !important;
     border: 0 !important;
     box-shadow: none !important;
@@ -355,11 +511,11 @@ body.heyday-quiz-page #region-main {
 
 /* ---- White quiz card ---- */
 .hdqz-card {
-    width: 1090px !important;
-    max-width: 1090px !important;
+    width: 100% !important;
+    max-width: 1000px !important;
     min-height: 520px !important;
     margin: 26px auto 38px auto !important;
-    padding: 34px 32px 30px 32px !important;
+    padding: 36px 48px 34px 48px !important;
     background: #fff !important;
     border: 1px solid #d7dce0 !important;
     box-shadow: none !important;
@@ -485,7 +641,7 @@ body.heyday-quiz-page form#responseform,
 body.heyday-quiz-page .quizattempt,
 body.heyday-quiz-page .quizreview {
     max-width: 1000px !important;
-    width: 1000px !important;
+    width: 100% !important;
     margin: 0 auto !important;
 }
 
@@ -782,14 +938,34 @@ body#page-mod-quiz-review.heyday-quiz-page .que.incorrect .generalfeedback {
     color: #7b1e1e !important;
 }
 
-/* ---- Review: un-hide .outcome so feedback text is visible ---- */
+/* ---- Review: un-hide .outcome so feedback text is visible, but strip
+       Moodle's default pale-yellow wrapper so it is only a transparent
+       layout container — the inner .feedback box supplies the colour. ---- */
 body#page-mod-quiz-review.heyday-quiz-page .que .outcome {
     display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
 }
 
 body#page-mod-quiz-review.heyday-quiz-page .que .outcome .grade,
 body#page-mod-quiz-review.heyday-quiz-page .que .outcome .rightanswer {
     display: none !important;
+}
+
+/* Also flatten any generic feedback wrapper Moodle nests around the box. */
+body#page-mod-quiz-review.heyday-quiz-page .que .formulation > .outcome,
+body#page-mod-quiz-review.heyday-quiz-page .que .content > .outcome,
+body#page-mod-quiz-review.heyday-quiz-page .que .feedback.clearfix,
+body#page-mod-quiz-review.heyday-quiz-page .que .im-feedback {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
 /* ---- Review: X / check icons inside A B C D capsule ---- */
@@ -912,6 +1088,35 @@ body.heyday-quiz-page button.hdqz-submit-answer:hover {
     border-color: #367825 !important;
 }
 
+/* ---- Review page: "Finish review" link styled as ed2go button ---- */
+body#page-mod-quiz-review.heyday-quiz-page .submitbtns a,
+body#page-mod-quiz-review.heyday-quiz-page .submitbtns input[type="submit"],
+body#page-mod-quiz-review.heyday-quiz-page .submitbtns button,
+body#page-mod-quiz-review.heyday-quiz-page a.endtestlink {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 36px !important;
+    padding: 8px 18px !important;
+    background: #0073a8 !important;
+    border: 1px solid #0073a8 !important;
+    border-radius: 3px !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+body#page-mod-quiz-review.heyday-quiz-page .submitbtns a:hover,
+body#page-mod-quiz-review.heyday-quiz-page a.endtestlink:hover {
+    background: #005d8c !important;
+    border-color: #005d8c !important;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
 /* ---- End-of-quiz divider ---- */
 .hdqz-end {
     display: flex !important;
@@ -973,38 +1178,25 @@ body.heyday-quiz-page .submitbtns + .activity-navigation {
 }
 
 /* ---- Responsive ---- */
-@media (max-width: 1300px) {
+@media (max-width: 900px) {
+    body.heyday-quiz-page #page {
+        padding-left: 0 !important;
+    }
+    .hdqz-sidenav { display: none !important; }
+
     body.heyday-quiz-page #region-main {
-        width: 1000px !important;
-        max-width: 1000px !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
     }
 
     .hdqz-card {
-        width: 960px !important;
-        max-width: 960px !important;
-    }
-
-    body.heyday-quiz-page form#responseform,
-    body.heyday-quiz-page .quizattempt,
-    body.heyday-quiz-page .quizreview {
-        width: 880px !important;
-        max-width: 880px !important;
+        padding: 18px 14px !important;
     }
 }
 
-@media (max-width: 1080px) {
-    body.heyday-quiz-page #region-main,
-    .hdqz-card {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-
-    body.heyday-quiz-page form#responseform,
-    body.heyday-quiz-page .quizattempt,
-    body.heyday-quiz-page .quizreview {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
+@media print {
+    .hdqz-topnav, .hdqz-sidenav { display: none !important; }
+    body.heyday-quiz-page #page { padding: 0 !important; }
 }
 
 /* ---- Summary page — hide content, show submitting overlay ---- */
@@ -1080,18 +1272,198 @@ body#page-mod-quiz-summary.heyday-quiz-page::after {
     color: #7b1e1e !important;
 }
 
+/* ── Confirmation modal ── */
+.hdqz-modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0,0,0,0.5) !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.hdqz-modal {
+    background: #fff !important;
+    border-radius: 4px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.28) !important;
+    padding: 32px 36px 28px !important;
+    max-width: 480px !important;
+    width: 90% !important;
+    text-align: center !important;
+}
+.hdqz-modal-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+    margin: 0 0 10px !important;
+    line-height: 1.4 !important;
+}
+.hdqz-modal-note {
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    margin: 0 0 24px !important;
+}
+.hdqz-modal-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+}
+.hdqz-modal-cancel {
+    padding: 9px 20px !important;
+    background: #fff !important;
+    border: 1px solid #b7c0c9 !important;
+    border-radius: 3px !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+.hdqz-modal-cancel:hover { background: #f3f4f6 !important; }
+.hdqz-modal-confirm {
+    padding: 9px 20px !important;
+    background: #4f922d !important;
+    border: 1px solid #4f922d !important;
+    border-radius: 3px !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+.hdqz-modal-confirm:hover { background: #3e7523 !important; border-color: #3e7523 !important; }
+
+/* ── Review header: attempt bar ── */
+.hdqz-review-header { margin: 0 0 24px !important; }
+.hdqz-attempt-bar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 16px !important;
+    background: #f3f5f7 !important;
+    border: 1px solid #d7dce2 !important;
+    border-radius: 3px !important;
+    margin-bottom: 12px !important;
+    font-size: 14px !important;
+    color: #334155 !important;
+    flex-wrap: wrap !important;
+}
+.hdqz-attempt-label {
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+}
+.hdqz-attempt-date { color: #6b7280 !important; flex: 1 1 auto !important; }
+.hdqz-pct-badge {
+    padding: 3px 12px !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+}
+.hdqz-badge-pass { background: #dfeeda !important; color: #2d6422 !important; }
+.hdqz-badge-fail { background: #f1d6d6 !important; color: #7b1e1e !important; }
+
+/* ── Retake row ── */
+.hdqz-retake-row {
+    margin-bottom: 20px !important;
+    padding: 12px 16px !important;
+    border: 1px solid #4f922d !important;
+    border-radius: 3px !important;
+    background: #f6fbf3 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.hdqz-retake-btn {
+    color: #4f922d !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    text-decoration: none !important;
+}
+.hdqz-retake-btn:hover { color: #3e7523 !important; text-decoration: underline !important; }
+.hdqz-retake-btn .fa { margin-right: 6px !important; }
+
+/* ── Score ring ── */
+.hdqz-score-ring-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    padding: 20px 0 !important;
+}
+.hdqz-score-ring { display: block !important; overflow: visible !important; }
+.hdqz-score-count {
+    margin: 12px 0 0 !important;
+    font-size: 16px !important;
+    color: #334155 !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+}
+
+/* ── Per-question review row coloring ── */
+.hdqz-ans-correct-row { background: #dfeeda !important; }
+.hdqz-ans-correct-row .answernumber { background: #4f922d !important; color: #fff !important; }
+.hdqz-ans-correct-row label,
+.hdqz-ans-correct-row .flex-fill,
+.hdqz-ans-correct-row .flex-fill p { color: #2d6422 !important; }
+
+.hdqz-ans-wrong-row { background: #f8d7da !important; }
+.hdqz-ans-wrong-row .answernumber { background: #b73434 !important; color: #fff !important; }
+.hdqz-ans-wrong-row label,
+.hdqz-ans-wrong-row .flex-fill,
+.hdqz-ans-wrong-row .flex-fill p { color: #7b1e1e !important; }
+
+.hdqz-ans-right-unselected-row { background: #e8f4fc !important; }
+.hdqz-ans-right-unselected-row .answernumber { background: #0076a8 !important; color: #fff !important; }
+.hdqz-ans-right-unselected-row label,
+.hdqz-ans-right-unselected-row .flex-fill,
+.hdqz-ans-right-unselected-row .flex-fill p { color: #005c87 !important; }
+
+/* ── Result labels ── */
+.hdqz-result-label {
+    margin: 12px 0 4px !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+}
+.hdqz-label-correct { color: #2d6422 !important; }
+.hdqz-label-incorrect { color: #7b1e1e !important; }
+
+/* ── "This was the correct answer." note ── */
+.hdqz-correct-note {
+    margin: 6px 0 0 !important;
+    padding: 8px 14px !important;
+    background: #e8f4fc !important;
+    border: 1px solid #0076a8 !important;
+    border-left: 4px solid #0076a8 !important;
+    border-radius: 0 3px 3px 0 !important;
+    color: #005c87 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+.hdqz-correct-note .fa { margin-right: 5px !important; }
+
+/* ── Feedback panel: incorrect styling ── */
+.hdqz-feedback-incorrect {
+    background: #f8d7da !important;
+    border: 1px solid #e6bcbc !important;
+    border-left: 4px solid #b73434 !important;
+    border-radius: 0 3px 3px 0 !important;
+    color: #7b1e1e !important;
+    padding: 10px 14px !important;
+    margin-top: 8px !important;
+}
+.hdqz-incorrect-prefix {
+    display: block !important;
+    font-weight: 700 !important;
+    margin-bottom: 4px !important;
+}
+
 /* ---- Print ---- */
 @media print {
-    body.heyday-quiz-page .drawer,
-    body.heyday-quiz-page .drawer-left,
-    body.heyday-quiz-page .drawer-right,
-    body.heyday-quiz-page .hdqz-topbar,
+    .hdqz-topnav, .hdqz-sidenav,
     body.heyday-quiz-page .hdqz-next,
-    body.heyday-quiz-page .hdqz-end {
-        display: none !important;
-    }
+    body.heyday-quiz-page .hdqz-end { display: none !important; }
 
-    body.heyday-quiz-page #region-main,
+    body.heyday-quiz-page #page { padding: 0 !important; }
+    body.heyday-quiz-page #region-main { padding: 0 !important; }
+
     .hdqz-card {
         max-width: 100% !important;
         width: 100% !important;
@@ -1125,6 +1497,32 @@ function local_heyday_quiz_before_footer(): string {
     [$cm, $quiz, $course] = $ctx;
 
     require_once($CFG->dirroot . '/course/lib.php');
+
+    // Review-page attempt data (attempt number, date, retake eligibility).
+    global $DB, $USER, $PAGE;
+    $attemptno   = 0;
+    $attemptdate = '';
+    $canretake   = false;
+    if ($PAGE->pagetype === 'mod-quiz-review') {
+        $reviewattemptid = optional_param('attempt', 0, PARAM_INT);
+        if ($reviewattemptid > 0) {
+            try {
+                $arecord = $DB->get_record('quiz_attempts',
+                    ['id' => $reviewattemptid], 'id,attempt,timefinish,preview');
+                if ($arecord && !(int)$arecord->preview && (int)$arecord->timefinish > 0) {
+                    $attemptno   = (int)$arecord->attempt;
+                    $attemptdate = userdate((int)$arecord->timefinish,
+                        get_string('strftimedatetime', 'langconfig'));
+                    $maxattempts = (int)$quiz->attempts;
+                    $donecount   = $DB->count_records('quiz_attempts',
+                        ['quiz' => $quiz->id, 'userid' => $USER->id, 'preview' => 0, 'state' => 'finished']);
+                    $canretake   = ($maxattempts === 0) || ($donecount < $maxattempts);
+                }
+            } catch (Throwable $e) {
+                // ignore — leave defaults
+            }
+        }
+    }
 
     $coursefullname = format_string($course->fullname);
     $quiztitle      = format_string($quiz->name);
@@ -1165,6 +1563,118 @@ function local_heyday_quiz_before_footer(): string {
     // Derive end-of-quiz label.
     $endlabel = $lessonlabel !== '' ? 'End of ' . $lessonlabel . ' Quiz' : 'End of Quiz';
 
+    // ---- Build sidebar navigation data (subsection-aware, deduplicated) ----
+    //
+    // Groups are keyed by lesson number so each "Lesson N" appears exactly once,
+    // even when Moodle splits a lesson across multiple sections.  Delegated
+    // subsection sections are skipped at the top level (they are reached only by
+    // recursing through their parent's subsection module), which prevents the
+    // "Lesson 5 Review / Lesson 6 Review repeated many times" duplication.
+    $sidebargroups = [];
+    try {
+        $modinfoSb   = get_fast_modinfo($course);
+        $allsections = $modinfoSb->get_section_info_all();
+
+        // Collect visible cms in a section, following subsection delegates.
+        $collect = function (int $snum, array &$seen) use (
+            &$collect, $modinfoSb, $allsections, $course, $cm, $CFG
+        ): array {
+            $out = [];
+            foreach (($modinfoSb->sections[$snum] ?? []) as $scmid) {
+                try {
+                    $scm = $modinfoSb->get_cm($scmid);
+                } catch (Throwable $e) {
+                    continue;
+                }
+                if (!$scm->uservisible || $scm->modname === 'label') {
+                    continue;
+                }
+
+                // Subsection: recurse into its delegated section, don't list the wrapper.
+                if ($scm->modname === 'subsection') {
+                    foreach ($allsections as $cand) {
+                        if (!empty($cand->component)
+                            && $cand->component === 'mod_subsection'
+                            && (int)$cand->itemid === (int)$scm->instance) {
+                            $out = array_merge($out, $collect((int)$cand->section, $seen));
+                            break;
+                        }
+                    }
+                    continue;
+                }
+
+                // De-duplicate each cm across the whole sidebar.
+                if (isset($seen[(int)$scm->id])) {
+                    continue;
+                }
+                $seen[(int)$scm->id] = true;
+
+                if (file_exists($CFG->dirroot . '/local/heyday_courseplayer/index.php')) {
+                    $iurl = (new moodle_url('/local/heyday_courseplayer/index.php', [
+                        'id' => $course->id, 'page' => 'lesson', 'cmid' => $scm->id,
+                    ]))->out(false);
+                } else {
+                    $iurl = !empty($scm->url)
+                        ? $scm->url->out(false)
+                        : (new moodle_url('/mod/' . $scm->modname . '/view.php', ['id' => $scm->id]))->out(false);
+                }
+                $out[] = [
+                    'name'      => format_string($scm->name),
+                    'url'       => $iurl,
+                    'isCurrent' => ((int)$scm->id === (int)$cm->id),
+                    'isLocked'  => !$scm->available,
+                ];
+            }
+            return $out;
+        };
+
+        $bylesson = [];
+        $seen     = [];
+        foreach ($allsections as $snum => $section) {
+            if ($snum == 0) {
+                continue;
+            }
+            // Skip delegated subsection sections at top level — reached via recursion.
+            if (!empty($section->component)) {
+                continue;
+            }
+            $sname = get_section_name($course, $section);
+            if (!preg_match('/^\s*lesson\s+(\d+)/i', $sname, $m)) {
+                continue;
+            }
+            $lessonnum = (int)$m[1];
+            $items = $collect((int)$snum, $seen);
+            if (!$items) {
+                continue;
+            }
+            if (!isset($bylesson[$lessonnum])) {
+                $bylesson[$lessonnum] = ['name' => $sname, 'items' => []];
+            }
+            $bylesson[$lessonnum]['items'] = array_merge($bylesson[$lessonnum]['items'], $items);
+        }
+        ksort($bylesson);
+        $sidebargroups = array_values($bylesson);
+    } catch (Throwable $e) {
+        $sidebargroups = [];
+    }
+
+    $hasCp  = file_exists($CFG->dirroot . '/local/heyday_courseplayer/index.php');
+
+    $sbnavlinks = [];
+    if ($hasCp) {
+        $sbnavlinks[] = ['label' => 'Home',          'url' => (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'home']))->out(false)];
+        $sbnavlinks[] = ['label' => 'Scores',         'url' => (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'scores']))->out(false)];
+        $sbnavlinks[] = ['label' => 'Discussions',    'url' => (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'discussions']))->out(false)];
+        $sbnavlinks[] = ['label' => 'Getting Started','url' => (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'gettingstarted']))->out(false)];
+        $sbnavlinks[] = ['label' => 'Pretest',        'url' => (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'pretest']))->out(false)];
+    }
+
+    $sbafterlinks = [];
+    if ($hasCp) {
+        $sbafterlinks[] = ['label' => 'Resources',  'url' => (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'resources']))->out(false)];
+        $sbafterlinks[] = ['label' => 'Final Exam', 'url' => (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'finalexam']))->out(false)];
+    }
+
     $data = [
         'course'      => $coursefullname,
         'quiz'        => $quiztitle,
@@ -1175,6 +1685,14 @@ function local_heyday_quiz_before_footer(): string {
         'nextsection' => $nextsection,
         'nextname'    => $nextname,
         'nexttype'    => $nexttype,
+        'attemptno'   => $attemptno,
+        'attemptdate' => $attemptdate,
+        'canretake'   => $canretake,
+        'sidebar'     => [
+            'navlinks'   => $sbnavlinks,
+            'groups'     => $sidebargroups,
+            'afterlinks' => $sbafterlinks,
+        ],
     ];
 
     $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
@@ -1196,6 +1714,84 @@ function local_heyday_quiz_before_footer(): string {
 
     /* ── 1. Add body class ─────────────────────────────────────── */
     document.body.classList.add('heyday-quiz-page');
+    document.body.classList.add('local-heyday-quiz');
+
+    /* ── 1a. HTML-escape helper ───────────────────────────────── */
+    function esc(s) {
+        return String(s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* ── 1b. Black topnav bar ─────────────────────────────────── */
+    function buildTopnav() {
+        if (document.querySelector('.hdqz-topnav')) { return; }
+        var nav = document.createElement('div');
+        nav.className = 'hdqz-topnav';
+        nav.innerHTML = '<span class="hdqz-topnav-brand">' + esc(HDQ.course) + '</span>';
+        document.body.insertBefore(nav, document.body.firstChild);
+    }
+
+    /* ── 1c. Left sidebar ─────────────────────────────────────── */
+    function buildSidenav() {
+        if (document.querySelector('.hdqz-sidenav') || !HDQ.sidebar) { return; }
+        var sb   = document.createElement('aside');
+        sb.className = 'hdqz-sidenav';
+        var html = '';
+
+        // Main nav links.
+        (HDQ.sidebar.navlinks || []).forEach(function(link) {
+            if (!link.url) { return; }
+            html += '<a class="hdqz-sidenav-mainlink" href="' + link.url + '">' + esc(link.label) + '</a>';
+        });
+
+        // Lesson groups.
+        (HDQ.sidebar.groups || []).forEach(function(group) {
+            var hasActive = group.items.some(function(i) { return i.isCurrent; });
+            var open      = hasActive ? '1' : '0';
+            html += '<div class="hdqz-sidenav-group">';
+            html += '<div class="hdqz-sidenav-group-hd" data-open="' + open + '">' +
+                        esc(group.name) +
+                        '<i class="fa fa-chevron-' + (hasActive ? 'down' : 'right') + '" aria-hidden="true"></i>' +
+                    '</div>';
+            html += '<div class="hdqz-sidenav-group-items" style="display:' + (hasActive ? 'block' : 'none') + '">';
+            group.items.forEach(function(item) {
+                var cls = 'hdqz-sidenav-item';
+                if (item.isCurrent) { cls += ' is-active'; }
+                if (item.isLocked)  { cls += ' is-locked'; }
+                html += '<a class="' + cls + '" href="' + item.url + '">' + esc(item.name) + '</a>';
+            });
+            html += '</div></div>';
+        });
+
+        // After links (Resources, Final Exam).
+        (HDQ.sidebar.afterlinks || []).forEach(function(link) {
+            if (!link.url) { return; }
+            html += '<a class="hdqz-sidenav-afterlink" href="' + link.url + '">' + esc(link.label) + '</a>';
+        });
+
+        sb.innerHTML = html;
+
+        // Wire group toggles.
+        sb.querySelectorAll('.hdqz-sidenav-group-hd').forEach(function(hd) {
+            hd.addEventListener('click', function() {
+                var isOpen = hd.getAttribute('data-open') === '1';
+                var items  = hd.nextElementSibling;
+                var icon   = hd.querySelector('i');
+                hd.setAttribute('data-open', isOpen ? '0' : '1');
+                if (items) { items.style.display = isOpen ? 'none' : 'block'; }
+                if (icon)  { icon.className = 'fa fa-chevron-' + (isOpen ? 'right' : 'down'); }
+            });
+        });
+
+        // Insert after topnav (or at body start).
+        var topnav = document.querySelector('.hdqz-topnav');
+        if (topnav && topnav.nextSibling) {
+            topnav.parentNode.insertBefore(sb, topnav.nextSibling);
+        } else {
+            document.body.insertBefore(sb, document.body.firstChild);
+        }
+    }
 
     /* ── 2. Wrap all #region-main content in a white card ─────── */
     function buildShell() {
@@ -1322,6 +1918,64 @@ function local_heyday_quiz_before_footer(): string {
         ).forEach(function(el) { el.style.display = 'none'; });
     }
 
+    /* ── Drop all beforeunload handlers before HeyDay navigates ──
+       Primary path: call window._hdqzDropBU() which the early head script
+       built by local_heyday_quiz_early_head_script() injects.  It removes
+       every addEventListener('beforeunload') handler that AMD modules
+       registered (tracked via an EventTarget.prototype.addEventListener
+       patch) plus window.onbeforeunload.
+       Fallback: if _hdqzDropBU is not available (e.g. on review.php where
+       the early script is not injected), clear onbeforeunload and add a
+       capture-phase suppressor that fires before Moodle's bubble handler. */
+    function dropBeforeunload() {
+        window.onbeforeunload = null;
+        if (typeof window._hdqzDropBU === 'function') {
+            window._hdqzDropBU();
+            return;
+        }
+        /* Fallback capture suppressor. */
+        var fn = function(e) {
+            e.stopImmediatePropagation();
+            e.returnValue = '';
+            window.removeEventListener('beforeunload', fn, true);
+        };
+        window.addEventListener('beforeunload', fn, true);
+    }
+
+    /* ── 4b. HeyDay confirmation modal ─────────────────────────── */
+    function showSubmitModal(onConfirm) {
+        if (document.getElementById('hdqzModal')) { return; }
+        var backdrop = document.createElement('div');
+        backdrop.id        = 'hdqzModal';
+        backdrop.className = 'hdqz-modal-backdrop';
+        backdrop.setAttribute('role', 'dialog');
+        backdrop.setAttribute('aria-modal', 'true');
+        backdrop.innerHTML =
+            '<div class="hdqz-modal">' +
+                '<p class="hdqz-modal-title">Are you sure you want to submit your answers for this assessment?</p>' +
+                '<p class="hdqz-modal-note">Once submitted, you cannot change your answers.</p>' +
+                '<div class="hdqz-modal-actions">' +
+                    '<button class="hdqz-modal-cancel" type="button">Cancel</button>' +
+                    '<button class="hdqz-modal-confirm" type="button">Yes, please submit</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(backdrop);
+
+        backdrop.querySelector('.hdqz-modal-cancel').addEventListener('click', function() {
+            backdrop.remove();
+        });
+        backdrop.querySelector('.hdqz-modal-confirm').addEventListener('click', function() {
+            backdrop.remove();
+            onConfirm();
+        });
+        backdrop.addEventListener('click', function(e) {
+            if (e.target === backdrop) { backdrop.remove(); }
+        });
+        document.addEventListener('keydown', function hdqzEsc(e) {
+            if (e.key === 'Escape') { backdrop.remove(); document.removeEventListener('keydown', hdqzEsc); }
+        });
+    }
+
     /* ── 5. Replace Moodle submit/next buttons with ed2go layout ── */
     function improveButtons() {
         var form = document.querySelector('form#responseform');
@@ -1365,23 +2019,29 @@ function local_heyday_quiz_before_footer(): string {
         submitBtn.classList.add('hdqz-submit-answer');
 
         /* On the attempt page: intercept click in capture phase so we fire
-           before Moodle's AMD bubble handlers.  Add finishattempt=1 and call
-           form.submit() — this jumps directly to processattempt.php, skipping
-           the summary/confirmation page entirely. */
+           before Moodle's AMD bubble handlers.  Set finishattempt=1, suppress
+           the quiz module's beforeunload warning, then call form.submit().
+           Moodle processes the attempt via processattempt.php normally.  If the
+           quiz requires a summary/confirmation step, bypassSummary() auto-submits
+           it; either way the browser lands on review.php where the HeyDay shell
+           renders the full result/review screen. */
         if (document.body.id === 'page-mod-quiz-attempt' && !submitBtn.dataset.hdqzIntercept) {
             submitBtn.dataset.hdqzIntercept = '1';
             submitBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                var fi = form.querySelector('input[name="finishattempt"]');
-                if (!fi) {
-                    fi = document.createElement('input');
-                    fi.type = 'hidden';
-                    fi.name = 'finishattempt';
-                    form.appendChild(fi);
-                }
-                fi.value = '1';
-                form.submit();
+                showSubmitModal(function() {
+                    var fi = form.querySelector('input[name="finishattempt"]');
+                    if (!fi) {
+                        fi = document.createElement('input');
+                        fi.type = 'hidden';
+                        fi.name = 'finishattempt';
+                        form.appendChild(fi);
+                    }
+                    fi.value = '1';
+                    dropBeforeunload();
+                    form.submit();
+                });
             }, true);
         }
 
@@ -1393,6 +2053,25 @@ function local_heyday_quiz_before_footer(): string {
         saveClose.href = HDQ.returnurl;
         saveClose.className = 'hdqz-save-close';
         saveClose.textContent = 'Save and Close';
+
+        /* Save and Close: POST current answers without finishing the attempt
+           (finishattempt=0), then navigate back to the HeyDay quiz player. */
+        if (document.body.id === 'page-mod-quiz-attempt') {
+            saveClose.addEventListener('click', function(e) {
+                e.preventDefault();
+                var fd = new FormData(form);
+                fd.set('finishattempt', '0');
+                fetch(form.action || window.location.href, {
+                    method: 'POST',
+                    body: fd,
+                    redirect: 'follow',
+                    credentials: 'same-origin'
+                }).finally(function() {
+                    dropBeforeunload();
+                    window.location.replace(HDQ.returnurl);
+                });
+            });
+        }
 
         buttonRow.appendChild(saveClose);
         buttonRow.appendChild(submitBtn);
@@ -1503,20 +2182,16 @@ function local_heyday_quiz_before_footer(): string {
         }
     }
 
-    /* ── 8. Skip summary confirmation — direct form submit ─────── */
+    /* ── 8. Skip summary confirmation — suppress beforeunload, native submit ── */
     function bypassSummary() {
         if (document.body.id !== 'page-mod-quiz-summary') { return; }
 
-        /* Use form.submit() — bypasses Moodle's JS confirmation modal.
-           btn.click() triggers AMD handlers that open a dialog and stall. */
         var form =
             document.querySelector('form[action*="processattempt"]') ||
             document.querySelector('form');
 
         if (!form) { return; }
 
-        /* Ensure finishattempt=1 is sent — submit buttons are excluded
-           from form.submit(), so we inject it as a hidden field. */
         var fi = form.querySelector('input[name="finishattempt"]');
         if (!fi) {
             fi = document.createElement('input');
@@ -1526,66 +2201,137 @@ function local_heyday_quiz_before_footer(): string {
         }
         fi.value = '1';
 
+        // Drop all beforeunload handlers then submit natively.
+        // processattempt.php finishes the attempt and redirects to review.php
+        // where the HeyDay shell renders the result/review screen directly.
+        dropBeforeunload();
         form.submit();
     }
 
-    /* ── 9. Score badge on review page ─────────────────────────── */
+    /* ── 9. Review header: attempt bar + score ring + retake row ── */
     function showScore() {
         if (document.body.id !== 'page-mod-quiz-review') { return; }
 
         var card = document.querySelector('.hdqz-card');
-        if (!card || card.querySelector('.hdqz-score-bar')) { return; }
+        if (!card || card.querySelector('.hdqz-review-header')) { return; }
 
         /* quizreviewsummary is hidden by CSS but still in the DOM. */
         var summaryEl = document.querySelector('.quizreviewsummary');
         var rawText   = summaryEl ? (summaryEl.textContent || '') : '';
 
-        var pct    = null;
-        var detail = '';
+        var pct     = null;
+        var correct = null;
+        var total   = null;
 
-        var pctMatch    = rawText.match(/\((\d+(?:\.\d+)?)%\)/);
-        var scoreMatch  = rawText.match(/([\d.]+)\s*(?:out of|\/)\s*([\d.]+)/i);
-        var marksMatch  = rawText.match(/[Mm]arks?\s*:?\s*([\d.]+)\s*\/\s*([\d.]+)/);
-        var gradeMatch  = rawText.match(/[Gg]rade\s*:?\s*([\d.]+)\s*\/\s*([\d.]+)/);
+        var pctMatch   = rawText.match(/\((\d+(?:\.\d+)?)%\)/);
+        var scoreMatch = rawText.match(/([\d.]+)\s*(?:out of|\/)\s*([\d.]+)/i);
+        var marksMatch = rawText.match(/[Mm]arks?\s*:?\s*([\d.]+)\s*\/\s*([\d.]+)/);
+        var gradeMatch = rawText.match(/[Gg]rade\s*:?\s*([\d.]+)\s*\/\s*([\d.]+)/);
 
-        if (pctMatch) {
-            pct = Math.round(parseFloat(pctMatch[1]));
-        }
+        if (pctMatch) { pct = Math.round(parseFloat(pctMatch[1])); }
 
         var fromMatch = scoreMatch || gradeMatch || marksMatch;
         if (fromMatch) {
             var sc  = parseFloat(fromMatch[1]);
             var tot = parseFloat(fromMatch[2]);
             if (pct === null && tot > 0) { pct = Math.round(sc / tot * 100); }
-            if (!detail) { detail = fromMatch[1] + ' out of ' + fromMatch[2] + ' correct'; }
+            correct = Math.round(sc);
+            total   = Math.round(tot);
         }
 
         if (pct === null) { return; }
 
-        var isPass = pct >= 70;
+        var isPass  = pct >= 70;
+        var pctSafe = Math.min(100, Math.max(0, pct));
+        var radius  = 82;
+        var circ    = Math.round(2 * Math.PI * radius);
+        var dash    = Math.round(pctSafe / 100 * circ);
+        var fillColor = isPass ? '#4f922d' : '#b73434';
 
-        var bar = document.createElement('div');
-        bar.className = 'hdqz-score-bar';
-        bar.innerHTML =
-            '<div class="hdqz-score-label">Your Score</div>' +
-            '<div class="hdqz-score-pct' + (isPass ? '' : ' hdqz-score-fail') + '">' + pct + '%</div>' +
-            (detail ? '<div class="hdqz-score-detail">' + detail + '</div>' : '') +
-            '<span class="hdqz-score-status ' + (isPass ? 'hdqz-pass">Passed' : 'hdqz-fail">Did not pass') + '</span>';
+        /* Attempt bar */
+        var attemptBarHtml = '';
+        if (HDQ.attemptno || HDQ.attemptdate) {
+            attemptBarHtml =
+                '<div class="hdqz-attempt-bar">' +
+                    (HDQ.attemptno   ? '<span class="hdqz-attempt-label">Attempt #' + HDQ.attemptno + '</span>' : '') +
+                    (HDQ.attemptdate ? '<span class="hdqz-attempt-date">' + esc(HDQ.attemptdate) + '</span>' : '') +
+                    '<span class="hdqz-pct-badge ' + (isPass ? 'hdqz-badge-pass' : 'hdqz-badge-fail') + '">' + pct + '%</span>' +
+                '</div>';
+        }
 
-        /* Insert right after the Show Instructions toggle (or after the title). */
+        /* Retake row */
+        var retakeHtml = '';
+        if (HDQ.canretake) {
+            retakeHtml =
+                '<div class="hdqz-retake-row">' +
+                    '<a class="hdqz-retake-btn" href="' + HDQ.returnurl + '">' +
+                        '<i class="fa fa-refresh" aria-hidden="true"></i> Retake Assessment' +
+                    '</a>' +
+                '</div>';
+        }
+
+        /* Score ring (SVG) — 192px gauge, centred. */
+        var ringHtml =
+            '<div class="hdqz-score-ring-wrap">' +
+                '<svg class="hdqz-score-ring" viewBox="0 0 192 192" width="192" height="192" aria-hidden="true">' +
+                    '<circle cx="96" cy="96" r="' + radius + '" fill="none" stroke="#e5e7eb" stroke-width="14"/>' +
+                    '<circle cx="96" cy="96" r="' + radius + '" fill="none"' +
+                        ' stroke="' + fillColor + '" stroke-width="14"' +
+                        ' stroke-dasharray="' + dash + ' ' + (circ - dash) + '"' +
+                        ' stroke-linecap="round"' +
+                        ' transform="rotate(-90 96 96)"/>' +
+                    '<text x="96" y="104" text-anchor="middle" dominant-baseline="middle"' +
+                        ' font-size="40" font-weight="700" fill="' + fillColor + '">' + pct + '%</text>' +
+                '</svg>' +
+                (correct !== null && total !== null
+                    ? '<p class="hdqz-score-count">' + correct + ' correct out of ' + total + ' questions</p>'
+                    : '') +
+            '</div>';
+
+        var header = document.createElement('div');
+        header.className = 'hdqz-review-header';
+        header.innerHTML = attemptBarHtml + retakeHtml + ringHtml;
+
         var anchor = card.querySelector('.hdqz-instructions-toggle') ||
                      card.querySelector('.hdqz-title');
-
         if (anchor && anchor.parentNode === card) {
-            anchor.parentNode.insertBefore(bar, anchor.nextSibling);
+            anchor.parentNode.insertBefore(header, anchor.nextSibling);
         } else {
-            card.appendChild(bar);
+            card.insertBefore(header, card.firstChild);
         }
     }
 
-    /* ── 10. Annotate review: X on wrong, check + note on correct ─ */
+    /* ── 10. Annotate review: colour-coded rows + result labels ─── */
     function annotateReview() {
         if (document.body.id !== 'page-mod-quiz-review') { return; }
+
+        /* Correct questions: green row + ✓ icon + "Correct!" label */
+        document.querySelectorAll('.que.correct').forEach(function(que) {
+            var content = que.querySelector('.content');
+            if (!content || content.dataset.hdqzReviewed) { return; }
+            content.dataset.hdqzReviewed = '1';
+
+            var correctRow = que.querySelector('.answer .correct');
+            if (correctRow) {
+                correctRow.classList.add('hdqz-ans-correct-row');
+                var num = correctRow.querySelector('.answernumber');
+                if (num && !num.querySelector('.hdqz-ans-check')) {
+                    var chk = document.createElement('i');
+                    chk.className = 'fa fa-check hdqz-ans-check';
+                    chk.setAttribute('aria-hidden', 'true');
+                    num.appendChild(chk);
+                }
+            }
+
+            /* "Correct!" label below the answer block */
+            var formulation = que.querySelector('.formulation');
+            if (formulation && !formulation.querySelector('.hdqz-result-label')) {
+                var lbl = document.createElement('div');
+                lbl.className = 'hdqz-result-label hdqz-label-correct';
+                lbl.innerHTML = '<i class="fa fa-check-circle" aria-hidden="true"></i> Correct!';
+                formulation.appendChild(lbl);
+            }
+        });
 
         /* Incorrect / partially correct questions */
         document.querySelectorAll('.que.incorrect, .que.partiallycorrect').forEach(function(que) {
@@ -1593,9 +2339,10 @@ function local_heyday_quiz_before_footer(): string {
             if (!content || content.dataset.hdqzReviewed) { return; }
             content.dataset.hdqzReviewed = '1';
 
-            /* ✕ on the wrong selected answer capsule */
+            /* Red background on wrong selected answer row + ✕ icon */
             var wrongRow = que.querySelector('.answer .incorrect');
             if (wrongRow) {
+                wrongRow.classList.add('hdqz-ans-wrong-row');
                 var num = wrongRow.querySelector('.answernumber');
                 if (num && !num.querySelector('.hdqz-ans-x')) {
                     var xEl = document.createElement('i');
@@ -1605,9 +2352,10 @@ function local_heyday_quiz_before_footer(): string {
                 }
             }
 
-            /* ✓ on correct answer capsule + "This was the correct answer." bar */
+            /* Blue background on correct unselected answer + ✓ icon + "This was the correct answer." */
             var correctRow = que.querySelector('.answer .correct');
             if (correctRow) {
+                correctRow.classList.add('hdqz-ans-right-unselected-row');
                 var num2 = correctRow.querySelector('.answernumber');
                 if (num2 && !num2.querySelector('.hdqz-ans-check')) {
                     var chk = document.createElement('i');
@@ -1623,43 +2371,33 @@ function local_heyday_quiz_before_footer(): string {
                 }
             }
 
-            /* "Incorrect." bold prefix inside the red feedback box.
-               If no Moodle feedback exists, create a standalone box. */
+            /* "Incorrect." label below the answer block */
+            var formulation = que.querySelector('.formulation');
+            if (formulation && !formulation.querySelector('.hdqz-result-label')) {
+                var lbl = document.createElement('div');
+                lbl.className = 'hdqz-result-label hdqz-label-incorrect';
+                lbl.innerHTML = '<i class="fa fa-times-circle" aria-hidden="true"></i> Incorrect.';
+                formulation.appendChild(lbl);
+            }
+
+            /* Style the existing Moodle feedback panel red */
             var feedbackEl = que.querySelector(
                 '.outcome .feedback, .outcome .specificfeedback, .outcome .generalfeedback, ' +
                 '.feedback, .specificfeedback, .generalfeedback'
             );
             if (feedbackEl && !feedbackEl.querySelector('.hdqz-incorrect-prefix')) {
+                feedbackEl.classList.add('hdqz-feedback-incorrect');
                 var pfx = document.createElement('span');
                 pfx.className = 'hdqz-incorrect-prefix';
-                pfx.innerHTML = '<i class="fa fa-times-circle" aria-hidden="true"></i> Incorrect.';
+                pfx.innerHTML = '<i class="fa fa-times-circle" aria-hidden="true"></i> Incorrect. ';
                 feedbackEl.insertBefore(pfx, feedbackEl.firstChild);
             } else if (!feedbackEl) {
-                var formulation = que.querySelector('.formulation');
-                if (formulation && !formulation.querySelector('.hdqz-fallback-incorrect')) {
+                var formulation2 = que.querySelector('.formulation');
+                if (formulation2 && !formulation2.querySelector('.hdqz-fallback-incorrect')) {
                     var fb = document.createElement('div');
-                    fb.className = 'hdqz-fallback-incorrect';
-                    fb.style.cssText = 'margin:8px 0 0 58px;padding:10px 14px;background:#f1d6d6;border:1px solid #e6bcbc;border-left:4px solid #b73434;color:#7b1e1e;font-size:14px;border-radius:3px;font-weight:700;';
+                    fb.className = 'hdqz-fallback-incorrect hdqz-feedback-incorrect';
                     fb.innerHTML = '<i class="fa fa-times-circle" aria-hidden="true"></i> Incorrect.';
-                    formulation.appendChild(fb);
-                }
-            }
-        });
-
-        /* Correct questions: ✓ on answer capsule only */
-        document.querySelectorAll('.que.correct').forEach(function(que) {
-            var content = que.querySelector('.content');
-            if (!content || content.dataset.hdqzReviewed) { return; }
-            content.dataset.hdqzReviewed = '1';
-
-            var correctRow = que.querySelector('.answer .correct');
-            if (correctRow) {
-                var num = correctRow.querySelector('.answernumber');
-                if (num && !num.querySelector('.hdqz-ans-check')) {
-                    var chk = document.createElement('i');
-                    chk.className = 'fa fa-check hdqz-ans-check';
-                    chk.setAttribute('aria-hidden', 'true');
-                    num.appendChild(chk);
+                    formulation2.appendChild(fb);
                 }
             }
         });
@@ -1669,15 +2407,21 @@ function local_heyday_quiz_before_footer(): string {
     var inIframe = (window.self !== window.top);
 
     function init() {
-        if (!inIframe) { buildShell(); }
+        if (!inIframe) {
+            buildTopnav();
+            buildSidenav();
+            buildShell();
+        }
         cleanQuiz();
         cleanLiveAttemptHighlights();
         improveButtons();
-        if (!inIframe) { addNextUp(); }
-        if (!inIframe) { wireControls(); }
+        if (!inIframe) {
+            addNextUp();
+            wireControls();
+            showScore();
+            annotateReview();
+        }
         bypassSummary();
-        if (!inIframe) { showScore(); }
-        if (!inIframe) { annotateReview(); }
     }
 
     ready(init);

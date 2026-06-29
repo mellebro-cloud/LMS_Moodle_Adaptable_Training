@@ -2,7 +2,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_heyday_quizskin';
-$plugin->version = 2026062706;
+$plugin->version = 2026062901;
 $plugin->requires  = 2022041900;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.6-fix-summary-bypass-form-submit';
+$plugin->release   = '2026062901-fix-viewurl-to-courseplayer';
