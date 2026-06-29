@@ -109,6 +109,10 @@ body.path-local-heyday_coursesearch #region-main {
     min-height: calc(100vh - 80px) !important;
 }
 
+/* All .hcs-* component rules below are scoped to body.path-local-heyday_coursesearch
+   so they cannot affect other Moodle pages. */
+body.path-local-heyday_coursesearch {
+
 /* Main search panel. Lower margin assumes the default black top header remains visible. */
 .hcs-wrap {
     max-width: 980px !important;
@@ -240,7 +244,7 @@ body.path-local-heyday_coursesearch #region-main {
     margin: 0 auto !important;
     padding: 14px 16px !important;
     border: 1px solid #d9e0e6 !important;
-    background: #ffffff !important;
+    background: #fff !important;
     color: #596b7a !important;
 }
 
@@ -255,6 +259,7 @@ body.path-local-heyday_coursesearch #region-main {
         width: 100% !important;
     }
 }
+} /* end body.path-local-heyday_coursesearch */
 
 
 /* =========================================================
@@ -337,7 +342,7 @@ body.path-local-heyday_coursesearch .search-input-form button {
     background: transparent !important;
     border: 0 !important;
     box-shadow: none !important;
-    color: #ffffff !important;
+    color: #fff !important;
     min-width: auto !important;
     width: auto !important;
     height: auto !important;
@@ -352,7 +357,7 @@ body.path-local-heyday_coursesearch form[role="search"] button:hover,
 body.path-local-heyday_coursesearch .search-input-form .btn:hover,
 body.path-local-heyday_coursesearch .search-input-form button:hover {
     background: transparent !important;
-    color: #ffffff !important;
+    color: #fff !important;
 }
 
 /* Keep user menu on one line and aligned to the right. */
@@ -392,8 +397,8 @@ body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar {
     height: 42px !important;
     min-height: 42px !important;
     max-height: 42px !important;
-    background: #000000 !important;
-    color: #ffffff !important;
+    background: #000 !important;
+    color: #fff !important;
     z-index: 99990 !important;
     display: flex !important;
     align-items: center !important;
@@ -413,7 +418,7 @@ body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-right {
     align-items: center !important;
     justify-content: flex-end !important;
     gap: 0 !important;
-    color: #ffffff !important;
+    color: #fff !important;
 }
 
 body.path-local-heyday_coursesearch #hcs-ed2go-topbar .hcs-topbar-item,
@@ -429,7 +434,7 @@ body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar a.hcs-topbar-item {
     justify-content: center !important;
     padding: 0 10px !important;
     margin: 0 !important;
-    color: #ffffff !important;
+    color: #fff !important;
     background: transparent !important;
     border: 0 !important;
     box-shadow: none !important;
@@ -442,15 +447,15 @@ body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar a.hcs-topbar-item {
 body.path-local-heyday_coursesearch #hcs-ed2go-topbar .hcs-topbar-item:hover,
 body.heyday-coursesearch-page #hcs-ed2go-topbar .hcs-topbar-item:hover,
 body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-item:hover {
-    background: #111111 !important;
-    color: #ffffff !important;
+    background: #111 !important;
+    color: #fff !important;
     text-decoration: none !important;
 }
 
 body.path-local-heyday_coursesearch #hcs-ed2go-topbar .hcs-topbar-icon i,
 body.heyday-coursesearch-page #hcs-ed2go-topbar .hcs-topbar-icon i,
 body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-icon i {
-    color: #ffffff !important;
+    color: #fff !important;
     font-size: 16px !important;
     margin: 0 !important;
 }
@@ -462,7 +467,7 @@ body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .hcs-topbar-separat
     width: 1px !important;
     height: 22px !important;
     margin: 0 7px !important;
-    background: #444444 !important;
+    background: #444 !important;
 }
 
 body.path-local-heyday_coursesearch .hcs-original-topbar-hidden,
@@ -538,7 +543,7 @@ body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar [data-region="user-
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
-    color: #ffffff !important;
+    color: #fff !important;
     position: relative !important;
     z-index: 100000 !important;
     white-space: nowrap !important;
@@ -550,7 +555,7 @@ body.heyday-coursesearch-page #hcs-ed2go-topbar .usermenu *,
 body.heyday-coursesearch-page #hcs-ed2go-topbar [data-region="user-menu"] *,
 body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .usermenu *,
 body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar [data-region="user-menu"] * {
-    color: #ffffff !important;
+    color: #fff !important;
 }
 
 body.path-local-heyday_coursesearch #hcs-ed2go-topbar .userinitials,
@@ -566,8 +571,8 @@ body.heyday-coursesearch-page #hcs-ed2go-topbar .dropdown-menu,
 body.heyday-coursesearch-page #hcs-ed2go-topbar .usermenu .dropdown-menu,
 body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .dropdown-menu,
 body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .usermenu .dropdown-menu {
-    background: #ffffff !important;
-    color: #111111 !important;
+    background: #fff !important;
+    color: #111 !important;
     z-index: 100001 !important;
 }
 
@@ -577,7 +582,7 @@ body.heyday-coursesearch-page #hcs-ed2go-topbar .dropdown-menu *,
 body.heyday-coursesearch-page #hcs-ed2go-topbar .usermenu .dropdown-menu *,
 body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .dropdown-menu *,
 body#page-local-heyday_coursesearch-search #hcs-ed2go-topbar .usermenu .dropdown-menu * {
-    color: #003399 !important;
+    color: #039 !important;
 }
 
 /* Pull the main search area up after the old top header is hidden. */
