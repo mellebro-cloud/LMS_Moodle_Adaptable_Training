@@ -1386,6 +1386,7 @@ function local_heyday_quizskin_before_footer(): string {
         var next = document.createElement('a');
         next.className = 'hdq-next';
         next.href = HDQ.nexturl;
+        next.target = '_top';
         next.innerHTML =
             '<span class="hdq-next-label">Next Up</span>' +
             '<span class="hdq-next-content">' +

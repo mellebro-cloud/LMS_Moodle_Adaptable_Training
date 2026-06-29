@@ -2099,6 +2099,7 @@ function local_heyday_quiz_before_footer(): string {
         var next = document.createElement('a');
         next.className = 'hdqz-next';
         next.href = HDQ.nexturl;
+        next.target = '_top';
         next.innerHTML =
             '<span class="hdqz-next-label">Next Up</span>' +
             '<span class="hdqz-next-content">' +
