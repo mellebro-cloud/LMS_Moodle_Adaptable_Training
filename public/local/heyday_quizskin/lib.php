@@ -1111,11 +1111,18 @@ function local_heyday_quizskin_before_footer(): string {
     $nextcm = local_heyday_quizskin_find_l1_learning_objectives($course, (int)$cm->id);
 
     if ($nextcm) {
-        $nexturl  = local_heyday_quizskin_cm_url($nextcm)->out(false);
+        $nexturl  = (new moodle_url('/local/heyday_courseplayer/index.php', [
+            'id'   => $course->id,
+            'page' => 'lesson',
+            'cmid' => $nextcm->id,
+        ]))->out(false);
         $nextname = format_string($nextcm->name);
         $nexttype = local_heyday_quizskin_display_type($nextcm);
     } else {
-        $nexturl  = (new moodle_url('/course/view.php', ['id' => $course->id]))->out(false);
+        $nexturl  = (new moodle_url('/local/heyday_courseplayer/index.php', [
+            'id'   => $course->id,
+            'page' => 'home',
+        ]))->out(false);
         $nextname = 'Learning Objectives';
         $nexttype = 'activity';
     }
