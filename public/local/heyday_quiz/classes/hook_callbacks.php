@@ -24,6 +24,14 @@ final class hook_callbacks {
     public static function before_standard_head_html_generation(
         before_standard_head_html_generation $hook
     ): void {
+        // Early script: patch EventTarget.prototype.addEventListener so we can
+        // remove all beforeunload handlers before HeyDay navigates.  Must run
+        // before any AMD module (including the quiz module) registers handlers.
+        $earlyjs = local_heyday_quiz_early_head_script();
+        if ($earlyjs !== '') {
+            $hook->add_html($earlyjs);
+        }
+
         $html = local_heyday_quiz_before_standard_html_head();
         if ($html !== '') {
             $hook->add_html($html);

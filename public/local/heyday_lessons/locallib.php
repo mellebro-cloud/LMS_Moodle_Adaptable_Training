@@ -327,6 +327,26 @@ function local_heyday_lessons_normalize_lesson_group(array $group): array {
         // Avoid duplicated Moodle activities such as repeated Discussion Area or repeated generated intro pages.
         if (isset($seen[$key])) {
             $previousindex = $seen[$key];
+            $prev = $clean[$previousindex];
+
+            // When a real forum and a non-forum placeholder (for example a stray
+            // "Lesson N Discussion" page) share the same normalized label, always
+            // keep the real forum so the sidebar links to the working discussion.
+            $itemisforum = (($item['modname'] ?? '') === 'forum');
+            $previsforum = (($prev['modname'] ?? '') === 'forum');
+            if ($itemisforum !== $previsforum) {
+                if ($itemisforum) {
+                    // Promote the forum, but keep any current/active state already resolved.
+                    if (!empty($prev['current'])) {
+                        $item['current'] = true;
+                    }
+                    $clean[$previousindex] = $item;
+                } else if (!empty($item['current'])) {
+                    $clean[$previousindex]['current'] = true;
+                }
+                continue;
+            }
+
             if (!empty($item['current']) && empty($clean[$previousindex]['current'])) {
                 $clean[$previousindex] = $item;
             } else if ($clean[$previousindex]['status'] === 'locked' && $item['status'] !== 'locked') {
@@ -991,6 +1011,135 @@ function local_heyday_lessons_render_topbar(stdClass $course): string {
 }
 
 /**
+ * Is the local_heyday_discussions forum renderer installed?
+ *
+ * @return bool
+ */
+function local_heyday_lessons_discussions_available(): bool {
+    global $CFG;
+    return is_file($CFG->dirroot . '/local/heyday_discussions/view.php');
+}
+
+/**
+ * Resolve the forum activity that should be embedded for a given course module.
+ *
+ * Returns the module itself when it is a visible forum. When it is a non-forum
+ * "Lesson N Discussion" placeholder (for example a stray page), it resolves to
+ * the matching "Lesson N Discussion Area" forum in the same course so the real
+ * discussion renderer is used instead of the placeholder content. Returns null
+ * when no forum applies.
+ *
+ * @param stdClass $course
+ * @param cm_info $cm
+ * @return cm_info|null
+ */
+function local_heyday_lessons_effective_forum_cm(stdClass $course, cm_info $cm): ?cm_info {
+    if ($cm->modname === 'forum') {
+        return $cm;
+    }
+
+    $plainname = local_heyday_lessons_plain((string)$cm->name);
+    if (!preg_match('/discussion/i', $plainname)) {
+        return null;
+    }
+
+    $lessonno = local_heyday_lessons_lesson_number($plainname);
+    if ($lessonno <= 0) {
+        $sectionname = (string)get_section_name($course, (int)$cm->sectionnum);
+        $lessonno = local_heyday_lessons_lesson_number($sectionname);
+    }
+    if ($lessonno <= 0) {
+        return null;
+    }
+
+    $modinfo = get_fast_modinfo($course);
+    foreach ($modinfo->get_cms() as $candidate) {
+        if ($candidate->modname !== 'forum' || !$candidate->uservisible) {
+            continue;
+        }
+        if (!preg_match('/discussion\s*area/i', (string)$candidate->name)) {
+            continue;
+        }
+        if (!preg_match('/\blesson\s*0*' . $lessonno . '\b/i', (string)$candidate->name)) {
+            continue;
+        }
+        return $candidate;
+    }
+
+    return null;
+}
+
+/**
+ * Render the real Moodle forum activity inside the HeyDay shell.
+ *
+ * The forum is rendered by local_heyday_discussions/view.php in embedded mode
+ * inside a same-origin frame, which keeps all native Moodle forum behaviour
+ * (permissions, posting, attachments, replies, completion, availability, and
+ * existing posts) intact.
+ *
+ * @param stdClass $course
+ * @param cm_info $cm
+ * @return string
+ */
+function local_heyday_lessons_render_forum_embed(stdClass $course, cm_info $cm): string {
+    $cmcontext = context_module::instance($cm->id);
+    $src = new moodle_url('/local/heyday_discussions/view.php', [
+        'cmid' => (int)$cm->id,
+        'embed' => 1,
+    ]);
+    $frameid = 'hd-forum-frame-' . (int)$cm->id;
+
+    $html = html_writer::start_div('hd-forum-embed');
+    $html .= html_writer::tag('iframe', '', [
+        'id' => $frameid,
+        'class' => 'hd-forum-frame',
+        'src' => $src->out(false),
+        'title' => format_string($cm->name, true, ['context' => $cmcontext]),
+        'allowfullscreen' => 'allowfullscreen',
+        'scrolling' => 'no',
+    ]);
+    $html .= html_writer::end_div();
+    $html .= local_heyday_lessons_forum_frame_script($frameid);
+    return $html;
+}
+
+/**
+ * Minimal same-origin auto-resize script for the embedded forum frame.
+ *
+ * @param string $frameid
+ * @return string
+ */
+function local_heyday_lessons_forum_frame_script(string $frameid): string {
+    $id = json_encode($frameid);
+    $js = <<<JS
+(function() {
+    var frame = document.getElementById($id);
+    if (!frame) { return; }
+    function resize() {
+        try {
+            var doc = frame.contentWindow.document;
+            var height = Math.max(
+                doc.body ? doc.body.scrollHeight : 0,
+                doc.documentElement ? doc.documentElement.scrollHeight : 0
+            );
+            if (height > 0) { frame.style.height = (height + 24) + 'px'; }
+        } catch (e) { /* cross-origin or not ready: ignore */ }
+    }
+    frame.addEventListener('load', function() {
+        resize();
+        var ticks = 0;
+        var timer = setInterval(function() {
+            resize();
+            if (++ticks > 24) { clearInterval(timer); }
+        }, 350);
+    });
+    window.addEventListener('resize', resize);
+})();
+JS;
+    return html_writer::script($js);
+}
+
+/**
  * Render a module body, using native Moodle data where possible.
  *
  * @param stdClass $course
@@ -1021,6 +1170,18 @@ function local_heyday_lessons_render_cm_body(stdClass $course, cm_info $cm): str
 
     if ($cm->modname === 'label') {
         return html_writer::div(format_text($cm->content, FORMAT_HTML, ['context' => $cmcontext, 'overflowdiv' => true]), 'hd-page-content');
+    }
+
+    // Forum / discussion activities render the real Moodle forum inside a
+    // same-origin frame using local_heyday_discussions/view.php. This preserves
+    // Moodle forum permissions, posting, attachments, replies, completion,
+    // availability restrictions, and existing posts instead of showing a
+    // generic "Open activity" fallback.
+    if (local_heyday_lessons_discussions_available()) {
+        $forumcm = local_heyday_lessons_effective_forum_cm($course, $cm);
+        if ($forumcm !== null) {
+            return local_heyday_lessons_render_forum_embed($course, $forumcm);
+        }
     }
 
     $intro = '';

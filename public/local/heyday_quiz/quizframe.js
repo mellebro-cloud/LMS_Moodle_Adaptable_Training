@@ -1,10 +1,15 @@
-(function () {
+(function() {
     'use strict';
 
     var injectedCss = [
         'html, body { background: #fff !important; }',
         'body { margin: 0 !important; padding: 0 !important; font-family: Arial, Helvetica, sans-serif !important; color: #111827 !important; overflow-x: hidden !important; }',
+        /* Suppress standard Moodle chrome. */
         '.navbar, nav.navbar, #page-header, #page-navbar, .secondary-navigation, .activity-navigation, .drawer-toggles, .drawer-left, .drawer-right, #theme_boost-drawers-courseindex, footer#page-footer, [data-region="blocks-column"], .breadcrumb, .tertiary-navigation, .activity-header, .urlselect, .quizattemptcounts, .activity-information { display: none !important; }',
+        /* Safety net: suppress any nested HeyDay player shells that may load if the
+           courseplayer router fires despite heydaynative=1 (e.g., after navigation). */
+        '.heyday-ed2go-topbar, .heyday-quiz-sticky-bar { display: none !important; }',
+        '.heyday-quiz-sidebar, aside.heyday-quiz-sidebar { display: none !important; }',
         '#page, #page.drawers, #page-content, #region-main, .main-inner, #topofscroll, #region-main-box { margin: 0 !important; padding: 0 !important; max-width: none !important; width: 100% !important; background: #fff !important; border: 0 !important; box-shadow: none !important; }',
         '.container, .container-fluid { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }',
         'h1, .page-header-headings, .quizinfo, .box.py-3.quizinfo { display: none !important; }',
@@ -71,7 +76,7 @@
             resizeFrame(frame);
 
             var tries = 0;
-            var interval = window.setInterval(function () {
+            var interval = window.setInterval(function() {
                 tries += 1;
                 try {
                     injectCss(doc);
@@ -94,7 +99,7 @@
         if (!button || !panel) {
             return;
         }
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function() {
             var hidden = panel.hasAttribute('hidden');
             if (hidden) {
                 panel.removeAttribute('hidden');
@@ -112,7 +117,7 @@
         if (!frame) {
             return;
         }
-        frame.addEventListener('load', function () {
+        frame.addEventListener('load', function() {
             prepareFrame(frame);
         });
         prepareFrame(frame);

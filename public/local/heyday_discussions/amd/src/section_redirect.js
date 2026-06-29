@@ -3,10 +3,18 @@ define([], function() {
         init: function(courseid) {
             var target = M.cfg.wwwroot + '/local/heyday_discussions/index.php?id=' + encodeURIComponent(courseid);
 
+            /**
+             *
+             * @param text
+             */
             function cleanText(text) {
                 return (text || '').replace(/\s+/g, ' ').trim();
             }
 
+            /**
+             *
+             * @param link
+             */
             function isDiscussionsCourseSection(link) {
                 var label = cleanText(link.textContent);
                 var href = link.getAttribute('href') || '';
@@ -20,6 +28,9 @@ define([], function() {
                        href.indexOf('#section') !== -1;
             }
 
+            /**
+             *
+             */
             function applyRedirect() {
                 document.querySelectorAll('a').forEach(function(link) {
                     if (!isDiscussionsCourseSection(link)) {

@@ -1,5 +1,5 @@
 /* Heyday Pretest Shell DOM enhancer. */
-(function () {
+(function() {
     'use strict';
 
     function qs(selector, root) {
@@ -16,7 +16,7 @@
         button.className = className || '';
         button.textContent = text;
         if (attrs) {
-            Object.keys(attrs).forEach(function (key) {
+            Object.keys(attrs).forEach(function(key) {
                 button.setAttribute(key, attrs[key]);
             });
         }
@@ -25,12 +25,12 @@
 
     function setupLikeButtons() {
         var key = 'heyday-pretest-like-' + (window.HeydayPretestConfig && window.HeydayPretestConfig.cmid ? window.HeydayPretestConfig.cmid : location.pathname + location.search);
-        qsa('[data-heyday-like]').forEach(function (button) {
+        qsa('[data-heyday-like]').forEach(function(button) {
             if (localStorage.getItem(key) === '1') {
                 button.classList.add('is-liked');
                 button.textContent = '♥';
             }
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function() {
                 var liked = button.classList.toggle('is-liked');
                 button.textContent = liked ? '♥' : '♡';
                 localStorage.setItem(key, liked ? '1' : '0');
@@ -39,7 +39,7 @@
     }
 
     function setupPrintMenus() {
-        document.addEventListener('click', function (event) {
+        document.addEventListener('click', function(event) {
             var toggle = event.target.closest('[data-heyday-print-toggle]');
             var menu;
             if (toggle) {
@@ -57,7 +57,7 @@
                 return;
             }
 
-            qsa('[data-heyday-print-menu].is-open').forEach(function (openMenu) {
+            qsa('[data-heyday-print-menu].is-open').forEach(function(openMenu) {
                 if (!openMenu.contains(event.target)) {
                     openMenu.classList.remove('is-open');
                 }
@@ -66,7 +66,7 @@
     }
 
     function setupFullscreen() {
-        document.addEventListener('click', function (event) {
+        document.addEventListener('click', function(event) {
             var button = event.target.closest('[data-heyday-fullscreen]');
             if (!button) {
                 return;
@@ -82,8 +82,8 @@
     }
 
     function setupBackButtons() {
-        qsa('.hd-back-btn').forEach(function (link) {
-            link.addEventListener('click', function (event) {
+        qsa('.hd-back-btn').forEach(function(link) {
+            link.addEventListener('click', function(event) {
                 if (history.length > 1) {
                     event.preventDefault();
                     history.back();
@@ -162,13 +162,13 @@
     }
 
     function setupQuestionSelectionStyling() {
-        qsa('.que .answer input[type="radio"], .que .answer input[type="checkbox"]').forEach(function (input) {
-            input.addEventListener('change', function () {
+        qsa('.que .answer input[type="radio"], .que .answer input[type="checkbox"]').forEach(function(input) {
+            input.addEventListener('change', function() {
                 var answer = input.closest('.answer');
                 if (!answer) {
                     return;
                 }
-                qsa('div.r0, div.r1, .answer-item', answer).forEach(function (row) {
+                qsa('div.r0, div.r1, .answer-item', answer).forEach(function(row) {
                     row.classList.remove('hd-answer-selected');
                     var checked = qs('input[type="radio"]:checked, input[type="checkbox"]:checked', row);
                     if (checked) {
@@ -189,7 +189,7 @@
         link.href = '#';
         link.className = 'hd-show-instructions';
         link.textContent = 'ⓘ Show Instructions';
-        link.addEventListener('click', function (event) {
+        link.addEventListener('click', function(event) {
             event.preventDefault();
             alert('Answer all questions, then use Save and Close or Submit Answers at the bottom of the page.');
         });
@@ -197,7 +197,7 @@
     }
 
     function renameSubmitButtons() {
-        qsa('input[type="submit"], button[type="submit"]').forEach(function (button) {
+        qsa('input[type="submit"], button[type="submit"]').forEach(function(button) {
             var value = (button.value || button.textContent || '').toLowerCase();
             if (value.indexOf('finish attempt') !== -1 || value.indexOf('submit all') !== -1 || value.indexOf('submit') !== -1) {
                 if (button.tagName.toLowerCase() === 'input') {
@@ -216,7 +216,7 @@
             return;
         }
         var button = makeButton('Save and Close', 'btn btn-secondary hd-save-close');
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function() {
             // Moodle autosaves quiz responses. This sends the learner back to the shell.
             var cfg = window.HeydayPretestConfig || {};
             location.href = cfg.shellurl || document.referrer || '/';
@@ -246,7 +246,7 @@
         addLearnerCounter();
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         setupLikeButtons();
         setupPrintMenus();
         setupFullscreen();
