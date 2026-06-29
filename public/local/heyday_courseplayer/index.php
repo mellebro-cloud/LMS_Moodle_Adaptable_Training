@@ -44,7 +44,7 @@ $completionaction = optional_param('completionaction', '', PARAM_ALPHA);
 
 $requestedcmid = $cmid > 0 ? $cmid : $qmid;
 
-$allowedpages = ['auto', 'home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'lessons', 'lesson', 'lessonquiz', 'resources', 'finalexam'];
+$allowedpages = ['auto', 'home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'lessons', 'lesson', 'objectives', 'assignment', 'quiz', 'lessonquiz', 'resources', 'finalexam'];
 if (!in_array($pagekey, $allowedpages, true)) {
     $pagekey = 'home';
     $autoplayerrequest = false;
@@ -1619,12 +1619,6 @@ function local_heyday_courseplayer_item_url(stdClass $course, array $item): mood
     }
 
     if (($item['type'] ?? '') === 'lessonquiz') {
-        if ($cm && is_file($CFG->dirroot . '/local/heyday_quiz/index.php')) {
-            return new moodle_url('/local/heyday_quiz/index.php', [
-                'id'   => $course->id,
-                'cmid' => $cm->id,
-            ]);
-        }
         return local_heyday_courseplayer_url($course, 'lessonquiz', $params);
     }
 
@@ -4089,7 +4083,7 @@ if ($activeitem && $activecm && $activecm->modname === 'h5pactivity') {
     // title so the page does not show duplicate headers for inline rendering.
     $activetitle = '';
 }
-if ($pagekey === 'lessons') {
+if (in_array($pagekey, ['lessons', 'objectives', 'assignment', 'quiz'], true)) {
     $pagekey = 'lesson';
 }
 if (!$activeitem && in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam', 'lessonquiz'], true)) {
