@@ -7,14 +7,14 @@
     --heyday-topbar-bg: #050505;
     --heyday-accent: #0073a8;
     --heyday-page-bg: #f4f5f7;
-    --heyday-card-bg: #ffffff;
+    --heyday-card-bg: #fff;
     --heyday-sidebar-width: 424px;
     --heyday-content-max: 980px;
     --heyday-border: #d9dee4;
     --heyday-soft-border: #e8ebef;
     --heyday-text: #1f2933;
     --heyday-muted: #6b7785;
-    --heyday-sidebar-bg: #ffffff;
+    --heyday-sidebar-bg: #fff;
     --heyday-subitem-bg: #eef5fa;
     --heyday-subitem-current-bg: #e1f0f8;
     --heyday-complete: #54a221;
@@ -45,10 +45,14 @@
     display: none !important;
 }
 
+/* All rules below are scoped to .local-heyday-courseplayer so they cannot
+   affect Moodle admin pages, the dashboard, login, or any other plugin. */
+.local-heyday-courseplayer {
+
 .heyday-ed2go-topbar {
     height: 42px;
     background: var(--heyday-topbar-bg);
-    color: #ffffff;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -87,14 +91,14 @@
 }
 
 .heyday-ed2go-topbar a {
-    color: #ffffff;
+    color: #fff;
     text-decoration: none;
 }
 
 .heyday-topbar-separator {
     width: 1px;
     height: 22px;
-    background: rgba(255,255,255,.34);
+    background: rgba(255, 255, 255, .34);
 }
 
 .heyday-courseplayer-page {
@@ -269,7 +273,7 @@
     display: inline-block;
     border: 4px solid #d9e6ef;
     border-left-color: #49a2d5;
-    background: #ffffff;
+    background: #fff;
 }
 
 .heyday-mini-dot {
@@ -327,9 +331,15 @@
     background: #f4f8fb;
 }
 
-.heyday-lesson-item.depth-1 { padding-left: 30px; }
-.heyday-lesson-item.depth-2 { padding-left: 42px; }
-.heyday-lesson-item.depth-3 { padding-left: 54px; }
+.heyday-lesson-item.depth-1 {
+    padding-left: 30px;
+}
+.heyday-lesson-item.depth-2 {
+    padding-left: 42px;
+}
+.heyday-lesson-item.depth-3 {
+    padding-left: 54px;
+}
 
 .heyday-lesson-item.is-lesson-page {
     background: #f7fbff;
@@ -381,7 +391,7 @@
 .heyday-final-exam-link.is-locked {
     color: var(--heyday-lock);
     display: grid;
-    grid-template-columns: minmax(0,1fr) 26px;
+    grid-template-columns: minmax(0, 1fr) 26px;
     gap: 4px;
 }
 
@@ -492,7 +502,7 @@
 .heyday-info-card,
 .heyday-dashboard-card,
 .heyday-list-card {
-    background: #ffffff;
+    background: #fff;
     border: 1px solid var(--heyday-soft-border);
     border-radius: 4px;
     padding: 22px;
@@ -525,13 +535,13 @@
 }
 
 .heyday-primary-button {
-    color: #ffffff !important;
+    color: #fff !important;
     background: var(--heyday-accent);
 }
 
 .heyday-secondary-button {
     color: var(--heyday-accent) !important;
-    background: #ffffff;
+    background: #fff;
 }
 
 .heyday-primary-button:hover,
@@ -569,13 +579,13 @@
     justify-content: center;
     border-radius: 50%;
     background: var(--heyday-complete);
-    color: #ffffff;
+    color: #fff;
     font-size: 28px;
     font-weight: 700;
 }
 
 .heyday-nextup-row {
-    background: #ffffff;
+    background: #fff;
     border: 1px solid var(--heyday-soft-border);
     border-radius: 4px;
     padding: 12px 16px;
@@ -647,7 +657,7 @@
     color: var(--heyday-accent);
     font-size: 24px;
     font-weight: 800;
-    background: #ffffff;
+    background: #fff;
 }
 
 .heyday-progress-card {
@@ -697,7 +707,7 @@
 .heyday-table {
     width: 100%;
     border-collapse: collapse;
-    background: #ffffff;
+    background: #fff;
     border: 1px solid var(--heyday-soft-border);
 }
 
@@ -817,6 +827,8 @@
         padding: 0;
     }
 }
+
+} /* end .local-heyday-courseplayer scope wrapper */
 
 /* ===========================================================
    2026060803 - Moodle + Adaptable shell cleanup and ed2go-style Home dashboard
@@ -939,7 +951,7 @@ body.local-heyday-courseplayer .heyday-home-hero {
     box-sizing: border-box;
     background-color: #e9eef3;
     background-image:
-        linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.45) 48%, rgba(244,247,250,.92) 78%, #f4f7fa 100%),
+        linear-gradient(90deg, rgba(0, 0, 0, .72) 0%, rgba(0, 0, 0, .45) 48%, rgba(244, 247, 250, .92) 78%, #f4f7fa 100%),
         repeating-linear-gradient(135deg, #3f4750 0, #3f4750 8px, #343b44 8px, #343b44 16px);
     background-size: cover;
     background-position: center;
@@ -948,24 +960,24 @@ body.local-heyday-courseplayer .heyday-home-hero {
 }
 
 body.local-heyday-courseplayer .heyday-home-hero-title {
-    color: #ffffff;
+    color: #fff;
     min-width: 0;
 }
 
 body.local-heyday-courseplayer .heyday-home-hero-title h2 {
     margin: 0 0 8px;
-    color: #ffffff;
+    color: #fff;
     font-size: 27px;
     font-weight: 500;
     line-height: 1.2;
-    text-shadow: 0 1px 2px rgba(0,0,0,.55);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
 }
 
 body.local-heyday-courseplayer .heyday-home-section-code {
-    color: #ffffff;
+    color: #fff;
     font-size: 14px;
     font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0,0,0,.55);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
 }
 
 body.local-heyday-courseplayer .heyday-home-meters {
@@ -1039,7 +1051,7 @@ body.local-heyday-courseplayer .heyday-home-next-card {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 190px;
     min-height: 168px;
-    background: #ffffff;
+    background: #fff;
     border: 1px solid #d9dee4;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(15, 23, 42, .18);
@@ -1082,7 +1094,7 @@ body.local-heyday-courseplayer .heyday-home-progress-fill {
 
 body.local-heyday-courseplayer .heyday-home-next-action {
     background: #137aa3;
-    color: #ffffff;
+    color: #fff;
     padding: 42px 22px;
     display: flex;
     flex-direction: column;
@@ -1109,9 +1121,9 @@ body.local-heyday-courseplayer .heyday-home-continue-button {
     min-height: 43px;
     padding: 9px 17px;
     border-radius: 3px;
-    background: #ffffff;
+    background: #fff;
     color: #137aa3 !important;
-    border: 1px solid rgba(0,0,0,.12);
+    border: 1px solid rgba(0, 0, 0, .12);
     text-decoration: none !important;
     font-size: 18px;
     font-weight: 400;
@@ -1211,7 +1223,6 @@ body.local-heyday-courseplayer .heyday-list-card {
         padding: 32px 24px;
     }
 }
-
 
 
 /* =========================================================
@@ -1645,9 +1656,9 @@ body.local-heyday-courseplayer .heyday-discussion-card {
     justify-content: space-between;
     gap: 20px;
     min-height: 88px;
-    border: 1px solid #dddddd;
+    border: 1px solid #ddd;
     border-radius: 3px;
-    background: #ffffff;
+    background: #fff;
     padding: 18px 20px;
     box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
 }
@@ -1702,7 +1713,7 @@ body.local-heyday-courseplayer .heyday-discussion-title:focus {
 body.local-heyday-courseplayer .heyday-discussion-new-badge {
     display: inline-block;
     background: #b7302d;
-    color: #ffffff;
+    color: #fff;
     padding: 2px 8px;
     border-radius: 3px;
     font-weight: 700;
@@ -1713,7 +1724,7 @@ body.local-heyday-courseplayer .heyday-discussion-new-badge {
 body.local-heyday-courseplayer .heyday-discussion-meta {
     font-size: 14px;
     margin-top: 6px;
-    color: #111111;
+    color: #111;
 }
 
 body.local-heyday-courseplayer .heyday-discussion-right {
@@ -1723,7 +1734,7 @@ body.local-heyday-courseplayer .heyday-discussion-right {
 
 body.local-heyday-courseplayer .heyday-discussion-updated-label {
     font-size: 11px;
-    color: #444444;
+    color: #444;
     margin-bottom: 4px;
 }
 
@@ -1732,12 +1743,12 @@ body.local-heyday-courseplayer .heyday-discussion-updated-date {
     background: #f7f7f7;
     padding: 7px 9px;
     border-radius: 3px;
-    color: #111111;
+    color: #111;
 }
 
 body.local-heyday-courseplayer .heyday-discussion-lock {
     font-size: 20px;
-    color: #222222;
+    color: #222;
 }
 
 @media (max-width: 760px) {
@@ -1789,7 +1800,7 @@ body.local-heyday-courseplayer .heyday-gs-tab {
     padding: 12px 14px;
     border: 1px solid var(--heyday-soft-border);
     border-radius: 4px;
-    background: #ffffff;
+    background: #fff;
     color: var(--heyday-accent);
     text-decoration: none !important;
     box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
@@ -1823,7 +1834,7 @@ body.local-heyday-courseplayer .heyday-gs-tab.is-completed .heyday-gs-tab-status
 }
 
 body.local-heyday-courseplayer .heyday-gs-page-card {
-    background: #ffffff;
+    background: #fff;
     border: 1px solid var(--heyday-soft-border);
     border-radius: 4px;
     padding: 42px 56px 48px;
@@ -1899,12 +1910,12 @@ body.local-heyday-courseplayer .heyday-gs-completion-pending {
 
 body.local-heyday-courseplayer .heyday-gs-completion-check {
     background: var(--heyday-complete);
-    color: #ffffff;
+    color: #fff;
 }
 
 body.local-heyday-courseplayer .heyday-gs-completion-pending {
     border: 4px solid #d8e4ec;
-    background: #ffffff;
+    background: #fff;
     color: #9aa8b1;
 }
 
@@ -1949,7 +1960,7 @@ body.local-heyday-courseplayer .heyday-gs-next-card {
 
 body.local-heyday-courseplayer .heyday-gs-next-label {
     background: var(--heyday-accent);
-    color: #ffffff;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1962,7 +1973,7 @@ body.local-heyday-courseplayer .heyday-gs-next-label {
 body.local-heyday-courseplayer .heyday-gs-next-body {
     border: 1px solid #cfd8dc;
     border-left: 0;
-    background: #ffffff;
+    background: #fff;
     padding: 13px 20px;
     min-width: 245px;
 }
@@ -2070,7 +2081,7 @@ body.local-heyday-courseplayer .heyday-gs-sidebar-subnav {
     background: var(--heyday-subitem-bg);
     border-top: 1px solid #d4dde6;
     border-right: 4px solid var(--heyday-accent);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .65);
 }
 
 body.local-heyday-courseplayer .heyday-gs-sidebar-link {
@@ -2354,12 +2365,12 @@ body.local-heyday-courseplayer .heyday-topbar-user {
     gap: 7px;
     color: #fff !important;
     text-decoration: none !important;
-    border-left: 1px solid rgba(255,255,255,.18);
+    border-left: 1px solid rgba(255, 255, 255, .18);
     box-sizing: border-box;
 }
 
 body.local-heyday-courseplayer .heyday-topbar-action:hover {
-    background: rgba(255,255,255,.09);
+    background: rgba(255, 255, 255, .09);
     text-decoration: none !important;
 }
 
@@ -2390,7 +2401,7 @@ body.local-heyday-courseplayer .heyday-courseplayer-sidebar {
     height: calc(100vh - var(--heyday-topbar-height)) !important;
     background: #fff !important;
     border-right: 1px solid #d9dde2 !important;
-    box-shadow: 2px 0 8px rgba(15,23,42,.12) !important;
+    box-shadow: 2px 0 8px rgba(15, 23, 42, .12) !important;
     scrollbar-color: #8d949b transparent;
 }
 
@@ -2410,7 +2421,7 @@ body.local-heyday-courseplayer .heyday-courseplayer-sidebar::after {
     background: #fff;
     border: 1px solid #d8dde3;
     border-radius: 3px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.08);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .08);
     z-index: 1031;
     pointer-events: none;
     font-size: 17px;
@@ -2519,7 +2530,7 @@ body.local-heyday-courseplayer .heyday-mini-dot {
     border: 0 !important;
     border-radius: 50% !important;
     background: conic-gradient(#55a7d6 0 42%, #dfe5e7 42% 100%) !important;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .03);
 }
 
 body.local-heyday-courseplayer .heyday-lesson-items,
@@ -2559,9 +2570,15 @@ body.local-heyday-courseplayer .heyday-gs-sidebar-link {
     text-decoration: none !important;
 }
 
-body.local-heyday-courseplayer .heyday-lesson-item.depth-1 { padding-left: 36px !important; }
-body.local-heyday-courseplayer .heyday-lesson-item.depth-2 { padding-left: 44px !important; }
-body.local-heyday-courseplayer .heyday-lesson-item.depth-3 { padding-left: 52px !important; }
+body.local-heyday-courseplayer .heyday-lesson-item.depth-1 {
+    padding-left: 36px !important;
+}
+body.local-heyday-courseplayer .heyday-lesson-item.depth-2 {
+    padding-left: 44px !important;
+}
+body.local-heyday-courseplayer .heyday-lesson-item.depth-3 {
+    padding-left: 52px !important;
+}
 
 body.local-heyday-courseplayer .heyday-lesson-item.is-lesson-page {
     background: #f3f7fa !important;
@@ -2625,8 +2642,8 @@ body.local-heyday-courseplayer .heyday-home-hero::before {
     inset: 0 auto 0 0;
     width: min(73%, 1080px);
     background-image:
-        linear-gradient(90deg, rgba(0,0,0,.74), rgba(0,0,0,.50) 56%, rgba(0,0,0,.25)),
-        linear-gradient(135deg, rgba(255,255,255,.11) 0 18%, transparent 18% 100%),
+        linear-gradient(90deg, rgba(0, 0, 0, .74), rgba(0, 0, 0, .50) 56%, rgba(0, 0, 0, .25)),
+        linear-gradient(135deg, rgba(255, 255, 255, .11) 0 18%, transparent 18% 100%),
         repeating-linear-gradient(72deg, #252a30 0 8px, #4d535a 8px 10px, #30363d 10px 21px);
     background-size: cover;
     background-position: center;
@@ -2660,7 +2677,7 @@ body.local-heyday-courseplayer .heyday-home-next-card {
     min-height: 170px !important;
     grid-template-columns: minmax(0, 1fr) 190px !important;
     border-radius: 4px !important;
-    box-shadow: 0 2px 8px rgba(15,23,42,.20) !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .20) !important;
 }
 
 body.local-heyday-courseplayer .heyday-home-next-main {
@@ -2866,7 +2883,7 @@ body.local-heyday-courseplayer .heyday-mini-dot {
     border: 0 !important;
     border-radius: 50% !important;
     background: conic-gradient(#57a9d8 0 45%, #e1e6e8 45% 100%) !important;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,.02) !important;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .02) !important;
 }
 
 body.local-heyday-courseplayer .heyday-lesson-items,
@@ -2896,9 +2913,15 @@ body.local-heyday-courseplayer .heyday-gs-sidebar-link {
     position: relative !important;
 }
 
-body.local-heyday-courseplayer .heyday-lesson-item.depth-1 { padding-left: 29px !important; }
-body.local-heyday-courseplayer .heyday-lesson-item.depth-2 { padding-left: 38px !important; }
-body.local-heyday-courseplayer .heyday-lesson-item.depth-3 { padding-left: 47px !important; }
+body.local-heyday-courseplayer .heyday-lesson-item.depth-1 {
+    padding-left: 29px !important;
+}
+body.local-heyday-courseplayer .heyday-lesson-item.depth-2 {
+    padding-left: 38px !important;
+}
+body.local-heyday-courseplayer .heyday-lesson-item.depth-3 {
+    padding-left: 47px !important;
+}
 
 body.local-heyday-courseplayer .heyday-lesson-item .heyday-current-arrow,
 body.local-heyday-courseplayer .heyday-gs-sidebar-link .heyday-current-arrow {
@@ -3168,7 +3191,7 @@ body.local-heyday-courseplayer .heyday-mini-dot {
     border: 0 !important;
     border-radius: 50% !important;
     background: conic-gradient(#57a9d8 0 45%, #e1e6e8 45% 100%) !important;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,.02) !important;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .02) !important;
 }
 
 /* Expanded lesson / Getting Started subitems */
@@ -3312,7 +3335,7 @@ body.local-heyday-courseplayer .heyday-teacher-tool {
     padding: 6px 10px;
     border: 1px solid rgba(0, 115, 168, .45);
     border-radius: 3px;
-    background: #ffffff;
+    background: #fff;
     color: var(--heyday-accent) !important;
     font-size: 13px;
     font-weight: 700;
@@ -3369,7 +3392,7 @@ body.local-heyday-courseplayer .heyday-topbar-teacher-tool {
     border: 1px solid rgba(255, 255, 255, .42);
     border-radius: 3px;
     background: rgba(255, 255, 255, .08);
-    color: #ffffff !important;
+    color: #fff !important;
     font-size: 12px;
     font-weight: 700;
     line-height: 1;
@@ -3379,7 +3402,7 @@ body.local-heyday-courseplayer .heyday-topbar-teacher-tool {
 
 body.local-heyday-courseplayer .heyday-topbar-teacher-tool:hover,
 body.local-heyday-courseplayer .heyday-topbar-teacher-tool:focus {
-    background: #ffffff;
+    background: #fff;
     color: var(--heyday-accent, #0073a8) !important;
     text-decoration: none !important;
 }
@@ -3393,7 +3416,6 @@ body.local-heyday-courseplayer .heyday-teacher-tools {
         display: none !important;
     }
 }
-
 
 
 /* ===========================================================
@@ -3744,7 +3766,7 @@ body.local-heyday-courseplayer .heyday-completion-row.is-complete:hover .heyday-
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #ffffff;
+    background: #fff;
     border: 1px solid #d7e7ef;
     color: var(--heyday-complete);
     font-size: 22px;
@@ -3955,7 +3977,9 @@ body.local-heyday-courseplayer .heyday-completion-row.is-pending.is-completing .
 }
 
 @keyframes heydayCompletionSpin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 body.local-heyday-courseplayer .heyday-completion-row.is-auto-completed .heyday-completion-check {
@@ -3963,8 +3987,12 @@ body.local-heyday-courseplayer .heyday-completion-row.is-auto-completed .heyday-
 }
 
 @keyframes heydayCompletionPop {
-    0% { transform: scale(.88); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(.88);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 body.local-heyday-courseplayer .heyday-completion-check,
@@ -4483,7 +4511,7 @@ body.local-heyday-courseplayer .heyday-player-footer {
 @media (max-width: 900px) {
     body.local-heyday-courseplayer.local-heyday-masterplayer {
         --heyday-sidebar-width: 100% !important;
-        --heyday-reference-card-gutter: 0px;
+        --heyday-reference-card-gutter: 0;
         --heyday-icon-size: 38px;
         --heyday-icon-svg-size: 24px;
     }
@@ -4599,7 +4627,7 @@ body.local-heyday-courseplayer .heyday-subsection-items {
 
 /* ── Pretest card ─────────────────────────────────────────────────────────── */
 body.local-heyday-courseplayer .heyday-pretest-card {
-    background: #ffffff;
+    background: #fff;
     border: 1px solid var(--heyday-soft-border);
     border-radius: 4px;
     padding: 32px;
@@ -4698,7 +4726,10 @@ body.local-heyday-courseplayer .hd-icon-btn {
     text-decoration: none;
 }
 
-body.local-heyday-courseplayer .hd-icon-btn:hover { color: #004f76; text-decoration: none; }
+body.local-heyday-courseplayer .hd-icon-btn:hover {
+    color: #004f76;
+    text-decoration: none;
+}
 
 body.local-heyday-courseplayer .hd-pretest-course-title {
     text-align: center;
@@ -4715,7 +4746,9 @@ body.local-heyday-courseplayer .hd-pretest-title {
     color: #111;
 }
 
-body.local-heyday-courseplayer .hd-instructions-toggle-wrap { margin-bottom: 14px; }
+body.local-heyday-courseplayer .hd-instructions-toggle-wrap {
+    margin-bottom: 14px;
+}
 
 body.local-heyday-courseplayer .hd-instructions-toggle {
     display: inline-flex;
@@ -4731,9 +4764,13 @@ body.local-heyday-courseplayer .hd-instructions-toggle {
     cursor: pointer;
 }
 
-body.local-heyday-courseplayer .hd-instructions-toggle:hover { background: #f5fbff; }
+body.local-heyday-courseplayer .hd-instructions-toggle:hover {
+    background: #f5fbff;
+}
 
-body.local-heyday-courseplayer .hd-instructions-panel.is-hidden { display: none; }
+body.local-heyday-courseplayer .hd-instructions-panel.is-hidden {
+    display: none;
+}
 
 body.local-heyday-courseplayer .hd-pretest-body {
     font-size: 14px;
@@ -4779,36 +4816,49 @@ body.local-heyday-courseplayer .hd-primary-btn {
     cursor: pointer;
 }
 
-body.local-heyday-courseplayer .hd-primary-btn:hover { background: #327121; }
+body.local-heyday-courseplayer .hd-primary-btn:hover {
+    background: #327121;
+}
 
 /* Form inside .hd-pretest-actions flex row: act as transparent wrapper */
 body.local-heyday-courseplayer .hd-pretest-actions form {
     display: contents;
 }
 
-body.local-heyday-courseplayer .hd-print-wrapper { position: relative; }
+body.local-heyday-courseplayer .hd-print-wrapper {
+    position: relative;
+}
 
 body.local-heyday-courseplayer .hd-print-menu {
     display: none;
     position: absolute;
-    top: 28px; right: 0;
+    top: 28px;
+    right: 0;
     z-index: 9999;
     width: 190px;
     background: #fff;
     border: 1px solid #ddd;
-    box-shadow: 0 4px 14px rgba(0,0,0,.12);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .12);
 }
 
-body.local-heyday-courseplayer .hd-print-menu.is-open { display: block; }
+body.local-heyday-courseplayer .hd-print-menu.is-open {
+    display: block;
+}
 
 body.local-heyday-courseplayer .hd-print-menu button {
-    display: block; width: 100%;
-    padding: 10px 12px; border: 0;
-    background: #fff; text-align: left;
-    font-size: 13px; cursor: pointer;
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    background: #fff;
+    text-align: left;
+    font-size: 13px;
+    cursor: pointer;
 }
 
-body.local-heyday-courseplayer .hd-print-menu button:hover { background: #f2f2f2; }
+body.local-heyday-courseplayer .hd-print-menu button:hover {
+    background: #f2f2f2;
+}
 
 body.local-heyday-courseplayer .hd-end-separator {
     display: flex;
@@ -4821,7 +4871,9 @@ body.local-heyday-courseplayer .hd-end-separator {
 }
 
 body.local-heyday-courseplayer .hd-end-separator span {
-    width: 70px; height: 1px; background: #9aa8b1;
+    width: 70px;
+    height: 1px;
+    background: #9aa8b1;
 }
 
 body.local-heyday-courseplayer .hd-next-card {
@@ -4853,8 +4905,16 @@ body.local-heyday-courseplayer .hd-next-content {
     font-size: 12px;
 }
 
-body.local-heyday-courseplayer .hd-next-section { display: block; color: #777; }
-body.local-heyday-courseplayer .hd-next-title   { display: block; color: #006fae; text-decoration: underline; font-size: 13px; }
+body.local-heyday-courseplayer .hd-next-section {
+    display: block;
+    color: #777;
+}
+body.local-heyday-courseplayer .hd-next-title {
+    display: block;
+    color: #006fae;
+    text-decoration: underline;
+    font-size: 13px;
+}
 
 /* ── Pretest quiz iframe ─────────────────────────────────────────────────── */
 body.local-heyday-courseplayer .hd-pretest-iframe {
@@ -5071,7 +5131,7 @@ body.local-heyday-courseplayer.hd-iframe-active a.heyday-nextup-row {
 /* ---- selected answer before submit ---- */
 .path-local-heyday_courseplayer .quizattempt .answer input[type="radio"]:checked + label,
 .path-local-heyday_courseplayer .quizattempt .answer input[type="checkbox"]:checked + label {
-    color: #ffffff;
+    color: #fff;
 }
 
 .path-local-heyday_courseplayer .quizattempt .answer div:has(input[type="radio"]:checked),
@@ -5123,7 +5183,7 @@ body.local-heyday-courseplayer.hd-iframe-active a.heyday-nextup-row {
 .path-local-heyday_courseplayer .quizattempt .que.correct div[class^="r"].rightanswer label,
 .path-local-heyday_courseplayer .quizattempt .que.incorrect div[class^="r"].rightanswer label,
 .path-local-heyday_courseplayer .quizattempt .que.incorrect div[class^="r"].incorrect label {
-    color: #ffffff !important;
+    color: #fff !important;
 }
 
 /* ---- clear choice ---- */
@@ -5195,7 +5255,7 @@ body.local-heyday-courseplayer.hd-iframe-active a.heyday-nextup-row {
 .path-local-heyday_courseplayer input[type="submit"].btn-secondary,
 .path-local-heyday_courseplayer input[name="previous"],
 .path-local-heyday_courseplayer input[name="save"] {
-    background: #ffffff !important;
+    background: #fff !important;
     border: 1px solid #7d7d7d !important;
     color: #333 !important;
     font-weight: 500;
@@ -5209,11 +5269,11 @@ body.local-heyday-courseplayer.hd-iframe-active a.heyday-nextup-row {
 }
 
 .path-local-heyday_courseplayer .modal-header {
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid #ddd;
 }
 
 .path-local-heyday_courseplayer .modal-footer {
-    border-top: 1px solid #dddddd;
+    border-top: 1px solid #ddd;
 }
 
 /* ---- spacing cleanup ---- */

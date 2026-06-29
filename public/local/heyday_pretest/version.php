@@ -12,7 +12,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_heyday_pretest';
-$plugin->version   = 2026062701;
+$plugin->version   = 2026062901;
 $plugin->requires  = 2026042000;
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.1.0';
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '2026062901-redirect-to-courseplayer';

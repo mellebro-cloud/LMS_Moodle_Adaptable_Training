@@ -9,10 +9,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_heyday_lessons';
-$plugin->version   = 2026062501;
+$plugin->version   = 2026062901;
 $plugin->requires  = 2022112800;
-$plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '0.1.3-skip-hidden-delegated';
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '2026062901-redirect-to-courseplayer';
 
 $plugin->dependencies = [
     'local_heyday_courseplayer' => 2026061400,
