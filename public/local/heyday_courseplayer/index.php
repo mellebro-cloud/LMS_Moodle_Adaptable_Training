@@ -3671,17 +3671,30 @@ function local_heyday_courseplayer_render_pretest_card(
   if (quizFrame) {
     quizFrame.addEventListener('load', function() {
       try {
-        var loc = quizFrame.contentWindow.location.href;
-        if (loc === 'about:blank') return;
-        // If Save-and-Close navigated back to the player pretest, reload outer page.
-        if (loc.indexOf('heyday_courseplayer') !== -1 && loc.indexOf('page=pretest') !== -1) {
-          window.location.reload();
+        var loc = quizFrame.contentWindow.location.href || '';
+
+        if (loc === '' || loc === 'about:blank') return;
+
+        var isPlayerUrl =
+          loc.indexOf('/local/heyday_courseplayer/') !== -1 ||
+          loc.indexOf('local/heyday_courseplayer/index.php') !== -1;
+
+        var isNativeViewUrl =
+          /\/mod\/(page|h5pactivity|quiz|assign|forum|lesson|resource|url|book)\/view\.php/i.test(loc);
+
+        if (isPlayerUrl || isNativeViewUrl) {
+          if (isPlayerUrl && loc.indexOf('page=pretest') !== -1) {
+            window.location.reload();
+          } else {
+            window.location.href = loc;
+          }
           return;
         }
       } catch(e) {}
+
       if (document.body.classList.contains('hd-iframe-active')) {
-        setTimeout(hdResizeFrame, 50);         // immediate first resize
-        setTimeout(hdAttachResizeObserver, 250); // then watch for dynamic changes
+        setTimeout(hdResizeFrame, 50);
+        setTimeout(hdAttachResizeObserver, 250);
       }
     });
 
@@ -3873,14 +3886,27 @@ function local_heyday_courseplayer_render_lesson_quiz_card(
   if (quizFrame) {
     quizFrame.addEventListener('load', function() {
       try {
-        var loc = quizFrame.contentWindow.location.href;
-        if (loc === 'about:blank') return;
-        // "Save and Close" navigates back to ?page=lessonquiz → reload outer page.
-        if (loc.indexOf('heyday_courseplayer') !== -1 && loc.indexOf('page=lessonquiz') !== -1) {
-          window.location.reload();
+        var loc = quizFrame.contentWindow.location.href || '';
+
+        if (loc === '' || loc === 'about:blank') return;
+
+        var isPlayerUrl =
+          loc.indexOf('/local/heyday_courseplayer/') !== -1 ||
+          loc.indexOf('local/heyday_courseplayer/index.php') !== -1;
+
+        var isNativeViewUrl =
+          /\/mod\/(page|h5pactivity|quiz|assign|forum|lesson|resource|url|book)\/view\.php/i.test(loc);
+
+        if (isPlayerUrl || isNativeViewUrl) {
+          if (isPlayerUrl && loc.indexOf('page=lessonquiz') !== -1) {
+            window.location.reload();
+          } else {
+            window.location.href = loc;
+          }
           return;
         }
       } catch(e) {}
+
       if (document.body.classList.contains('hd-iframe-active')) {
         setTimeout(hdResizeFrame, 50);
         setTimeout(hdAttachResizeObserver, 250);
