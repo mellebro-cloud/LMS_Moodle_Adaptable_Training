@@ -1541,7 +1541,11 @@ function local_heyday_quiz_before_footer(): string {
     $nextcm = local_heyday_quiz_find_next_cm($course, (int)$cm->id);
 
     if ($nextcm) {
-        $nexturl   = (!empty($nextcm->url) ? $nextcm->url : new moodle_url('/mod/' . $nextcm->modname . '/view.php', ['id' => $nextcm->id]))->out(false);
+        $nexturl   = (new moodle_url('/local/heyday_courseplayer/index.php', [
+            'id'   => $course->id,
+            'page' => 'lesson',
+            'cmid' => $nextcm->id,
+        ]))->out(false);
         $nextname  = format_string($nextcm->name);
         $nexttype  = local_heyday_quiz_display_type($nextcm);
 
