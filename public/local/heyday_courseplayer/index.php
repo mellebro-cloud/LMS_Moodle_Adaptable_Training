@@ -3663,7 +3663,7 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
       <input type="text" id="hd-wp-title" class="hd-write-post-title"
              placeholder="<?php echo s('Enter a title for your post...'); ?>"
              maxlength="255" autocomplete="off">
-      <div class="hd-editor-toolbar" id="hd-editor-toolbar" role="toolbar" aria-label="Text formatting (preview only — Submit opens full editor)">
+      <div class="hd-editor-toolbar" id="hd-editor-toolbar" role="toolbar" aria-label="Text formatting">
         <button type="button" class="hd-editor-btn hd-tb-bold" title="Bold" tabindex="-1"><b>B</b></button>
         <button type="button" class="hd-editor-btn hd-tb-italic" title="Italic" tabindex="-1"><i>I</i></button>
         <button type="button" class="hd-editor-btn hd-tb-underline" title="Underline" tabindex="-1"><u>U</u></button>
@@ -3755,8 +3755,6 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
         <button type="button" class="hd-editor-btn hd-editor-fullscreen-btn" title="Fullscreen (opens full editor)" tabindex="-1">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
         </button>
-        <span class="hd-tb-sep hd-tb-hint-sep"></span>
-        <span class="hd-tb-hint">Submit opens the full Moodle editor</span>
       </div>
       <div class="hd-write-post-editor" id="hd-wp-editor"
            contenteditable="true" role="textbox" aria-multiline="true"
@@ -3780,8 +3778,7 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
              placeholder="<?php echo get_string('discussion_searchposts', 'local_heyday_courseplayer'); ?>"
              aria-label="Search posts">
       <button type="button" class="hd-discussion-search-btn" id="hd-disc-search-btn" aria-label="Search">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="16" height="16" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-        Search
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="17" height="17" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       </button>
     </div>
     <button type="button" class="hd-discussion-sort-btn" id="hd-disc-sort-btn" aria-haspopup="listbox" aria-expanded="false">

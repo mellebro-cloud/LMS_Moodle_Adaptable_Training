@@ -7765,7 +7765,61 @@ body.local-heyday-courseplayer .hd-counter-new .hd-counter-count  { color: #2e7d
         display: none;
     }
     body.local-heyday-courseplayer .hd-disc-thread-footer {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-wrap: wrap;
     }
 }
+
+/* ── Final-authority overrides (must stay last) ──────────────────────────── */
+
+/* Icon-only compact search button */
+body.local-heyday-courseplayer .hd-discussion-search-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    padding: 0;
+    gap: 0;
+    background: var(--heyday-accent, #006fa8);
+    color: #fff;
+    border: none;
+    font-size: 0.84rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search-btn:hover {
+    background: #005d8f;
+}
+
+/* Counter bar — correct ed2go colors (overrides stale rules above) */
+body.local-heyday-courseplayer .hd-counter-mine .hd-counter-count  { color: #4b8d2a; }
+body.local-heyday-courseplayer .hd-counter-mine .hd-counter-label  { color: #4b8d2a; }
+body.local-heyday-courseplayer .hd-counter-mine                    { background: #f0faf0; }
+body.local-heyday-courseplayer .hd-counter-mine:hover              { background: #e0f5e0; }
+
+body.local-heyday-courseplayer .hd-counter-new .hd-counter-count   { color: #c43d3d; }
+body.local-heyday-courseplayer .hd-counter-new .hd-counter-label   { color: #c43d3d; }
+body.local-heyday-courseplayer .hd-counter-new                     { background: #fff5f5; }
+body.local-heyday-courseplayer .hd-counter-new:hover               { background: #ffe5e5; }
+
+body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-count  { color: #0073a6; }
+body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-label  { color: #0073a6; }
+body.local-heyday-courseplayer .hd-counter-bookmarked                     { background: #f0f7ff; }
+body.local-heyday-courseplayer .hd-counter-bookmarked:hover               { background: #e0eeff; }
+
+/* Counter bar — person icon block (green) */
+body.local-heyday-courseplayer .hd-counter-person {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    background: #e8f5e1;
+    border-right: 1px solid #c8e6bb;
+    flex-shrink: 0;
+    color: #4b8d2a;
+}
+
+/* Toolbar: hide any stray hint text */
+body.local-heyday-courseplayer .hd-tb-hint { display: none !important; }
+body.local-heyday-courseplayer .hd-tb-hint-sep { display: none !important; }
