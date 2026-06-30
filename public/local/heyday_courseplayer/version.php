@@ -12,7 +12,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_heyday_courseplayer';
-$plugin->version = 2026062903;
+$plugin->version = 2026062906;
 $plugin->requires  = 2025051200;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2026062903-pretest-iframe-nextup-escape';
+$plugin->release   = '2026062906-home-continue-to-syllabus';

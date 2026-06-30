@@ -2559,7 +2559,7 @@ function local_heyday_courseplayer_render_home(stdClass $course, completion_info
     $summary = local_heyday_courseplayer_completion_summary($completion, $modinfo, $context);
     $score = local_heyday_courseplayer_course_score($course);
     $next = local_heyday_courseplayer_next_incomplete($completion, $sequenceitems);
-    $nexturl = $next ? local_heyday_courseplayer_item_url($course, $next) : local_heyday_courseplayer_url($course, 'lessons');
+    $nexturl = local_heyday_courseplayer_url($course, 'gettingstarted', ['gs' => 'syllabus']);
     $nexttitle = $next ? local_heyday_courseplayer_item_title($next) : get_string('lessons', 'local_heyday_courseplayer');
     $bannerurl = local_heyday_courseplayer_course_image_url($course, $context);
 
@@ -2596,10 +2596,14 @@ function local_heyday_courseplayer_render_home(stdClass $course, completion_info
     $output .= html_writer::div('complete', 'heyday-home-meter-label');
     $output .= html_writer::end_div();
 
-    $output .= html_writer::start_div('heyday-home-meter');
-    $output .= html_writer::div(html_writer::span(s($score)), 'heyday-home-meter-ring is-score', ['style' => '--meter-value:0;']);
-    $output .= html_writer::div('score', 'heyday-home-meter-label');
-    $output .= html_writer::end_div();
+    $scoresurl = local_heyday_courseplayer_url($course, 'scores');
+    $scorehtml  = html_writer::div(html_writer::span(s($score)), 'heyday-home-meter-ring is-score', ['style' => '--meter-value:0;']);
+    $scorehtml .= html_writer::div('score', 'heyday-home-meter-label');
+    $output .= html_writer::link($scoresurl, $scorehtml, [
+        'class'      => 'heyday-home-meter heyday-home-meter-link heyday-home-score-link',
+        'title'      => get_string('scores', 'local_heyday_courseplayer'),
+        'aria-label' => 'View course scores',
+    ]);
     $output .= html_writer::end_div();
     $output .= html_writer::end_tag('section');
 
@@ -3578,19 +3582,15 @@ function local_heyday_courseplayer_render_pretest_card(
         <a class="hd-skip-link" href="<?php echo $skipurl->out(false); ?>">Skip It</a>
 
         <?php if (!$inprogressattempt && !$finishedattempt): ?>
-          <!-- Start: POST to startattempt.php inside the iframe -->
           <form id="hdPretestStartForm" method="post"
                 action="<?php echo $starturl; ?>"
-                target="hdPretestQuizFrame"
-                onsubmit="hdPretestShowFrame()">
+                target="_top">
             <input type="hidden" name="cmid"     value="<?php echo (int)$cm->id; ?>">
             <input type="hidden" name="sesskey"  value="<?php echo s($sesskey); ?>">
             <button type="submit" class="hd-primary-btn">Start</button>
           </form>
         <?php else: ?>
-          <!-- Resume / Review: load iframe on click -->
-          <a class="hd-primary-btn" href="<?php echo s($iframeurl ?? ''); ?>"
-             onclick="hdPretestLoadFrame(<?php echo $iframeurljs; ?>); return false;">
+          <a class="hd-primary-btn" href="<?php echo s($iframeurl ?? ''); ?>">
             <?php echo s($buttontext); ?>
           </a>
         <?php endif; ?>
@@ -3602,106 +3602,11 @@ function local_heyday_courseplayer_render_pretest_card(
   <!-- Note: Activity Complete + Next Up are rendered by master_footer.mustache
        below this card, matching the same structure used for lesson pages. -->
 
-  <!-- ── Quiz iframe (hidden until Start/Resume/Review clicked) ─────────── -->
-  <iframe id="hdPretestQuizFrame" name="hdPretestQuizFrame"
-          src="about:blank"
-          class="hd-pretest-iframe"
-          allowfullscreen></iframe>
 
 </div><!-- .hd-pretest-page -->
 
 <script>
 (function(){
-  var cardArea  = document.getElementById('hdPretestCardArea');
-  var quizFrame = document.getElementById('hdPretestQuizFrame');
-
-  // ── Iframe auto-resize ────────────────────────────────────────────────
-  // Sets the iframe height to match its document content so no internal
-  // scrollbar appears. The outer player page scrolls instead.
-  var hdRszTimer = null;
-  var hdRszObserver = null;
-  var hdRszPoll = null;
-
-  function hdResizeFrame() {
-    if (!quizFrame) return;
-    try {
-      var doc = quizFrame.contentDocument || quizFrame.contentWindow.document;
-      if (!doc || !doc.body) return;
-      var h = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight, 500);
-      quizFrame.style.height = h + 'px';
-    } catch(e) {}
-  }
-
-  function hdScheduleResize() {
-    if (hdRszTimer) clearTimeout(hdRszTimer);
-    hdRszTimer = setTimeout(hdResizeFrame, 80);
-  }
-
-  function hdAttachResizeObserver() {
-    if (hdRszObserver) { try { hdRszObserver.disconnect(); } catch(e) {} hdRszObserver = null; }
-    if (hdRszPoll)     { clearInterval(hdRszPoll); hdRszPoll = null; }
-    try {
-      var doc = quizFrame.contentDocument || quizFrame.contentWindow.document;
-      if (!doc || !doc.body) return;
-      if (window.ResizeObserver) {
-        hdRszObserver = new ResizeObserver(hdScheduleResize);
-        hdRszObserver.observe(doc.body);
-      }
-      // Polling fallback — catches height changes from quiz JS (e.g. answer feedback)
-      hdRszPoll = setInterval(hdResizeFrame, 800);
-      setTimeout(function(){ if (hdRszPoll) { clearInterval(hdRszPoll); hdRszPoll = null; } }, 120000);
-    } catch(e) {}
-  }
-
-  // ── Show / load ───────────────────────────────────────────────────────
-  function hdPretestShowFrame() {
-    if (cardArea)  cardArea.style.display = 'none';
-    document.body.classList.add('hd-iframe-active');
-    if (quizFrame) quizFrame.style.display = 'block';
-  }
-  window.hdPretestShowFrame = hdPretestShowFrame;
-
-  function hdPretestLoadFrame(url) {
-    if (quizFrame) quizFrame.src = url;
-    hdPretestShowFrame();
-  }
-  window.hdPretestLoadFrame = hdPretestLoadFrame;
-
-  // ── Iframe load handler ───────────────────────────────────────────────
-  if (quizFrame) {
-    quizFrame.addEventListener('load', function() {
-      try {
-        var loc = quizFrame.contentWindow.location.href || '';
-
-        if (loc === '' || loc === 'about:blank') return;
-
-        var isPlayerUrl =
-          loc.indexOf('/local/heyday_courseplayer/') !== -1 ||
-          loc.indexOf('local/heyday_courseplayer/index.php') !== -1;
-
-        var isNativeViewUrl =
-          /\/mod\/(page|h5pactivity|quiz|assign|forum|lesson|resource|url|book)\/view\.php/i.test(loc);
-
-        if (isPlayerUrl || isNativeViewUrl) {
-          if (isPlayerUrl && loc.indexOf('page=pretest') !== -1) {
-            window.location.reload();
-          } else {
-            window.location.href = loc;
-          }
-          return;
-        }
-      } catch(e) {}
-
-      if (document.body.classList.contains('hd-iframe-active')) {
-        setTimeout(hdResizeFrame, 50);
-        setTimeout(hdAttachResizeObserver, 250);
-      }
-    });
-
-    // Re-measure on outer window resize (viewport width change)
-    window.addEventListener('resize', hdScheduleResize);
-  }
-
   // ── Instructions toggle ────────────────────────────────────────────────
   var toggle = document.getElementById('hdPretestInstructionsToggle');
   var panel  = document.getElementById('hdPretestInstructionsPanel');
@@ -3807,15 +3712,13 @@ function local_heyday_courseplayer_render_lesson_quiz_card(
         <?php if (!$inprogressattempt && !$finishedattempt): ?>
           <form id="hdLessonQuizStartForm" method="post"
                 action="<?php echo $starturl; ?>"
-                target="hdLessonQuizFrame"
-                onsubmit="hdLessonQuizShowFrame()">
+                target="_top">
             <input type="hidden" name="cmid"    value="<?php echo (int)$cm->id; ?>">
             <input type="hidden" name="sesskey" value="<?php echo s($sesskey); ?>">
             <button type="submit" class="hd-primary-btn">Start Quiz</button>
           </form>
         <?php else: ?>
-          <a class="hd-primary-btn" href="<?php echo s($iframeurl ?? ''); ?>"
-             onclick="hdLessonQuizLoadFrame(<?php echo $iframeurljs; ?>); return false;">
+          <a class="hd-primary-btn" href="<?php echo s($iframeurl ?? ''); ?>">
             <?php echo s($buttontext); ?>
           </a>
         <?php endif; ?>
@@ -3824,97 +3727,12 @@ function local_heyday_courseplayer_render_lesson_quiz_card(
     </section>
   </div>
 
-  <iframe id="hdLessonQuizFrame" name="hdLessonQuizFrame"
-          src="about:blank"
-          class="hd-pretest-iframe"
-          allowfullscreen></iframe>
 
 </div>
 
 <script>
 (function(){
-  var cardArea  = document.getElementById('hdLessonQuizCardArea');
-  var quizFrame = document.getElementById('hdLessonQuizFrame');
-
-  var hdRszTimer = null;
-  var hdRszObserver = null;
-  var hdRszPoll = null;
-
-  function hdResizeFrame() {
-    if (!quizFrame) return;
-    try {
-      var doc = quizFrame.contentDocument || quizFrame.contentWindow.document;
-      if (!doc || !doc.body) return;
-      var h = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight, 500);
-      quizFrame.style.height = h + 'px';
-    } catch(e) {}
-  }
-
-  function hdScheduleResize() {
-    if (hdRszTimer) clearTimeout(hdRszTimer);
-    hdRszTimer = setTimeout(hdResizeFrame, 80);
-  }
-
-  function hdAttachResizeObserver() {
-    if (hdRszObserver) { try { hdRszObserver.disconnect(); } catch(e) {} hdRszObserver = null; }
-    if (hdRszPoll)     { clearInterval(hdRszPoll); hdRszPoll = null; }
-    try {
-      var doc = quizFrame.contentDocument || quizFrame.contentWindow.document;
-      if (!doc || !doc.body) return;
-      if (window.ResizeObserver) {
-        hdRszObserver = new ResizeObserver(hdScheduleResize);
-        hdRszObserver.observe(doc.body);
-      }
-      hdRszPoll = setInterval(hdResizeFrame, 800);
-      setTimeout(function(){ if (hdRszPoll) { clearInterval(hdRszPoll); hdRszPoll = null; } }, 120000);
-    } catch(e) {}
-  }
-
-  function hdLessonQuizShowFrame() {
-    if (cardArea)  cardArea.style.display = 'none';
-    document.body.classList.add('hd-iframe-active');
-    if (quizFrame) quizFrame.style.display = 'block';
-  }
-  window.hdLessonQuizShowFrame = hdLessonQuizShowFrame;
-
-  function hdLessonQuizLoadFrame(url) {
-    if (quizFrame) quizFrame.src = url;
-    hdLessonQuizShowFrame();
-  }
-  window.hdLessonQuizLoadFrame = hdLessonQuizLoadFrame;
-
-  if (quizFrame) {
-    quizFrame.addEventListener('load', function() {
-      try {
-        var loc = quizFrame.contentWindow.location.href || '';
-
-        if (loc === '' || loc === 'about:blank') return;
-
-        var isPlayerUrl =
-          loc.indexOf('/local/heyday_courseplayer/') !== -1 ||
-          loc.indexOf('local/heyday_courseplayer/index.php') !== -1;
-
-        var isNativeViewUrl =
-          /\/mod\/(page|h5pactivity|quiz|assign|forum|lesson|resource|url|book)\/view\.php/i.test(loc);
-
-        if (isPlayerUrl || isNativeViewUrl) {
-          if (isPlayerUrl && loc.indexOf('page=lessonquiz') !== -1) {
-            window.location.reload();
-          } else {
-            window.location.href = loc;
-          }
-          return;
-        }
-      } catch(e) {}
-
-      if (document.body.classList.contains('hd-iframe-active')) {
-        setTimeout(hdResizeFrame, 50);
-        setTimeout(hdAttachResizeObserver, 250);
-      }
-    });
-    window.addEventListener('resize', hdScheduleResize);
-  }
-
+  // ── Instructions toggle ────────────────────────────────────────────────
   var toggle = document.getElementById('hdLessonQuizInstructionsToggle');
   var panel  = document.getElementById('hdLessonQuizInstructionsPanel');
   if (toggle && panel) {
@@ -4146,6 +3964,12 @@ if ($pagekey === 'gettingstarted') {
     }
 }
 $nextitem = ($activeitem && !$activeislocked) ? local_heyday_courseplayer_next_available_item($lessongroups, $activeitem, $finalitem ? [$finalitem] : []) : null;
+
+// Pretest is not part of the lesson sequence, so next_available_item returns null.
+// Always point Next Up on the pretest page to the first available lesson item.
+if ($pagekey === 'pretest' && !$nextitem) {
+    $nextitem = local_heyday_courseplayer_first_available_item($lessongroups);
+}
 
 $brandname = local_heyday_courseplayer_cfg('brandname', 'Heyday Training LMS');
 $logourl = trim((string)local_heyday_courseplayer_cfg('logourl', ''));
