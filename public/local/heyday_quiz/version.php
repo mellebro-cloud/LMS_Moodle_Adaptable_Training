@@ -12,7 +12,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_heyday_quiz';
-$plugin->version   = 2026062905;
+$plugin->version   = 2026062906;
 $plugin->requires  = 2026042000;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2026062905-fix-nextup-target-top';
+$plugin->release   = '2026062906-stable';

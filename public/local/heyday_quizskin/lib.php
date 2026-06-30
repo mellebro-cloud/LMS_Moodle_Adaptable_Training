@@ -49,7 +49,62 @@ function local_heyday_quizskin_get_context(): ?array {
 }
 
 /**
- * Apply only to selected Pretest quiz pages.
+ * Determine quiz type from context: 'pretest', 'lessonquiz', 'finalexam', or null (skip).
+ *
+ * @param array $ctx [$cm, $quiz, $course]
+ * @return string|null
+ */
+function local_heyday_quizskin_quiz_type(array $ctx): ?string {
+    [$cm, $quiz, $course] = $ctx;
+
+    $idnumber = strtoupper(trim((string)($cm->idnumber ?? '')));
+    $combined = strtolower($cm->name . ' ' . $quiz->name);
+
+    // Pretest: explicit idnumber or name.
+    if ($idnumber === 'HEYDAY_PRETEST' || strpos($combined, 'pretest') !== false) {
+        return 'pretest';
+    }
+
+    // Final Exam: explicit idnumber or name — check before lesson quiz fallback.
+    if ($idnumber === 'HEYDAY_FINAL_EXAM' || preg_match('/\bfinal\s*exam\b/i', $combined)) {
+        return 'finalexam';
+    }
+
+    // Lesson quiz: explicit idnumber pattern.
+    if (preg_match('/^HEYDAY_LESSON\d+_QUIZ$/i', $idnumber)) {
+        return 'lessonquiz';
+    }
+
+    // Fallback: name-based detection for lesson quizzes.
+    if (preg_match('/\blesson\s*\d+\b/i', $combined) &&
+        preg_match('/\bquiz\b/i', $combined)) {
+        return 'lessonquiz';
+    }
+
+    return null;
+}
+
+/**
+ * Find the "Next Steps for Completion" CM in the course.
+ *
+ * @param stdClass $course
+ * @return cm_info|null
+ */
+function local_heyday_quizskin_find_nextsteps_cm($course) {
+    $modinfo = get_fast_modinfo($course);
+    foreach ($modinfo->cms as $candidate) {
+        if (!$candidate->uservisible) {
+            continue;
+        }
+        if (preg_match('/next\s+steps?\b/i', $candidate->name)) {
+            return $candidate;
+        }
+    }
+    return null;
+}
+
+/**
+ * Apply only to Pretest and Lesson Quiz pages.
  */
 function local_heyday_quizskin_is_target(): bool {
     global $PAGE;
@@ -70,29 +125,46 @@ function local_heyday_quizskin_is_target(): bool {
         return false;
     }
 
-    [$cm, $quiz, $course] = $ctx;
-
-    $idnumber = '';
-    if (!empty($cm->idnumber)) {
-        $idnumber = strtoupper(trim($cm->idnumber));
-    }
-
-    if ($idnumber === 'HEYDAY_PRETEST') {
-        return true;
-    }
-
-    // Lesson quizzes (HEYDAY_LESSON<N>_QUIZ) are handled by local_heyday_quiz — skip them here.
-    if (preg_match('/^HEYDAY_LESSON\d+_QUIZ$/i', $idnumber)) {
-        return false;
-    }
-
-    $combined = strtolower($cm->name . ' ' . $quiz->name);
-
-    return strpos($combined, 'pretest') !== false;
+    return local_heyday_quizskin_quiz_type($ctx) !== null;
 }
 
 /**
- * Find Lesson 1 Learning Objectives for the Next Up card.
+ * Find the next visible CM in the course after the given one.
+ *
+ * @param stdClass $course
+ * @param int $currentcmid
+ * @return cm_info|null
+ */
+function local_heyday_quizskin_find_next_cm($course, int $currentcmid) {
+    $modinfo = get_fast_modinfo($course);
+
+    $found = false;
+    foreach ($modinfo->cms as $candidate) {
+        if ((int)$candidate->id === $currentcmid) {
+            $found = true;
+            continue;
+        }
+
+        if (!$found) {
+            continue;
+        }
+
+        if (!$candidate->uservisible) {
+            continue;
+        }
+
+        if (in_array($candidate->modname, ['label', 'subsection'], true)) {
+            continue;
+        }
+
+        return $candidate;
+    }
+
+    return null;
+}
+
+/**
+ * Find Lesson 1 Learning Objectives for the Next Up card (pretest only).
  */
 function local_heyday_quizskin_find_l1_learning_objectives($course, int $currentcmid = 0) {
     $modinfo = get_fast_modinfo($course);
@@ -106,10 +178,7 @@ function local_heyday_quizskin_find_l1_learning_objectives($course, int $current
             continue;
         }
 
-        $idnumber = '';
-        if (!empty($candidate->idnumber)) {
-            $idnumber = strtoupper(trim($candidate->idnumber));
-        }
+        $idnumber = strtoupper(trim((string)($candidate->idnumber ?? '')));
 
         if ($idnumber === 'L1_LEARNING_OBJECTIVES' || strpos($idnumber, 'L1_LEARNING_OBJECTIV') === 0) {
             return $candidate;
@@ -194,6 +263,57 @@ function local_heyday_quizskin_display_type($cm): string {
 }
 
 /**
+ * Courseplayer URL for a quiz CM.
+ */
+function local_heyday_quizskin_courseplayer_url($course, $cm, string $quiztype): moodle_url {
+    if ($quiztype === 'pretest') {
+        $page = 'pretest';
+    } else if ($quiztype === 'finalexam') {
+        $page = 'finalexam';
+    } else {
+        $page = 'lessonquiz';
+    }
+    return new moodle_url('/local/heyday_courseplayer/index.php', [
+        'id'   => $course->id,
+        'page' => $page,
+        'cmid' => $cm->id,
+    ]);
+}
+
+/**
+ * Courseplayer URL for a next-up CM.
+ */
+function local_heyday_quizskin_next_url($course, $nextcm): moodle_url {
+    $modname = $nextcm->modname;
+    if ($modname === 'quiz') {
+        return new moodle_url('/local/heyday_courseplayer/index.php', [
+            'id'   => $course->id,
+            'page' => 'lessonquiz',
+            'cmid' => $nextcm->id,
+        ]);
+    }
+    if ($modname === 'forum') {
+        return new moodle_url('/local/heyday_courseplayer/index.php', [
+            'id'   => $course->id,
+            'page' => 'discussion',
+            'cmid' => $nextcm->id,
+        ]);
+    }
+    if ($modname === 'assign') {
+        return new moodle_url('/local/heyday_courseplayer/index.php', [
+            'id'   => $course->id,
+            'page' => 'assignment',
+            'cmid' => $nextcm->id,
+        ]);
+    }
+    return new moodle_url('/local/heyday_courseplayer/index.php', [
+        'id'   => $course->id,
+        'page' => 'lesson',
+        'cmid' => $nextcm->id,
+    ]);
+}
+
+/**
  * Inject CSS early.
  * Moodle expects this callback to return HTML.
  */
@@ -205,7 +325,7 @@ function local_heyday_quizskin_before_standard_html_head(): string {
     return <<<'HTML'
 <style id="heyday-quizskin-css">
 /* =========================================================
-   HEYDAY QUIZ SKIN - Ed2Go-style Pretest attempt/review
+   HEYDAY QUIZ SKIN - Ed2Go-style quiz attempt/review
    Page and text size corrected
    ========================================================= */
 
@@ -357,7 +477,7 @@ body.heyday-quizskin-page #region-main {
     background: #f2f2f2 !important;
 }
 
-/* Course title and Pretest title - corrected size. */
+/* Course title and quiz title - corrected size. */
 .hdq-course-title {
     text-align: center !important;
     font-size: 15px !important;
@@ -879,7 +999,7 @@ body.heyday-quizskin-page button.hdq-submit-answer:hover {
     color: #fff !important;
 }
 
-/* End of Pretest. */
+/* End of Quiz divider. */
 .hdq-end {
     display: flex !important;
     align-items: center !important;
@@ -1090,41 +1210,87 @@ function local_heyday_quizskin_before_footer(): string {
     }
 
     [$cm, $quiz, $course] = $ctx;
+    $quiztype = local_heyday_quizskin_quiz_type($ctx) ?? 'lessonquiz';
 
     require_once($CFG->dirroot . '/course/lib.php');
 
     $coursefullname = format_string($course->fullname);
     $quiztitle      = format_string($quiz->name);
-    $viewurl        = (new moodle_url('/local/heyday_courseplayer/index.php', [
-        'id' => $course->id, 'page' => 'pretest', 'cmid' => $cm->id,
-    ]))->out(false);
+    $viewurl        = local_heyday_quizskin_courseplayer_url($course, $cm, $quiztype)->out(false);
 
     $introhtml = trim(format_module_intro('quiz', $quiz, $cm->id, false));
 
-    if ($introhtml === '') {
-        $introhtml =
-            '<p>This pretest is optional, and it is meant to help you gauge how much you already know about the subject matter of this course.</p>' .
-            '<p>As you go through the pretest, you will be able to save your answer choices and change them up until you submit your pretest for a score. To exit the pretest, click the <strong>Save and Close</strong> button at the bottom of the page. To submit the pretest, click the <strong>Submit Answers</strong> button at the bottom of the page.</p>' .
-            '<div class="hdq-rules"><ul><li>You have one attempt.<ul><li>Your grade is determined by your only attempt.</li><li>This is not for credit and does not affect your overall grade.</li></ul></li></ul></div>';
-    }
+    if ($quiztype === 'pretest') {
+        if ($introhtml === '') {
+            $introhtml =
+                '<p>This pretest is optional, and it is meant to help you gauge how much you already know about the subject matter of this course.</p>' .
+                '<p>As you go through the pretest, you will be able to save your answer choices and change them up until you submit your pretest for a score. To exit the pretest, click the <strong>Save and Close</strong> button at the bottom of the page. To submit the pretest, click the <strong>Submit Answers</strong> button at the bottom of the page.</p>' .
+                '<div class="hdq-rules"><ul><li>You have one attempt.<ul><li>Your grade is determined by your only attempt.</li><li>This is not for credit and does not affect your overall grade.</li></ul></li></ul></div>';
+        }
+        $quizendtext  = 'End of Pretest';
+        $nextsection  = 'Lesson 1';
+        $nextcm       = local_heyday_quizskin_find_l1_learning_objectives($course, (int)$cm->id);
+        if ($nextcm) {
+            $nexturl  = local_heyday_quizskin_next_url($course, $nextcm)->out(false);
+            $nextname = format_string($nextcm->name);
+            $nexttype = local_heyday_quizskin_display_type($nextcm);
+        } else {
+            $nexturl  = (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'home']))->out(false);
+            $nextname = 'Learning Objectives';
+            $nexttype = 'activity';
+        }
+    } else if ($quiztype === 'finalexam') {
+        // Final Exam: next up is "Next Steps for Completion".
+        if ($introhtml === '') {
+            $introhtml =
+                '<p>You must complete the final exam and receive a satisfactory score to complete this course.</p>' .
+                '<p>Answer all questions, then click <strong>Submit Answers</strong> to submit for grading. To save your progress and return later, click <strong>Save and Close</strong>.</p>';
+        }
+        $quizendtext = 'End of Final Exam';
+        $nextsection = 'Final Exam';
 
-    $nextcm = local_heyday_quizskin_find_l1_learning_objectives($course, (int)$cm->id);
-
-    if ($nextcm) {
-        $nexturl  = (new moodle_url('/local/heyday_courseplayer/index.php', [
-            'id'   => $course->id,
-            'page' => 'lesson',
-            'cmid' => $nextcm->id,
-        ]))->out(false);
-        $nextname = format_string($nextcm->name);
-        $nexttype = local_heyday_quizskin_display_type($nextcm);
+        $nextcm = local_heyday_quizskin_find_nextsteps_cm($course);
+        if ($nextcm) {
+            $nexturl  = local_heyday_quizskin_next_url($course, $nextcm)->out(false);
+            $nextname = format_string($nextcm->name);
+            $nexttype = local_heyday_quizskin_display_type($nextcm);
+        } else {
+            $nexturl  = (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'finalexam', 'subpage' => 'nextsteps']))->out(false);
+            $nextname = 'Next Steps for Completion';
+            $nexttype = 'activity';
+        }
     } else {
-        $nexturl  = (new moodle_url('/local/heyday_courseplayer/index.php', [
-            'id'   => $course->id,
-            'page' => 'home',
-        ]))->out(false);
-        $nextname = 'Learning Objectives';
-        $nexttype = 'activity';
+        // Lesson quiz: derive section name and find next CM in sequence.
+        if ($introhtml === '') {
+            $introhtml =
+                '<p>This quiz covers the material from this lesson. Answer all questions, then click <strong>Submit Answers</strong>.</p>' .
+                '<p>To save your progress and return later, click <strong>Save and Close</strong> at the bottom of the page.</p>';
+        }
+        $quizendtext = 'End of Quiz';
+
+        // Find which lesson section this quiz belongs to.
+        $modinfo    = get_fast_modinfo($course);
+        $cminfo     = $modinfo->get_cm((int)$cm->id);
+        $nextsection = '';
+        if ($cminfo) {
+            try {
+                $secinfo     = $modinfo->get_section_info($cminfo->sectionnum);
+                $nextsection = $secinfo ? get_section_name($course, $secinfo) : '';
+            } catch (Throwable $e) {
+                $nextsection = '';
+            }
+        }
+
+        $nextcm = local_heyday_quizskin_find_next_cm($course, (int)$cm->id);
+        if ($nextcm) {
+            $nexturl  = local_heyday_quizskin_next_url($course, $nextcm)->out(false);
+            $nextname = format_string($nextcm->name);
+            $nexttype = local_heyday_quizskin_display_type($nextcm);
+        } else {
+            $nexturl  = (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'home']))->out(false);
+            $nextname = 'Course Home';
+            $nexttype = 'activity';
+        }
     }
 
     $data = [
@@ -1132,9 +1298,9 @@ function local_heyday_quizskin_before_footer(): string {
         'quiz'        => $quiztitle,
         'viewurl'     => $viewurl,
         'introhtml'   => $introhtml,
-        'quizendtext' => 'End of Pretest',
+        'quizendtext' => $quizendtext,
         'nexturl'     => $nexturl,
-        'nextsection' => 'Lesson 1',
+        'nextsection' => $nextsection,
         'nextname'    => $nextname,
         'nexttype'    => $nexttype,
     ];
@@ -1169,7 +1335,7 @@ function local_heyday_quizskin_before_footer(): string {
         card.innerHTML =
             '<div class="hdq-topbar">' +
                 '<div class="hdq-left">' +
-                    '<a class="hdq-icon" href="javascript:history.back();" aria-label="Back"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>' +
+                    '<a class="hdq-icon" href="' + HDQ.viewurl + '" aria-label="Back"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>' +
                     '<button type="button" class="hdq-icon" id="hdqBookmark" aria-label="Bookmark"><i class="fa fa-bookmark-o" aria-hidden="true"></i></button>' +
                 '</div>' +
                 '<div class="hdq-right">' +
@@ -1208,8 +1374,7 @@ function local_heyday_quizskin_before_footer(): string {
 
         main.querySelectorAll('h1, h2, h3').forEach(function(el) {
             var text = (el.textContent || '').trim().toLowerCase();
-
-            if (text === 'pretest' && !el.classList.contains('hdq-title')) {
+            if (!el.classList.contains('hdq-title')) {
                 el.style.display = 'none';
             }
         });
@@ -1332,10 +1497,6 @@ function local_heyday_quizskin_before_footer(): string {
 
         submitBtn.classList.add('hdq-submit-answer');
 
-        /* On the attempt page: intercept click in capture phase so we fire
-           before Moodle's AMD bubble handlers.  Add finishattempt=1 and call
-           form.submit() — jumps directly to processattempt.php, skipping
-           the summary/confirmation page entirely. */
         if (document.body.id === 'page-mod-quiz-attempt' && !submitBtn.dataset.hdqIntercept) {
             submitBtn.dataset.hdqIntercept = '1';
             submitBtn.addEventListener('click', function(e) {
@@ -1458,18 +1619,12 @@ function local_heyday_quizskin_before_footer(): string {
 
         if (printActivity && !printActivity.dataset.wired) {
             printActivity.dataset.wired = '1';
-
-            printActivity.addEventListener('click', function() {
-                window.print();
-            });
+            printActivity.addEventListener('click', function() { window.print(); });
         }
 
         if (printLesson && !printLesson.dataset.wired) {
             printLesson.dataset.wired = '1';
-
-            printLesson.addEventListener('click', function() {
-                window.print();
-            });
+            printLesson.addEventListener('click', function() { window.print(); });
         }
 
         var fullscreen = document.getElementById('hdqFullscreen');
@@ -1496,16 +1651,12 @@ function local_heyday_quizskin_before_footer(): string {
             return;
         }
 
-        /* Use form.submit() — bypasses Moodle's JS confirmation modal.
-           btn.click() triggers AMD handlers that open a dialog and stall. */
         var form =
             document.querySelector('form[action*="processattempt"]') ||
             document.querySelector('form');
 
         if (!form) { return; }
 
-        /* Ensure finishattempt=1 reaches the server — hidden inputs survive
-           form.submit() but submit button values do not. */
         var fi = form.querySelector('input[name="finishattempt"]');
         if (!fi) {
             fi = document.createElement('input');
@@ -1580,7 +1731,6 @@ function local_heyday_quizskin_before_footer(): string {
         }
     }
 
-    /* ── Annotate review: X on wrong, check + note on correct ───── */
     function annotateReview() {
         if (document.body.id !== 'page-mod-quiz-review') { return; }
 
@@ -1589,7 +1739,6 @@ function local_heyday_quizskin_before_footer(): string {
             if (!content || content.dataset.hdqReviewed) { return; }
             content.dataset.hdqReviewed = '1';
 
-            /* ✕ on the wrong selected answer capsule */
             var wrongRow = que.querySelector('.answer .incorrect');
             if (wrongRow) {
                 var num = wrongRow.querySelector('.answernumber');
@@ -1601,7 +1750,6 @@ function local_heyday_quizskin_before_footer(): string {
                 }
             }
 
-            /* ✓ on correct answer capsule + "This was the correct answer." bar */
             var correctRow = que.querySelector('.answer .correct');
             if (correctRow) {
                 var num2 = correctRow.querySelector('.answernumber');
@@ -1619,7 +1767,6 @@ function local_heyday_quizskin_before_footer(): string {
                 }
             }
 
-            /* "Incorrect." prefix inside the red feedback box */
             var feedbackEl = que.querySelector(
                 '.outcome .feedback, .outcome .specificfeedback, .outcome .generalfeedback, ' +
                 '.feedback, .specificfeedback, .generalfeedback'
@@ -1641,7 +1788,6 @@ function local_heyday_quizskin_before_footer(): string {
             }
         });
 
-        /* Correct questions: ✓ on answer capsule only */
         document.querySelectorAll('.que.correct').forEach(function(que) {
             var content = que.querySelector('.content');
             if (!content || content.dataset.hdqReviewed) { return; }

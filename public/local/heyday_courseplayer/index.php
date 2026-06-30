@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // This file is part of Moodle - http://moodle.org/.
 
 /**
@@ -37,6 +37,8 @@ $rawpagekey = optional_param('page', '', PARAM_ALPHAEXT);
 $pagekey = $rawpagekey !== '' ? $rawpagekey : 'auto';
 $autoplayerrequest = ($rawpagekey === '');
 $gspage = optional_param('gs', 'overview', PARAM_ALPHANUMEXT);
+$subpage = optional_param('subpage', '', PARAM_ALPHANUMEXT);
+$did    = optional_param('did', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $qmid = optional_param('qmid', 0, PARAM_INT);
 $pageid = optional_param('pageid', 0, PARAM_INT);
@@ -44,7 +46,7 @@ $completionaction = optional_param('completionaction', '', PARAM_ALPHA);
 
 $requestedcmid = $cmid > 0 ? $cmid : $qmid;
 
-$allowedpages = ['auto', 'home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'lessons', 'lesson', 'objectives', 'assignment', 'quiz', 'lessonquiz', 'resources', 'finalexam'];
+$allowedpages = ['auto', 'home', 'scores', 'discussions', 'discussion', 'gettingstarted', 'pretest', 'lessons', 'lesson', 'objectives', 'assignment', 'quiz', 'lessonquiz', 'resources', 'finalexam'];
 if (!in_array($pagekey, $allowedpages, true)) {
     $pagekey = 'home';
     $autoplayerrequest = false;
@@ -1265,8 +1267,13 @@ function local_heyday_courseplayer_collect_section_items(
                 $heading['targetitem'] = $headingtarget;
             }
 
-            $items[] = $heading;
-            $items = array_merge($items, $childitems);
+            // Only add the heading when the delegated child section has visible
+            // activities. Empty subsections (e.g. "Assignment" placeholders with
+            // no activities yet) must not clutter the learner sidebar.
+            if (!empty($childitems)) {
+                $items[] = $heading;
+                $items = array_merge($items, $childitems);
+            }
             continue;
         }
 
@@ -1310,6 +1317,160 @@ function local_heyday_courseplayer_collect_section_items(
     }
 
     return $items;
+}
+
+/**
+ * Return an integer sort priority for a lesson sidebar item by display name.
+ *
+ * Lower numbers appear first. The scale maps to the ed2go learner sequence:
+ * introduction → chapters → review → assignment → discussion → quiz → resources.
+ *
+ * @param string $name Item display name.
+ * @return int
+ */
+function local_heyday_courseplayer_lesson_item_sort_key(string $name): int {
+    $plain = core_text::strtolower(local_heyday_courseplayer_plain_menu_text($name));
+    if (preg_match('/\bintro(duction)?\b/', $plain)) {
+        return 100;
+    }
+    if (preg_match('/learning.?obj/', $plain)) {
+        return 150;
+    }
+    if (preg_match('/key.?term/', $plain)) {
+        return 180;
+    }
+    if (preg_match('/\b(?:chapter|unit|part)\s*(\d+)/u', $plain, $m)) {
+        return 200 + (int)$m[1];
+    }
+    if (preg_match('/\breview\b/', $plain)) {
+        return 500;
+    }
+    if (preg_match('/\bassign(ment)?\b/', $plain)) {
+        return 600;
+    }
+    if (preg_match('/\bdiscussion\b/', $plain)) {
+        return 700;
+    }
+    if (preg_match('/\bquiz\b/', $plain)) {
+        return 800;
+    }
+    if (preg_match('/\bresource/', $plain)) {
+        return 900;
+    }
+    if (preg_match('/\bfaq/', $plain)) {
+        return 1000;
+    }
+    return 400;
+}
+
+/**
+ * Re-order a lesson group's flat item list to match the ed2go learner sequence.
+ *
+ * Items are grouped into "blocks" where each depth-0 item starts a new block and
+ * all subsequent depth-1+ items belong to that block. Blocks are stable-sorted by
+ * the sort key of their leading item so introduction/chapters/review come first
+ * and assignment/discussion/quiz/resources follow at the end.
+ *
+ * @param array $items Flat item list.
+ * @return array Re-ordered flat item list.
+ */
+function local_heyday_courseplayer_sort_lesson_items(array $items): array {
+    $blocks  = [];
+    $current = null;
+
+    foreach ($items as $item) {
+        $depth = (int)($item['depth'] ?? 0);
+        if ($depth === 0) {
+            if ($current !== null) {
+                $blocks[] = $current;
+            }
+            $name = '';
+            if (($item['type'] ?? '') === 'heading') {
+                $name = (string)($item['name'] ?? '');
+            } else {
+                $cm   = local_heyday_courseplayer_item_cm($item);
+                $name = $cm ? format_string($cm->name) : '';
+            }
+            $current = ['key' => local_heyday_courseplayer_lesson_item_sort_key($name), 'items' => [$item]];
+        } else {
+            if ($current !== null) {
+                $current['items'][] = $item;
+            }
+        }
+    }
+    if ($current !== null) {
+        $blocks[] = $current;
+    }
+
+    usort($blocks, static function (array $a, array $b): int {
+        return $a['key'] <=> $b['key'];
+    });
+
+    $sorted = [];
+    foreach ($blocks as $block) {
+        foreach ($block['items'] as $bitem) {
+            $sorted[] = $bitem;
+        }
+    }
+    return $sorted;
+}
+
+/**
+ * Remove duplicate discussion-area items from a lesson group's item list.
+ *
+ * When a course has both a Moodle Forum and a URL activity with the same
+ * normalized name (e.g. "Lesson 2 Discussion Area"), only the higher-priority
+ * type is kept. Preference order: forum > quiz > assign > page > url.
+ *
+ * @param array $items Flat item list.
+ * @return array De-duplicated flat item list.
+ */
+function local_heyday_courseplayer_dedupe_lesson_items(array $items): array {
+    $typerank = ['forum' => 0, 'quiz' => 1, 'assign' => 2, 'page' => 3, 'url' => 4];
+    $seen   = [];
+    $remove = [];
+
+    foreach ($items as $i => $item) {
+        if (($item['type'] ?? '') === 'heading') {
+            continue;
+        }
+        $cm = local_heyday_courseplayer_item_cm($item);
+        if (!$cm) {
+            continue;
+        }
+        $raw  = core_text::strtolower(trim(format_string($cm->name)));
+        $norm = (string)preg_replace('/\s+/', ' ', $raw);
+        $norm = (string)preg_replace('/\s*area\s*$/', '', $norm);
+
+        if (!isset($seen[$norm])) {
+            $seen[$norm] = $i;
+            continue;
+        }
+
+        $existidx  = $seen[$norm];
+        $existcm   = local_heyday_courseplayer_item_cm($items[$existidx]);
+        $existrank = $typerank[$existcm ? (string)$existcm->modname : ''] ?? 99;
+        $newrank   = $typerank[(string)$cm->modname] ?? 99;
+
+        if ($newrank < $existrank) {
+            $remove[$existidx] = true;
+            $seen[$norm] = $i;
+        } else {
+            $remove[$i] = true;
+        }
+    }
+
+    if (empty($remove)) {
+        return $items;
+    }
+
+    $result = [];
+    foreach ($items as $i => $item) {
+        if (!isset($remove[$i])) {
+            $result[] = $item;
+        }
+    }
+    return array_values($result);
 }
 
 /**
@@ -1437,6 +1598,13 @@ function local_heyday_courseplayer_collect_lesson_groups(course_modinfo $modinfo
                 $usedsectionnums[$childnum] = true;
             }
         }
+
+        // Normalize sidebar order to the ed2go learner sequence and remove
+        // any duplicate discussion-area items (e.g. both a Forum and a URL CM
+        // named "Lesson N Discussion Area" in the same section).
+        $items = local_heyday_courseplayer_dedupe_lesson_items(
+            local_heyday_courseplayer_sort_lesson_items($items)
+        );
 
         if (empty($items)) {
             continue;
@@ -2230,6 +2398,14 @@ function local_heyday_courseplayer_render_item_content(stdClass $course, array $
         }
     }
 
+    if ($cm->modname === 'forum') {
+        return local_heyday_courseplayer_render_discussion_detail($course, $cm);
+    }
+
+    if ($cm->modname === 'assign') {
+        return local_heyday_courseplayer_render_assignment_card($course, $item);
+    }
+
     // Moodle Page activities are first-class HeyDay content. Render them
     // inline for normal lesson items, resources, pretests, finals, and direct
     // cmid requests instead of falling back to Moodle's native module page.
@@ -2676,12 +2852,15 @@ function local_heyday_courseplayer_render_scores(stdClass $course, course_modinf
         return (int)round(((float)$grade / (float)$maxgrade) * 100);
     };
 
-    $alloweditem = static function(string $itemname): bool {
+    $alloweditem = static function(string $itemname, string $itemmodule = ''): bool {
         $name = trim($itemname);
         if (preg_match('/^pretest$/i', $name)) {
             return true;
         }
         if (preg_match('/^lesson\s*[0-9]+\s*[:\-]?\s*quiz$/i', $name)) {
+            return true;
+        }
+        if ($itemmodule === 'assign' && preg_match('/\blesson\s*[0-9]+\b/i', $name)) {
             return true;
         }
         if (preg_match('/^final\s*exam$/i', $name)) {
@@ -2690,13 +2869,16 @@ function local_heyday_courseplayer_render_scores(stdClass $course, course_modinf
         return false;
     };
 
-    $sortweight = static function(string $itemname): int {
+    $sortweight = static function(string $itemname, string $itemmodule = ''): int {
         $name = trim($itemname);
         if (preg_match('/^pretest$/i', $name)) {
             return 1;
         }
         if (preg_match('/^lesson\s*([0-9]+)\s*[:\-]?\s*quiz$/i', $name, $matches)) {
             return 100 + (int)$matches[1];
+        }
+        if ($itemmodule === 'assign' && preg_match('/\blesson\s*([0-9]+)\b/i', $name, $matches)) {
+            return 200 + (int)$matches[1];
         }
         if (preg_match('/^final\s*exam$/i', $name)) {
             return 999;
@@ -2735,7 +2917,8 @@ function local_heyday_courseplayer_render_scores(stdClass $course, course_modinf
         }
 
         $name = trim((string)$gradeitem->itemname);
-        if (!$alloweditem($name)) {
+        $itemmodule = (string)($gradeitem->itemmodule ?? '');
+        if (!$alloweditem($name, $itemmodule)) {
             continue;
         }
 
@@ -2770,31 +2953,50 @@ function local_heyday_courseplayer_render_scores(stdClass $course, course_modinf
         $locked = (!$cm->available || !$cm->uservisible);
         $maxgrade = !empty($gradeitem->grademax) ? $gradeitem->grademax : 100;
         $percent = $percentage($finalgrade, $maxgrade);
-        $credit = !empty($gradeitem->aggregationcoef) || !empty($gradeitem->weightoverride);
+
+        $ispretest   = (bool)preg_match('/^pretest$/i', $name);
+        $isfinalexam = (bool)preg_match('/^final\s*exam$/i', $name);
+        $islessonquiz = !$ispretest && !$isfinalexam && $cm->modname === 'quiz';
+        $isassignment = $cm->modname === 'assign';
+
+        // Pretest is definitionally not for credit; everything else is.
+        $credit = !$ispretest;
 
         if ($creditonly && !$credit) {
             continue;
         }
 
-        if (preg_match('/^pretest$/i', $name)) {
+        if ($ispretest) {
             $activityurl = local_heyday_courseplayer_url($course, 'pretest', ['cmid' => $cm->id]);
-        } else if (preg_match('/^final\s*exam$/i', $name)) {
+        } else if ($isfinalexam) {
             $activityurl = local_heyday_courseplayer_url($course, 'finalexam', ['cmid' => $cm->id]);
+        } else if ($islessonquiz) {
+            $activityurl = local_heyday_courseplayer_url($course, 'lessonquiz', ['cmid' => $cm->id]);
+        } else if ($isassignment) {
+            $activityurl = local_heyday_courseplayer_url($course, 'assignment', ['cmid' => $cm->id]);
         } else {
             $activityurl = local_heyday_courseplayer_url($course, 'lesson', ['cmid' => $cm->id]);
         }
 
+        if ($isassignment) {
+            $typelabel = 'Assignment';
+        } else {
+            $typelabel = 'Quiz';
+        }
+
         $items[] = [
-            'name' => $name,
-            'url' => $activityurl,
-            'submitted' => $submitted,
-            'datesubmitted' => $datesubmitted,
-            'finalgrade' => $finalgrade,
-            'maxgrade' => $maxgrade,
-            'percent' => $percent,
-            'locked' => $locked,
-            'credit' => $credit,
-            'weight' => $sortweight($name),
+            'name'         => $name,
+            'typelabel'    => $typelabel,
+            'url'          => $activityurl,
+            'submitted'    => $submitted,
+            'datesubmitted'=> $datesubmitted,
+            'finalgrade'   => $finalgrade,
+            'maxgrade'     => $maxgrade,
+            'percent'      => $percent,
+            'locked'       => $locked,
+            'notforgrade'  => $ispretest,
+            'credit'       => $credit,
+            'weight'       => $sortweight($name, $itemmodule),
         ];
     }
 
@@ -2901,7 +3103,7 @@ function local_heyday_courseplayer_render_scores(stdClass $course, course_modinf
         ]);
 
         $output .= html_writer::start_div('heyday-score-left');
-        $output .= ($item['submitted'] && preg_match('/pretest/i', $item['name'])) ? $checkicon : $documenticon;
+        $output .= $item['submitted'] ? $checkicon : $documenticon;
         $output .= html_writer::start_div('heyday-score-main');
 
         if ($item['locked']) {
@@ -2909,6 +3111,8 @@ function local_heyday_courseplayer_render_scores(stdClass $course, course_modinf
         } else {
             $output .= html_writer::link($item['url'], format_string($item['name']), ['class' => 'heyday-score-name']);
         }
+
+        $output .= html_writer::div($item['typelabel'], 'heyday-score-type');
 
         if ($item['submitted'] && !empty($item['datesubmitted'])) {
             $output .= html_writer::div('Submitted on: ' . $formatdate($item['datesubmitted']), 'heyday-score-submitted-date');
@@ -2923,11 +3127,15 @@ function local_heyday_courseplayer_render_scores(stdClass $course, course_modinf
         } else if ($item['submitted']) {
             $percenttext = ($item['percent'] === null) ? '--' : ((string)$item['percent'] . '%');
             $output .= html_writer::div($percenttext, 'heyday-score-percent');
-            $output .= html_writer::div('Does not count for grade', 'heyday-score-note');
+            if ($item['notforgrade']) {
+                $output .= html_writer::div('Does not count for grade', 'heyday-score-note');
+            }
             $output .= html_writer::div($cleannumber($item['finalgrade']) . ' / ' . $cleannumber($item['maxgrade']), 'heyday-score-points heyday-score-points-complete');
         } else {
             $output .= html_writer::div('Not Started', 'heyday-score-status');
-            $output .= html_writer::div('Does not count for grade', 'heyday-score-note');
+            if ($item['notforgrade']) {
+                $output .= html_writer::div('Does not count for grade', 'heyday-score-note');
+            }
             $output .= html_writer::div('-- / ' . $cleannumber($item['maxgrade']), 'heyday-score-points');
         }
         $output .= html_writer::end_div();
@@ -3051,16 +3259,12 @@ function local_heyday_courseplayer_discussion_counts(int $forumid, int $courseid
  * @return moodle_url
  */
 function local_heyday_courseplayer_discussion_view_url(cm_info $cm): moodle_url {
-    $customview = __DIR__ . '/../heyday_discussions/view.php';
-    if (file_exists($customview)) {
-        return new moodle_url('/local/heyday_discussions/view.php', ['cmid' => $cm->id]);
+    try {
+        $course = get_course((int)$cm->course);
+        return local_heyday_courseplayer_url($course, 'discussion', ['cmid' => $cm->id]);
+    } catch (Throwable $e) {
+        return new moodle_url('/mod/forum/view.php', ['id' => $cm->id]);
     }
-
-    if ($cm->url) {
-        return $cm->url;
-    }
-
-    return new moodle_url('/mod/forum/view.php', ['id' => $cm->id]);
 }
 
 /**
@@ -3073,20 +3277,15 @@ function local_heyday_courseplayer_discussion_view_url(cm_info $cm): moodle_url 
 function local_heyday_courseplayer_render_discussions(stdClass $course, array $discussioncms): string {
     global $DB, $USER;
 
-    $lessonrows = [];
+    if (empty($discussioncms)) {
+        return html_writer::div(
+            html_writer::div(get_string('discussion_setupneeded', 'local_heyday_courseplayer'), 'heyday-discussion-setup'),
+            'heyday-discussions-page-master'
+        );
+    }
 
+    $rows = [];
     foreach ($discussioncms as $cm) {
-        $lessonno = local_heyday_courseplayer_discussion_lesson_number((string)$cm->name);
-
-        // Keep the ed2go-style discussion index clean: one Lesson N Discussion Area row per lesson.
-        if ($lessonno === null || $lessonno < 1 || $lessonno > 12) {
-            continue;
-        }
-
-        if (!preg_match('/discussion\s*area/i', (string)$cm->name)) {
-            continue;
-        }
-
         $forum = null;
         if ($cm->modname === 'forum') {
             $forum = $DB->get_record('forum', ['id' => $cm->instance], '*', IGNORE_MISSING);
@@ -3107,63 +3306,34 @@ function local_heyday_courseplayer_render_discussions(stdClass $course, array $d
             $updatedtime = $latest ?: (int)$forum->timemodified;
         }
 
-        $locked = !$cm->uservisible;
-        if (property_exists($cm, 'available') && !$cm->available) {
-            $locked = true;
-        }
-
-        $lessonrows[$lessonno] = [
-            'name' => format_string($cm->name, true, ['context' => $cm->context]),
-            'lessonno' => $lessonno,
-            'url' => local_heyday_courseplayer_discussion_view_url($cm),
-            'posts' => $posts,
-            'participants' => $participants,
-            'updated' => $updatedtime ? userdate($updatedtime, '%m/%d/%Y') : '',
-            'newposts' => $newposts,
-            'locked' => $locked,
-            'cm' => $cm,
-            'placeholder' => false,
-        ];
-    }
-
-    $rows = [];
-    for ($i = 1; $i <= 12; $i++) {
-        if (isset($lessonrows[$i])) {
-            $rows[] = $lessonrows[$i];
-            continue;
-        }
+        $locked = !$cm->uservisible || (property_exists($cm, 'available') && !$cm->available);
 
         $rows[] = [
-            'name' => 'Lesson ' . $i . ' Discussion Area',
-            'lessonno' => $i,
-            'url' => null,
-            'posts' => 0,
-            'participants' => 0,
-            'updated' => '',
-            'newposts' => 0,
-            'locked' => true,
-            'cm' => null,
-            'placeholder' => true,
+            'name'         => format_string($cm->name, true, ['context' => $cm->context]),
+            'lessonno'     => local_heyday_courseplayer_discussion_lesson_number((string)$cm->name),
+            'url'          => local_heyday_courseplayer_discussion_view_url($cm),
+            'posts'        => $posts,
+            'participants' => $participants,
+            'updated'      => $updatedtime ? userdate($updatedtime, '%m/%d/%Y') : '',
+            'newposts'     => $newposts,
+            'locked'       => $locked,
+            'cm'           => $cm,
         ];
     }
 
-    $hasactualforum = false;
-    foreach ($rows as $row) {
-        if (empty($row['placeholder'])) {
-            $hasactualforum = true;
-            break;
+    // Sort by lesson number ascending; forums with no lesson number sort last.
+    usort($rows, static function($a, $b): int {
+        $an = $a['lessonno'] ?? PHP_INT_MAX;
+        $bn = $b['lessonno'] ?? PHP_INT_MAX;
+        if ($an !== $bn) {
+            return $an <=> $bn;
         }
-    }
+        return strnatcasecmp($a['name'], $b['name']);
+    });
+
+    $lockicon = '<svg class="heyday-discussion-lock-svg" viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M17 9H16V7C16 4.8 14.2 3 12 3C9.8 3 8 4.8 8 7V9H7C5.9 9 5 9.9 5 11V20C5 21.1 5.9 22 7 22H17C18.1 22 19 21.1 19 20V11C19 9.9 18.1 9 17 9ZM10 7C10 5.9 10.9 5 12 5C13.1 5 14 5.9 14 7V9H10V7Z"></path></svg>';
 
     $output = html_writer::start_div('heyday-discussions-page-master');
-
-    if (!$hasactualforum) {
-        $output .= html_writer::div(
-            get_string('discussion_setupneeded', 'local_heyday_courseplayer'),
-            'heyday-discussion-setup'
-        );
-    }
-
     $output .= html_writer::start_div('heyday-discussion-card-list');
 
     foreach ($rows as $row) {
@@ -3171,17 +3341,14 @@ function local_heyday_courseplayer_render_discussions(stdClass $course, array $d
         if (!empty($row['locked'])) {
             $classes[] = 'is-locked';
         }
-        if (!empty($row['placeholder'])) {
-            $classes[] = 'is-placeholder';
-        }
 
         $output .= html_writer::start_div(implode(' ', $classes));
 
         $output .= html_writer::start_div('heyday-discussion-left');
-        $output .= html_writer::span('💬', 'heyday-discussion-icon', ['aria-hidden' => 'true']);
+        $output .= '<span class="heyday-discussion-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M21 6.5C21 5.4 20.1 4.5 19 4.5H5C3.9 4.5 3 5.4 3 6.5V15.5C3 16.6 3.9 17.5 5 17.5H8L12 21.5L16 17.5H19C20.1 17.5 21 16.6 21 15.5V6.5Z"></path></svg></span>';
 
         $output .= html_writer::start_div('heyday-discussion-main');
-        if (empty($row['locked']) && !empty($row['url'])) {
+        if (empty($row['locked'])) {
             $output .= html_writer::link($row['url'], s($row['name']), ['class' => 'heyday-discussion-title']);
         } else {
             $output .= html_writer::tag('span', s($row['name']), ['class' => 'heyday-discussion-title']);
@@ -3192,11 +3359,10 @@ function local_heyday_courseplayer_render_discussions(stdClass $course, array $d
                 $badge = $row['newposts'] . ' ' . get_string($row['newposts'] === 1 ? 'newpost' : 'newposts', 'local_heyday_courseplayer');
                 $output .= html_writer::div(s($badge), 'heyday-discussion-new-badge');
             }
-
             $postslabel = $row['posts'] . ' ' . get_string($row['posts'] === 1 ? 'post' : 'posts', 'local_heyday_courseplayer');
             $participantslabel = $row['participants'] . ' ' . get_string($row['participants'] === 1 ? 'participant' : 'participants', 'local_heyday_courseplayer');
             $output .= html_writer::div(s($postslabel . '   ' . $participantslabel), 'heyday-discussion-meta');
-        } else if (!empty($row['cm'])) {
+        } else {
             $output .= html_writer::tag('small', s(local_heyday_courseplayer_locked_message($row['cm'])), ['class' => 'heyday-release-note']);
         }
 
@@ -3205,10 +3371,7 @@ function local_heyday_courseplayer_render_discussions(stdClass $course, array $d
 
         $output .= html_writer::start_div('heyday-discussion-right');
         if (!empty($row['locked'])) {
-            $output .= html_writer::span('🔒', 'heyday-discussion-lock', [
-                'title' => get_string('locked', 'local_heyday_courseplayer'),
-                'aria-hidden' => 'true',
-            ]);
+            $output .= html_writer::div($lockicon, 'heyday-discussion-lock-wrap', ['title' => get_string('locked', 'local_heyday_courseplayer')]);
         } else {
             $output .= html_writer::div(get_string('updated', 'local_heyday_courseplayer'), 'heyday-discussion-updated-label');
             if (!empty($row['updated'])) {
@@ -3225,6 +3388,596 @@ function local_heyday_courseplayer_render_discussions(stdClass $course, array $d
 
     return $output;
 }
+
+/**
+ * Render an ed2go-style discussion detail page for a single Moodle Forum activity.
+ *
+ * Used by page=discussion (forum cmid direct link) and by render_item_content
+ * when a lesson-group item is a forum activity (page=lesson&cmid=FORUM_CMID).
+ *
+ * @param stdClass $course Course record.
+ * @param cm_info $cm Forum course module.
+ * @return string
+ */
+function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm_info $cm, int $did = 0): string {
+    global $DB, $USER;
+
+    $forumname = format_string($cm->name, true, ['context' => $cm->context]);
+
+    if (!$cm->uservisible || (property_exists($cm, 'available') && !$cm->available)) {
+        return local_heyday_courseplayer_render_locked_card(
+            $forumname,
+            local_heyday_courseplayer_locked_message($cm)
+        );
+    }
+
+    if ($cm->modname !== 'forum') {
+        return local_heyday_courseplayer_activity_card(
+            $cm,
+            get_string('openactivity', 'local_heyday_courseplayer'),
+            get_string('normalactivityscreen', 'local_heyday_courseplayer'),
+            $cm->url ?: new moodle_url('/mod/forum/view.php', ['id' => $cm->id])
+        );
+    }
+
+    $forum = $DB->get_record('forum', ['id' => $cm->instance], '*', IGNORE_MISSING);
+    if (!$forum) {
+        return html_writer::div(
+            html_writer::tag('p', get_string('noitemsfound', 'local_heyday_courseplayer')),
+            'heyday-empty-state'
+        );
+    }
+
+    // Closed when forum type is 'news' (announcements) or Moodle blockafter is past.
+    $isclosed = (isset($forum->type) && $forum->type === 'news')
+        || (isset($forum->blockafter) && (int)$forum->blockafter > 0 && time() > (int)$forum->blockafter);
+
+    // Forum intro / prompt text.
+    $intro = '';
+    if (!empty($forum->intro)) {
+        $intro = format_text($forum->intro, $forum->introformat ?? FORMAT_HTML, ['context' => $cm->context, 'overflowdiv' => false]);
+        if (trim(strip_tags($intro)) === '') {
+            $intro = '';
+        }
+    }
+    if ($intro === '') {
+        $intro = '<p>Use this discussion area to respond to the lesson prompt and interact with your classmates.</p>';
+    }
+
+    // Last-access time used for "new posts" detection.
+    $lastaccess = (int)$DB->get_field('user_lastaccess', 'timeaccess', [
+        'userid'   => (int)$USER->id,
+        'courseid' => (int)$course->id,
+    ], IGNORE_MISSING);
+
+    $discussions = $DB->get_records_sql(
+        "SELECT fd.id, fd.name, fd.userid, fd.timemodified, fd.timestart,
+                u.firstname, u.lastname,
+                (SELECT COUNT(fp2.id) FROM {forum_posts} fp2 WHERE fp2.discussion = fd.id) AS replycount,
+                (SELECT COUNT(fp3.id) FROM {forum_posts} fp3
+                  WHERE fp3.discussion = fd.id
+                    AND fp3.modified > :lastaccess
+                    AND fp3.userid <> :myid) AS newcount
+           FROM {forum_discussions} fd
+           JOIN {user} u ON u.id = fd.userid
+          WHERE fd.forum = :forumid
+            AND (fd.timestart = 0 OR fd.timestart <= :now)
+       ORDER BY fd.timemodified DESC",
+        [
+            'forumid'    => (int)$forum->id,
+            'now'        => time(),
+            'lastaccess' => $lastaccess ?: 0,
+            'myid'       => (int)$USER->id,
+        ],
+        0, 100
+    );
+
+    // Load all posts (root + replies) per discussion for inline display.
+    $postsbydiscussion = [];
+    if (!empty($discussions)) {
+        $discids = array_keys($discussions);
+        list($discinsql, $discparams) = $DB->get_in_or_equal($discids, SQL_PARAMS_NAMED, 'dp');
+        try {
+            $postrecords = $DB->get_records_sql(
+                "SELECT fp.id, fp.discussion, fp.parent, fp.userid,
+                        fp.message, fp.messageformat, fp.created,
+                        u.firstname, u.lastname
+                   FROM {forum_posts} fp
+                   JOIN {user} u ON u.id = fp.userid
+                  WHERE fp.discussion $discinsql
+                    AND fp.deleted = 0
+               ORDER BY fp.discussion, fp.created ASC",
+                $discparams
+            );
+            foreach ($postrecords as $post) {
+                $postsbydiscussion[(int)$post->discussion][] = $post;
+            }
+        } catch (Throwable $e) {
+            $postsbydiscussion = [];
+        }
+    }
+
+    $canpost  = !$isclosed && has_capability('mod/forum:startdiscussion', $cm->context);
+    $canreply = !$isclosed && has_capability('mod/forum:replypost', $cm->context);
+
+    // Cache instructor detection per user ID.
+    $coursecontext   = context_course::instance((int)$course->id);
+    $teachercache    = [];
+    $isinstructor_fn = static function (int $uid) use ($coursecontext, &$teachercache): bool {
+        if (!array_key_exists($uid, $teachercache)) {
+            $teachercache[$uid] = has_capability('moodle/course:update', $coursecontext, $uid);
+        }
+        return $teachercache[$uid];
+    };
+
+    $addposturl     = (new moodle_url('/mod/forum/post.php', ['forum' => $cm->instance]))->out(false);
+    $nativeforumurl = (new moodle_url('/mod/forum/view.php', ['id' => $cm->id]))->out(false);
+
+    $totalthreads = count($discussions);
+    $minethreads  = 0;
+    $newthreads   = 0;
+    foreach ($discussions as $disc) {
+        if ((int)$disc->userid === (int)$USER->id) {
+            $minethreads++;
+        }
+        if ((int)($disc->newcount ?? 0) > 0) {
+            $newthreads++;
+        }
+    }
+
+    // Thread detail view: when a specific discussion ID is requested.
+    if ($did > 0 && isset($discussions[$did])) {
+        $disc     = $discussions[$did];
+        $discposts = $postsbydiscussion[$did] ?? [];
+        $rootpost  = null;
+        $replies   = [];
+        foreach ($discposts as $post) {
+            if ((int)$post->parent === 0) {
+                $rootpost = $post;
+            } else {
+                $replies[] = $post;
+            }
+        }
+
+        $listurl     = local_heyday_courseplayer_url($course, 'discussion', ['cmid' => $cm->id])->out(false);
+        $threadtitle = s(trim((string)$disc->name) !== '' ? $disc->name : '(No Subject)');
+        $replycount  = max(0, (int)$disc->replycount - 1);
+        $addreplyurl = $rootpost
+            ? (new moodle_url('/mod/forum/post.php', ['reply' => (int)$rootpost->id]))->out(false)
+            : (new moodle_url('/mod/forum/post.php', ['forum' => $cm->instance]))->out(false);
+
+        ob_start();
+        ?>
+<div class="hd-discussion-page hd-discussion-thread-view" id="hd-discussion-page">
+
+  <div class="hd-disc-thread-back">
+    <a href="<?php echo s($listurl); ?>" class="hd-disc-back-link">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="fill:currentColor;flex-shrink:0"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Back to Discussion Area
+    </a>
+  </div>
+
+  <div class="hd-disc-thread-header">
+    <h2 class="hd-disc-thread-page-title"><?php echo $threadtitle; ?></h2>
+    <span class="hd-disc-thread-reply-count"><?php echo $replycount; ?> <?php echo $replycount === 1 ? 'reply' : 'replies'; ?></span>
+  </div>
+
+  <?php if ($isclosed): ?>
+  <div class="hd-discussion-closed-banner" role="alert">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <?php echo get_string('discussion_closed', 'local_heyday_courseplayer'); ?>
+  </div>
+  <?php endif; ?>
+
+  <?php if ($rootpost): ?>
+  <div class="hd-reply hd-reply-root">
+    <div class="hd-reply-body">
+      <div class="hd-reply-author-row">
+        <span class="hd-reply-author"><?php echo s(trim($rootpost->firstname . ' ' . $rootpost->lastname)); ?></span>
+        <span class="hd-reply-date"><?php echo userdate((int)$rootpost->created, '%b %d, %Y %I:%M %p'); ?></span>
+      </div>
+      <div class="hd-reply-content"><?php echo format_text($rootpost->message, (int)$rootpost->messageformat, ['context' => $cm->context, 'overflowdiv' => false]); ?></div>
+      <?php if ($canreply): ?>
+      <div class="hd-reply-actions">
+        <a href="<?php echo s($addreplyurl); ?>" target="_top" class="hd-disc-action-reply">Reply</a>
+      </div>
+      <?php endif; ?>
+    </div>
+  </div>
+  <?php endif; ?>
+
+  <?php if (!empty($replies)): ?>
+  <div class="hd-disc-replies-section">
+    <h3 class="hd-disc-replies-heading">Replies</h3>
+    <?php foreach ($replies as $reply):
+        $replyisinstr  = $isinstructor_fn((int)$reply->userid);
+        $replytothisurl = (new moodle_url('/mod/forum/post.php', ['reply' => (int)$reply->id]))->out(false);
+    ?>
+    <div class="hd-reply<?php echo $replyisinstr ? ' hd-reply-instructor' : ''; ?>">
+      <?php if ($replyisinstr): ?>
+      <div class="hd-reply-instructor-header">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="14" height="14" style="fill:currentColor;flex-shrink:0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Instructor Response
+      </div>
+      <?php endif; ?>
+      <div class="hd-reply-body">
+        <div class="hd-reply-author-row">
+          <span class="hd-reply-author"><?php echo s(trim($reply->firstname . ' ' . $reply->lastname)); ?></span>
+          <span class="hd-reply-date"><?php echo userdate((int)$reply->created, '%b %d, %Y %I:%M %p'); ?></span>
+        </div>
+        <div class="hd-reply-content"><?php echo format_text($reply->message, (int)$reply->messageformat, ['context' => $cm->context, 'overflowdiv' => false]); ?></div>
+        <?php if ($canreply): ?>
+        <div class="hd-reply-actions">
+          <a href="<?php echo s($replytothisurl); ?>" target="_top" class="hd-reply-action-reply">Reply</a>
+        </div>
+        <?php endif; ?>
+      </div>
+    </div>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
+
+  <?php if ($canreply && !empty($replies) || ($canpost && !$rootpost)): ?>
+  <div class="hd-disc-thread-add-reply">
+    <a href="<?php echo s($addreplyurl); ?>" target="_top" class="hd-primary-btn">
+      <?php echo $canpost && !$rootpost ? 'Start Discussion' : 'Add a Reply'; ?>
+    </a>
+  </div>
+  <?php endif; ?>
+
+  <div class="hd-discussion-native-wrap">
+    <a class="hd-discussion-native-link" href="<?php echo s((new moodle_url('/mod/forum/discuss.php', ['d' => $did]))->out(false)); ?>" target="_top">
+      Open Full Thread View
+    </a>
+  </div>
+
+</div>
+        <?php
+        return ob_get_clean();
+    }
+
+    ob_start();
+    ?>
+<div class="hd-discussion-page" id="hd-discussion-page">
+
+  <div class="hd-discussion-prompt">
+    <svg class="hd-discussion-prompt-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 6.5C21 5.4 20.1 4.5 19 4.5H5C3.9 4.5 3 5.4 3 6.5V15.5C3 16.6 3.9 17.5 5 17.5H8L12 21.5L16 17.5H19C20.1 17.5 21 16.6 21 15.5V6.5Z"></path></svg>
+    <div class="hd-discussion-prompt-body"><?php echo $intro; ?></div>
+  </div>
+  <hr class="hd-discussion-divider">
+
+<?php if ($isclosed): ?>
+  <div class="hd-discussion-closed-banner" role="alert">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <?php echo get_string('discussion_closed', 'local_heyday_courseplayer'); ?>
+  </div>
+<?php endif; ?>
+
+<?php if ($canpost): ?>
+  <div class="hd-write-post" id="hd-write-post">
+    <div class="hd-write-post-heading">Write your post</div>
+    <div class="hd-write-post-body">
+      <input type="text" id="hd-wp-title" class="hd-write-post-title"
+             placeholder="<?php echo s('Enter a title for your post...'); ?>"
+             maxlength="255" autocomplete="off">
+      <div class="hd-write-post-editor" id="hd-wp-editor"
+           contenteditable="true" role="textbox" aria-multiline="true"
+           aria-label="<?php echo s('Post message'); ?>"
+           data-placeholder="<?php echo s('Write your message here...'); ?>"></div>
+      <div class="hd-write-post-actions">
+        <a href="<?php echo s($addposturl); ?>" target="_top" class="hd-write-post-upload-btn">
+          <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" style="fill:currentColor;flex-shrink:0"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
+          Upload File
+        </a>
+        <div class="hd-write-post-btns">
+          <button type="button" class="hd-btn-outline hd-wp-cancel-btn" id="hd-wp-cancel">Cancel</button>
+          <a href="<?php echo s($addposturl); ?>" target="_top" class="hd-primary-btn hd-wp-submit-btn">Submit</a>
+        </div>
+      </div>
+    </div>
+  </div>
+<?php endif; ?>
+
+  <div class="hd-discussion-toolbar">
+    <div class="hd-discussion-search-wrap">
+      <svg class="hd-discussion-search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="hd-disc-search" class="hd-discussion-search"
+             placeholder="<?php echo get_string('discussion_searchposts', 'local_heyday_courseplayer'); ?>"
+             aria-label="Search posts">
+    </div>
+    <button type="button" class="hd-discussion-sort-btn" id="hd-disc-sort-btn" aria-haspopup="listbox" aria-expanded="false">
+      <?php echo get_string('discussion_sortby', 'local_heyday_courseplayer'); ?> <span class="hd-sort-arrow">▾</span>
+      <ul class="hd-sort-menu" role="listbox" id="hd-sort-menu" hidden>
+        <li role="option" data-sort="recent" aria-selected="true"><?php echo get_string('discussion_sort_recent', 'local_heyday_courseplayer'); ?></li>
+        <li role="option" data-sort="oldest" aria-selected="false"><?php echo get_string('discussion_sort_oldest', 'local_heyday_courseplayer'); ?></li>
+        <li role="option" data-sort="replies" aria-selected="false"><?php echo get_string('discussion_sort_replies', 'local_heyday_courseplayer'); ?></li>
+      </ul>
+    </button>
+  </div>
+
+  <div class="hd-discussion-threads" id="hd-disc-threads" role="list">
+<?php if (empty($discussions)): ?>
+    <p class="hd-discussion-empty"><?php echo get_string('discussion_nothreads', 'local_heyday_courseplayer'); ?></p>
+<?php else:
+    $threadidx = 0;
+    foreach ($discussions as $disc):
+        $threadidx++;
+        $discposts = $postsbydiscussion[(int)$disc->id] ?? [];
+        $rootpost  = null;
+        $replies   = [];
+        foreach ($discposts as $post) {
+            if ((int)$post->parent === 0) {
+                $rootpost = $post;
+            } else {
+                $replies[] = $post;
+            }
+        }
+        $threadurl    = local_heyday_courseplayer_url($course, 'discussion', ['cmid' => $cm->id, 'did' => $disc->id])->out(false);
+        $authorname   = s(trim($disc->firstname . ' ' . $disc->lastname));
+        $replycount   = max(0, (int)$disc->replycount - 1);
+        $updated      = userdate((int)$disc->timemodified, '%b %d, %Y');
+        $isnew        = ((int)($disc->newcount ?? 0) > 0);
+        $ismine       = ((int)$disc->userid === (int)$USER->id);
+        $threadname   = trim((string)$disc->name) !== '' ? s($disc->name) : '(No Subject)';
+        $nativethread = (new moodle_url('/mod/forum/discuss.php', ['d' => $disc->id]))->out(false);
+        $replyposturl = $rootpost
+            ? (new moodle_url('/mod/forum/post.php', ['reply' => (int)$rootpost->id]))->out(false)
+            : $nativethread;
+
+        $excerpt = '';
+        if ($rootpost) {
+            $rawcontent = format_text($rootpost->message, (int)$rootpost->messageformat, ['context' => $cm->context, 'overflowdiv' => false]);
+            $plaintext  = html_entity_decode(strip_tags($rawcontent), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $plaintext  = trim((string)preg_replace('/\s+/u', ' ', $plaintext));
+            if (core_text::strlen($plaintext) > 200) {
+                $plaintext = core_text::substr($plaintext, 0, 197) . '...';
+            }
+            $excerpt = s($plaintext);
+        }
+?>
+    <div class="hd-disc-thread<?php echo $isnew ? ' is-new' : ''; ?>"
+         data-disc-id="<?php echo (int)$disc->id; ?>"
+         data-mine="<?php echo $ismine ? '1' : '0'; ?>"
+         data-new="<?php echo $isnew ? '1' : '0'; ?>"
+         data-replies="<?php echo $replycount; ?>"
+         data-modified="<?php echo (int)$disc->timemodified; ?>"
+         data-idx="<?php echo $threadidx; ?>"
+         role="listitem">
+
+      <div class="hd-disc-thread-main">
+        <div class="hd-disc-thread-content">
+          <div class="hd-disc-thread-top">
+            <a class="hd-disc-thread-title" href="<?php echo s($threadurl); ?>" target="_top"><?php echo $threadname; ?></a>
+            <div class="hd-disc-thread-meta-right">
+              <?php if ($isnew): ?>
+              <span class="hd-disc-new-badge"><?php echo get_string('newposts', 'local_heyday_courseplayer'); ?></span>
+              <?php endif; ?>
+              <span class="hd-disc-reply-count"><?php echo $replycount; ?> <?php echo get_string($replycount === 1 ? 'reply' : 'replies', 'local_heyday_courseplayer'); ?></span>
+              <span class="hd-disc-updated"><?php echo $updated; ?></span>
+            </div>
+          </div>
+          <div class="hd-disc-thread-author"><?php echo $authorname; ?></div>
+          <?php if ($excerpt !== ''): ?>
+          <div class="hd-disc-thread-excerpt"><?php echo $excerpt; ?></div>
+          <?php endif; ?>
+          <div class="hd-disc-thread-actions">
+            <?php if ($canreply && $rootpost): ?>
+            <a class="hd-disc-action-reply" href="<?php echo s($replyposturl); ?>" target="_top">Reply</a>
+            <span class="hd-disc-action-sep" aria-hidden="true">&middot;</span>
+            <?php endif; ?>
+            <a class="hd-disc-action-report" href="<?php echo s($threadurl); ?>" target="_top">Report as Inappropriate</a>
+            <?php if (!empty($replies)): ?>
+            <button type="button" class="hd-disc-expand-btn"
+                    data-target="hd-replies-<?php echo (int)$disc->id; ?>"
+                    aria-expanded="false">
+              <svg class="hd-expand-icon" viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" style="fill:currentColor;display:inline-block;transition:transform .15s"><path d="M7 10l5 5 5-5z"/></svg>
+              <?php echo $replycount; ?> <?php echo get_string($replycount === 1 ? 'reply' : 'replies', 'local_heyday_courseplayer'); ?>
+            </button>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+
+      <?php if (!empty($replies)): ?>
+      <div class="hd-disc-replies" id="hd-replies-<?php echo (int)$disc->id; ?>" hidden>
+        <?php foreach ($replies as $reply):
+            $replyauthor   = s(trim($reply->firstname . ' ' . $reply->lastname));
+            $replydate     = userdate((int)$reply->created, '%b %d, %Y %I:%M %p');
+            $replyisinstr  = $isinstructor_fn((int)$reply->userid);
+            $replycontent  = format_text($reply->message, (int)$reply->messageformat, ['context' => $cm->context, 'overflowdiv' => false]);
+            $replytothisurl = (new moodle_url('/mod/forum/post.php', ['reply' => (int)$reply->id]))->out(false);
+        ?>
+        <div class="hd-reply<?php echo $replyisinstr ? ' hd-reply-instructor' : ''; ?>">
+          <?php if ($replyisinstr): ?>
+          <div class="hd-reply-instructor-header">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="14" height="14" style="fill:currentColor;flex-shrink:0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Instructor Response
+          </div>
+          <?php endif; ?>
+          <div class="hd-reply-body">
+            <div class="hd-reply-author"><?php echo $replyauthor; ?></div>
+            <div class="hd-reply-content"><?php echo $replycontent; ?></div>
+            <div class="hd-reply-actions">
+              <?php if ($canreply): ?>
+              <a class="hd-reply-action-reply" href="<?php echo s($replytothisurl); ?>" target="_top">Reply</a>
+              <span aria-hidden="true"> &middot; </span>
+              <?php endif; ?>
+              <a class="hd-reply-action-report" href="<?php echo s($threadurl); ?>" target="_top">Report</a>
+              <span class="hd-reply-date"><?php echo $replydate; ?></span>
+            </div>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
+
+    </div>
+<?php endforeach; ?>
+<?php endif; ?>
+  </div>
+
+<?php if ($totalthreads > 5): ?>
+  <div class="hd-load-more-wrap" id="hd-load-more-wrap">
+    <button type="button" class="hd-load-more-btn" id="hd-disc-load-more">Load more threads</button>
+  </div>
+<?php endif; ?>
+
+  <nav class="hd-discussion-tabs" role="tablist" aria-label="Filter discussions">
+    <button class="hd-disc-tab is-active" data-tab="all" role="tab" aria-selected="true">
+      <?php echo get_string('discussion_tab_all', 'local_heyday_courseplayer'); ?>
+      <span class="hd-disc-tab-count"><?php echo $totalthreads; ?></span>
+    </button>
+    <button class="hd-disc-tab" data-tab="mine" role="tab" aria-selected="false">
+      <?php echo get_string('discussion_tab_mine', 'local_heyday_courseplayer'); ?>
+      <span class="hd-disc-tab-count"><?php echo $minethreads; ?></span>
+    </button>
+    <button class="hd-disc-tab" data-tab="new" role="tab" aria-selected="false">
+      <?php echo get_string('discussion_tab_new', 'local_heyday_courseplayer'); ?>
+      <span class="hd-disc-tab-count"><?php echo $newthreads; ?></span>
+    </button>
+  </nav>
+
+  <div class="hd-discussion-native-wrap">
+    <a class="hd-discussion-native-link" href="<?php echo s($nativeforumurl); ?>" target="_top"><?php echo get_string('discussion_viewinforum', 'local_heyday_courseplayer'); ?></a>
+  </div>
+
+</div><!-- .hd-discussion-page -->
+
+<script>
+(function () {
+  'use strict';
+  var page = document.getElementById('hd-discussion-page');
+  if (!page) { return; }
+
+  var allThreads  = Array.from(page.querySelectorAll('.hd-disc-thread'));
+  var tabs        = Array.from(page.querySelectorAll('.hd-disc-tab'));
+  var searchEl    = document.getElementById('hd-disc-search');
+  var sortBtn     = document.getElementById('hd-disc-sort-btn');
+  var sortMenu    = document.getElementById('hd-sort-menu');
+  var threadList  = document.getElementById('hd-disc-threads');
+  var loadMoreBtn = document.getElementById('hd-disc-load-more');
+  var loadMoreWrap = document.getElementById('hd-load-more-wrap');
+  var PAGE_SIZE   = 5;
+  var loadedCount = Math.min(PAGE_SIZE, allThreads.length);
+  var activeTab   = 'all';
+  var activeSort  = 'recent';
+  var currentOrder = allThreads.slice();
+
+  function renderAll() {
+    var needle = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    currentOrder.forEach(function (t, i) {
+      var loaded      = i < loadedCount;
+      var title       = (t.querySelector('.hd-disc-thread-title') || {}).textContent || '';
+      var excerpt     = (t.querySelector('.hd-disc-thread-excerpt') || {}).textContent || '';
+      var matchSearch = !needle || (title + ' ' + excerpt).toLowerCase().indexOf(needle) !== -1;
+      var matchTab    = activeTab === 'all'
+        || (activeTab === 'mine' && t.getAttribute('data-mine') === '1')
+        || (activeTab === 'new'  && t.getAttribute('data-new')  === '1');
+      t.style.display = (loaded && matchSearch && matchTab) ? '' : 'none';
+    });
+    if (loadMoreWrap) {
+      var remaining = currentOrder.length - loadedCount;
+      if (remaining <= 0) {
+        loadMoreWrap.style.display = 'none';
+      } else {
+        loadMoreWrap.style.display = '';
+        if (loadMoreBtn) {
+          var toLoad = Math.min(remaining, PAGE_SIZE);
+          loadMoreBtn.textContent = 'Load ' + toLoad + ' more thread' + (toLoad !== 1 ? 's' : '');
+        }
+      }
+    }
+  }
+
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', function () {
+      loadedCount = Math.min(loadedCount + PAGE_SIZE, currentOrder.length);
+      renderAll();
+    });
+  }
+
+  page.querySelectorAll('.hd-disc-expand-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var targetId = btn.getAttribute('data-target');
+      var panel    = document.getElementById(targetId);
+      if (!panel) { return; }
+      var isOpen   = !panel.hidden;
+      panel.hidden = isOpen;
+      btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      var icon = btn.querySelector('.hd-expand-icon');
+      if (icon) { icon.style.transform = isOpen ? '' : 'rotate(180deg)'; }
+    });
+  });
+
+  var cancelBtn = document.getElementById('hd-wp-cancel');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function () {
+      var titleEl  = document.getElementById('hd-wp-title');
+      var editorEl = document.getElementById('hd-wp-editor');
+      if (titleEl)  { titleEl.value = ''; }
+      if (editorEl) { editorEl.textContent = ''; }
+    });
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      activeTab = tab.getAttribute('data-tab') || 'all';
+      tabs.forEach(function (t) {
+        t.classList.toggle('is-active', t === tab);
+        t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      });
+      renderAll();
+    });
+  });
+
+  if (searchEl) { searchEl.addEventListener('input', renderAll); }
+
+  if (sortBtn && sortMenu) {
+    sortBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = !sortMenu.hidden;
+      sortMenu.hidden = open;
+      sortBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+    sortMenu.querySelectorAll('[role="option"]').forEach(function (opt) {
+      opt.addEventListener('click', function () {
+        activeSort = opt.getAttribute('data-sort') || 'recent';
+        sortMenu.querySelectorAll('[role="option"]').forEach(function (o) {
+          o.setAttribute('aria-selected', o === opt ? 'true' : 'false');
+        });
+        sortMenu.hidden = true;
+        sortBtn.setAttribute('aria-expanded', 'false');
+        currentOrder = allThreads.slice().sort(function (a, b) {
+          if (activeSort === 'recent') {
+            return (+b.getAttribute('data-modified')) - (+a.getAttribute('data-modified'));
+          }
+          if (activeSort === 'oldest') {
+            return (+a.getAttribute('data-modified')) - (+b.getAttribute('data-modified'));
+          }
+          if (activeSort === 'replies') {
+            return (+b.getAttribute('data-replies')) - (+a.getAttribute('data-replies'));
+          }
+          return 0;
+        });
+        currentOrder.forEach(function (t) { threadList.appendChild(t); });
+        renderAll();
+      });
+    });
+    document.addEventListener('click', function (e) {
+      if (sortBtn && !sortBtn.contains(e.target)) {
+        sortMenu.hidden = true;
+        sortBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  renderAll();
+})();
+</script>
+<?php
+    return ob_get_clean();
+}
+
 
 /**
  * Build the Getting Started page definitions used inside the master player.
@@ -3420,24 +4173,97 @@ function local_heyday_courseplayer_render_resources(stdClass $course, completion
         return html_writer::div(html_writer::tag('p', get_string('noitemsfound', 'local_heyday_courseplayer')), 'heyday-empty-state');
     }
 
-    $output = html_writer::start_div('heyday-card-list');
+    // SVG icons.
+    $icons = [
+        'file'     => '<svg class="hd-res-type-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h1zm8 0v5h5M8 11h8M8 14h8M8 17h5"/></svg>',
+        'url'      => '<svg class="hd-res-type-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>',
+        'folder'   => '<svg class="hd-res-type-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>',
+        'page'     => '<svg class="hd-res-type-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 12h6M9 16h4"/></svg>',
+        'h5p'      => '<svg class="hd-res-type-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 3l14 9-14 9V3z"/></svg>',
+        'book'     => '<svg class="hd-res-type-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 6.25278V19.2528M12 6.25278C10.8321 5.47686 9.24649 5 7.5 5C5.75351 5 4.16789 5.47686 3 6.25278V19.2528C4.16789 18.4769 5.75351 18 7.5 18C9.24649 18 10.8321 18.4769 12 19.2528M12 6.25278C13.1679 5.47686 14.7535 5 16.5 5C18.2465 5 19.8321 5.47686 21 6.25278V19.2528C19.8321 18.4769 18.2465 18 16.5 18C14.7535 18 13.1679 18.4769 12 19.2528"/></svg>',
+        'default'  => '<svg class="hd-res-type-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 2H18C19.1 2 20 2.9 20 4V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V4C4 2.9 4.9 2 6 2ZM6 4V20H18V4H6ZM8 7H16V9H8V7ZM8 11H16V13H8V11ZM8 15H14V17H8V15Z"/></svg>',
+    ];
+    $checkicon = '<span class="hd-res-check" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M9.1 16.6L4.9 12.4L3.5 13.8L9.1 19.4L20.8 7.7L19.4 6.3L9.1 16.6Z"></path></svg></span>';
+    $lockicon  = '<span class="hd-res-lock" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M17 9H16V7C16 4.8 14.2 3 12 3C9.8 3 8 4.8 8 7V9H7C5.9 9 5 9.9 5 11V20C5 21.1 5.9 22 7 22H17C18.1 22 19 21.1 19 20V11C19 9.9 18.1 9 17 9ZM10 7C10 5.9 10.9 5 12 5C13.1 5 14 5.9 14 7V9H10V7Z"></path></svg></span>';
+
+    $typelabels = [
+        'resource'    => 'File',
+        'url'         => 'Link',
+        'folder'      => 'Folder',
+        'page'        => 'Page',
+        'h5pactivity' => 'Interactive',
+        'book'        => 'Book',
+    ];
+
+    $output = html_writer::start_div('hd-resources-page');
+    $output .= html_writer::start_div('hd-resources-list');
+
     foreach ($resourceitems as $item) {
         $cm = local_heyday_courseplayer_item_cm($item);
         if (!$cm) {
             continue;
         }
-        $status = local_heyday_courseplayer_completion_status($completion, $cm);
-        $output .= html_writer::start_div('heyday-list-card is-' . s($status['class']));
-        $output .= html_writer::tag('h3', local_heyday_courseplayer_item_title($item));
-        $output .= html_writer::tag('p', s($status['label']), ['class' => 'heyday-muted']);
-        if (!local_heyday_courseplayer_item_available($item)) {
-            $output .= html_writer::tag('p', s(local_heyday_courseplayer_locked_message($cm)), ['class' => 'heyday-release-note']);
+
+        $title     = local_heyday_courseplayer_item_title($item);
+        $available = local_heyday_courseplayer_item_available($item);
+        $status    = local_heyday_courseplayer_completion_status($completion, $cm);
+        $iscomplete = ($status['class'] === 'completed');
+        $islocked   = !$available;
+
+        $typekey   = $cm->modname;
+        $typelabel = $typelabels[$typekey] ?? ucfirst($cm->modname);
+        $icon      = $icons[$typekey] ?? ($typekey === 'h5pactivity' ? $icons['h5p'] : $icons['default']);
+
+        $rowclasses = ['hd-resource-row'];
+        if ($islocked)   { $rowclasses[] = 'is-locked'; }
+        if ($iscomplete) { $rowclasses[] = 'is-completed'; }
+
+        $output .= html_writer::start_div(implode(' ', $rowclasses));
+
+        // Left: icon + title + type label.
+        $output .= html_writer::start_div('hd-resource-left');
+        $output .= $icon;
+        $output .= html_writer::start_div('hd-resource-main');
+
+        if ($islocked) {
+            $output .= html_writer::tag('span', s($title), ['class' => 'hd-resource-name']);
         } else {
-            $output .= html_writer::link(local_heyday_courseplayer_item_url($course, $item), get_string('openresource', 'local_heyday_courseplayer'), ['class' => 'heyday-secondary-button']);
+            $output .= html_writer::link(
+                local_heyday_courseplayer_item_url($course, $item),
+                s($title),
+                ['class' => 'hd-resource-name']
+            );
         }
-        $output .= html_writer::end_div();
+
+        $output .= html_writer::div(s($typelabel), 'hd-resource-type');
+
+        if ($islocked) {
+            $output .= html_writer::div(s(local_heyday_courseplayer_locked_message($cm)), 'hd-resource-release-note');
+        }
+
+        $output .= html_writer::end_div(); // .hd-resource-main
+        $output .= html_writer::end_div(); // .hd-resource-left
+
+        // Right: status indicator.
+        $output .= html_writer::start_div('hd-resource-right');
+        if ($islocked) {
+            $output .= $lockicon;
+        } else if ($iscomplete) {
+            $output .= $checkicon;
+        } else {
+            $output .= html_writer::link(
+                local_heyday_courseplayer_item_url($course, $item),
+                get_string('openresource', 'local_heyday_courseplayer'),
+                ['class' => 'hd-resource-open-btn']
+            );
+        }
+        $output .= html_writer::end_div(); // .hd-resource-right
+
+        $output .= html_writer::end_div(); // .hd-resource-row
     }
-    $output .= html_writer::end_div();
+
+    $output .= html_writer::end_div(); // .hd-resources-list
+    $output .= html_writer::end_div(); // .hd-resources-page
     return $output;
 }
 
@@ -3748,6 +4574,519 @@ function local_heyday_courseplayer_render_lesson_quiz_card(
 }
 
 /**
+ * Render the Next Steps for Completion page.
+ *
+ * Shows after the Final Exam is submitted. Looks for a real "Next Steps"
+ * Moodle activity; if found, offers a Launch Activity button. Otherwise
+ * shows a built-in completion card with certificate and evaluation placeholders.
+ *
+ * @param stdClass $course Course record.
+ * @param array<string,mixed>|null $finalitem Final Exam item (may be null).
+ * @param completion_info $completion Completion object.
+ * @param course_modinfo $modinfo Course module info.
+ * @param context_course $context Course context.
+ * @return string
+ */
+function local_heyday_courseplayer_render_nextsteps_card(
+    stdClass $course,
+    ?array $finalitem,
+    completion_info $completion,
+    course_modinfo $modinfo,
+    context_course $context
+): string {
+    global $DB, $USER;
+
+    // --- Determine pass/fail state from Final Exam ---
+    $passed = false;
+    $pct    = null;
+    if ($finalitem) {
+        $finalcm = local_heyday_courseplayer_item_cm($finalitem);
+        if ($finalcm && $finalcm->modname === 'quiz') {
+            $quiz = $DB->get_record('quiz', ['id' => $finalcm->instance], '*', IGNORE_MISSING);
+            if ($quiz) {
+                $finishedrecords  = $DB->get_records_sql(
+                    "SELECT * FROM {quiz_attempts}
+                      WHERE quiz = :quizid AND userid = :userid AND state = 'finished' AND preview = 0
+                   ORDER BY timemodified DESC, attempt DESC",
+                    ['quizid' => $finalcm->instance, 'userid' => $USER->id],
+                    0, 1
+                );
+                $finishedattempt = reset($finishedrecords) ?: null;
+                if ($finishedattempt) {
+                    $gradeitem = $DB->get_record_sql(
+                        "SELECT gi.grademax, gi.gradepass, gg.finalgrade
+                           FROM {grade_items} gi
+                           JOIN {grade_grades} gg ON gg.itemid = gi.id
+                          WHERE gi.itemtype = 'mod' AND gi.itemmodule = 'quiz'
+                            AND gi.iteminstance = :quizid AND gg.userid = :userid",
+                        ['quizid' => $finalcm->instance, 'userid' => $USER->id],
+                        IGNORE_MISSING
+                    );
+                    if ($gradeitem && isset($gradeitem->finalgrade)) {
+                        $max   = max((float)($gradeitem->grademax ?? 100), 1);
+                        $pct   = round((float)$gradeitem->finalgrade / $max * 100, 1);
+                        $gpass  = (float)($gradeitem->gradepass ?? 0);
+                        $passed = ($gpass > 0) ? ((float)$gradeitem->finalgrade >= $gpass) : true;
+                    }
+                }
+            }
+        }
+    }
+
+    // --- Look for a real "Next Steps" Moodle activity in the course ---
+    $nextstepscm = null;
+    foreach ($modinfo->cms as $candidate) {
+        if (!local_heyday_courseplayer_should_show_cm($candidate, $context)) {
+            continue;
+        }
+        if (preg_match('/next\s+steps?\b/i', $candidate->name)) {
+            $nextstepscm = $candidate;
+            break;
+        }
+    }
+
+    // --- Look for a customcert activity ---
+    $certcm = null;
+    foreach ($modinfo->cms as $candidate) {
+        if ($candidate->modname === 'customcert' && $candidate->uservisible) {
+            $certcm = $candidate;
+            break;
+        }
+    }
+
+    $homeurl = local_heyday_courseplayer_url($course, 'home')->out(false);
+
+    ob_start();
+    ?>
+<div class="hd-nextsteps-page">
+  <section class="hd-nextsteps-card">
+
+    <?php if ($pct !== null): ?>
+      <div class="hd-nextsteps-grade <?php echo $passed ? 'is-pass' : 'is-fail'; ?>">
+        <?php if ($passed): ?>
+          <span class="hd-nextsteps-grade-icon">&#10003;</span>
+          <span>Final Exam score: <strong><?php echo $pct; ?>%</strong> &mdash; Passed</span>
+        <?php else: ?>
+          <span class="hd-nextsteps-grade-icon">&#10007;</span>
+          <span>Final Exam score: <strong><?php echo $pct; ?>%</strong> &mdash; Did not pass</span>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+
+    <div class="hd-nextsteps-body">
+      <?php if ($passed || $pct === null): ?>
+        <p>Congratulations on completing the course! Please review the next steps below to receive credit for your work.</p>
+      <?php else: ?>
+        <p>Your final exam score did not meet the passing requirement. Please contact your instructor or return to the Final Exam to review your results.</p>
+      <?php endif; ?>
+    </div>
+
+    <div class="hd-nextsteps-items">
+
+      <!-- Completion -->
+      <div class="hd-nextsteps-item">
+        <div class="hd-nextsteps-item-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="hd-nextsteps-item-body">
+          <h3>Completion</h3>
+          <p>Your completion record will be updated automatically once you meet all course requirements.</p>
+        </div>
+      </div>
+
+      <!-- Certificate -->
+      <div class="hd-nextsteps-item">
+        <div class="hd-nextsteps-item-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <div class="hd-nextsteps-item-body">
+          <h3>Certificate</h3>
+          <?php if ($certcm): ?>
+            <p>Your certificate is ready to download.</p>
+            <a class="hd-primary-btn" href="<?php echo (new moodle_url('/mod/customcert/view.php', ['id' => $certcm->id]))->out(false); ?>" target="_top">
+              Download Certificate
+            </a>
+          <?php else: ?>
+            <p>Your certificate will be available once your completion is confirmed.</p>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- Evaluation -->
+      <div class="hd-nextsteps-item">
+        <div class="hd-nextsteps-item-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="hd-nextsteps-item-body">
+          <h3>Course Evaluation</h3>
+          <?php if ($nextstepscm): ?>
+            <p>Please take a few minutes to share your feedback on this course.</p>
+            <a class="hd-primary-btn" href="<?php echo (new moodle_url('/mod/' . $nextstepscm->modname . '/view.php', ['id' => $nextstepscm->id]))->out(false); ?>" target="_top">
+              <?php echo s(format_string($nextstepscm->name)); ?>
+            </a>
+          <?php else: ?>
+            <p>Course evaluation will be available after completion is confirmed.</p>
+          <?php endif; ?>
+        </div>
+      </div>
+
+    </div><!-- .hd-nextsteps-items -->
+
+    <div class="hd-nextsteps-footer">
+      <a class="hd-secondary-btn" href="<?php echo $homeurl; ?>">Return to Course Home</a>
+    </div>
+
+  </section>
+</div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render the ed2go-style Final Exam landing card.
+ *
+ * Shows Start / Resume / Review Results and links out to the native Moodle
+ * quiz attempt/review pages (styled by local_heyday_quizskin).
+ *
+ * @param stdClass $course Course record.
+ * @param array<string,mixed> $item Final Exam item.
+ * @param completion_info $completion Completion object.
+ * @return string
+ */
+function local_heyday_courseplayer_render_final_exam_card(
+    stdClass $course,
+    array $item,
+    completion_info $completion
+): string {
+    global $DB, $USER;
+
+    $cm = local_heyday_courseplayer_item_cm($item);
+    if (!$cm || $cm->modname !== 'quiz') {
+        return html_writer::div(
+            html_writer::tag('p', get_string('finalnotfound', 'local_heyday_courseplayer')),
+            'heyday-empty-state'
+        );
+    }
+
+    $quiz = $DB->get_record('quiz', ['id' => $cm->instance], '*', IGNORE_MISSING);
+    if (!$quiz) {
+        return html_writer::div(
+            html_writer::tag('p', get_string('finalnotfound', 'local_heyday_courseplayer')),
+            'heyday-empty-state'
+        );
+    }
+
+    // Check whether the quiz has any questions.
+    $questioncount = $DB->count_records('quiz_slots', ['quizid' => $quiz->id]);
+    if ($questioncount === 0) {
+        return html_writer::div(
+            html_writer::tag('p', 'The Final Exam has not been set up yet. No questions have been added.'),
+            'heyday-empty-state'
+        );
+    }
+
+    // Attempt state.
+    $inprogressrecords = $DB->get_records_sql(
+        "SELECT * FROM {quiz_attempts}
+          WHERE quiz = :quizid AND userid = :userid AND state = :state AND preview = 0
+       ORDER BY timemodified DESC, attempt DESC",
+        ['quizid' => $cm->instance, 'userid' => $USER->id, 'state' => 'inprogress'],
+        0, 1
+    );
+    $inprogressattempt = reset($inprogressrecords) ?: null;
+
+    $finishedrecords = $DB->get_records_sql(
+        "SELECT * FROM {quiz_attempts}
+          WHERE quiz = :quizid AND userid = :userid AND state = :state AND preview = 0
+       ORDER BY timemodified DESC, attempt DESC",
+        ['quizid' => $cm->instance, 'userid' => $USER->id, 'state' => 'finished'],
+        0, 1
+    );
+    $finishedattempt = reset($finishedrecords) ?: null;
+
+    if ($inprogressattempt) {
+        $buttontext = 'Resume';
+        $actionurl  = new moodle_url('/mod/quiz/attempt.php', [
+            'attempt' => $inprogressattempt->id,
+            'cmid'    => $cm->id,
+        ]);
+    } else if ($finishedattempt) {
+        $buttontext = 'Review Results';
+        $actionurl  = new moodle_url('/mod/quiz/review.php', [
+            'attempt' => $finishedattempt->id,
+        ]);
+    } else {
+        $buttontext = 'Start Final Exam';
+        $actionurl  = null;
+    }
+
+    $startformurl = (new moodle_url('/mod/quiz/startattempt.php'))->out(false);
+    $actionurlout = $actionurl ? $actionurl->out(false) : '';
+    $sesskey      = sesskey();
+
+    // Grade display when finished.
+    $gradehtml  = '';
+    $gradepassdisplay = '';
+    if ($finishedattempt) {
+        $gradeitem = $DB->get_record_sql(
+            "SELECT gi.grademax, gi.gradepass, gg.finalgrade
+               FROM {grade_items} gi
+               JOIN {grade_grades} gg ON gg.itemid = gi.id
+              WHERE gi.itemtype = 'mod'
+                AND gi.itemmodule = 'quiz'
+                AND gi.iteminstance = :quizid
+                AND gg.userid = :userid",
+            ['quizid' => $cm->instance, 'userid' => $USER->id],
+            IGNORE_MISSING
+        );
+        if ($gradeitem && isset($gradeitem->finalgrade)) {
+            $grademax  = max((float)($gradeitem->grademax ?? 100), 1);
+            $pct       = round((float)$gradeitem->finalgrade / $grademax * 100, 1);
+            // gradepass from grade_items is already on the same scale as finalgrade.
+            $gradepass = (float)($gradeitem->gradepass ?? 0);
+            $passed    = ($gradepass > 0) ? ((float)$gradeitem->finalgrade >= $gradepass) : true;
+            $gradehtml = '<p class="hd-finalexam-grade ' . ($passed ? 'is-pass' : 'is-fail') . '">'
+                . 'Score: <strong>' . $pct . '%</strong>'
+                . ($passed ? ' &mdash; <span class="hd-grade-pass">Passed</span>' : ' &mdash; <span class="hd-grade-fail">Did not pass</span>')
+                . '</p>';
+            if ($gradepass > 0 && $grademax > 0) {
+                $gradepassdisplay = round($gradepass / $grademax * 100, 0) . '%';
+            }
+        }
+    }
+
+    ob_start();
+    ?>
+<div class="hd-pretest-page" id="hd-finalexam-page">
+
+  <div id="hdFinalExamCardArea">
+    <section class="hd-pretest-card">
+
+      <div class="hd-instructions-toggle-wrap">
+        <button type="button" class="hd-instructions-toggle" id="hdFinalExamInstructionsToggle" aria-expanded="true">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>
+          <span>Show / Hide Instructions</span>
+        </button>
+      </div>
+
+      <div class="hd-pretest-body hd-instructions-panel" id="hdFinalExamInstructionsPanel">
+        <p>You must complete the final exam and receive a satisfactory score to complete this course.</p>
+        <p>As you go through the exam, you will be able to save your answer choices and change them up until you submit your final exam for grading.
+           To exit without submitting, click <strong>Save and Close</strong> at the bottom of the page.
+           To submit your final exam for grading, click <strong>Submit Answers</strong> at the bottom of the page.</p>
+        <div class="hd-pretest-rules">
+          <ul>
+            <li>You have one attempt.
+              <ul>
+                <li>Your grade is determined by your only attempt.</li>
+                <li>Do not click Submit until you are absolutely certain of your answers.</li>
+                <?php if ($gradepassdisplay !== ''): ?>
+                <li>Passing score: <?php echo s($gradepassdisplay); ?></li>
+                <?php endif; ?>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <?php echo $gradehtml; ?>
+      </div>
+
+      <div class="hd-pretest-actions">
+        <?php if (!$inprogressattempt && !$finishedattempt): ?>
+          <form id="hdFinalExamStartForm" method="post"
+                action="<?php echo $startformurl; ?>"
+                target="_top">
+            <input type="hidden" name="cmid"    value="<?php echo (int)$cm->id; ?>">
+            <input type="hidden" name="sesskey" value="<?php echo s($sesskey); ?>">
+            <button type="submit" class="hd-primary-btn">Start Final Exam</button>
+          </form>
+        <?php else: ?>
+          <a class="hd-primary-btn" href="<?php echo s($actionurlout); ?>" target="_top">
+            <?php echo s($buttontext); ?>
+          </a>
+        <?php endif; ?>
+      </div>
+
+    </section>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var toggle = document.getElementById('hdFinalExamInstructionsToggle');
+  var panel  = document.getElementById('hdFinalExamInstructionsPanel');
+  if (toggle && panel) {
+    toggle.addEventListener('click', function(){
+      var hidden = panel.classList.toggle('is-hidden');
+      toggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+    });
+  }
+})();
+</script>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Render an ed2go-style assignment landing card.
+ *
+ * Shows submission status, due date, and grade, then links out to the native
+ * Moodle assignment page (mod/assign/view.php) for the actual submission UI.
+ *
+ * @param stdClass $course Course record.
+ * @param array<string,mixed> $item Assignment item.
+ * @return string
+ */
+function local_heyday_courseplayer_render_assignment_card(stdClass $course, array $item): string {
+    global $DB, $USER;
+
+    $cm = local_heyday_courseplayer_item_cm($item);
+    if (!$cm || $cm->modname !== 'assign') {
+        return '';
+    }
+
+    $assign = $DB->get_record('assign', ['id' => $cm->instance], '*', IGNORE_MISSING);
+    if (!$assign) {
+        return '';
+    }
+
+    // Submission status.
+    $submission = $DB->get_record('assign_submission', [
+        'assignment' => $assign->id,
+        'userid'     => $USER->id,
+        'latest'     => 1,
+    ], '*', IGNORE_MISSING);
+
+    $substatusraw  = $submission ? (string)($submission->status ?? '') : '';
+    $substatustext = '';
+    $substatusclass = 'hd-assign-status-none';
+    if ($substatusraw === 'submitted') {
+        $substatustext  = 'Submitted';
+        $substatusclass = 'hd-assign-status-submitted';
+    } else if ($substatusraw === 'draft') {
+        $substatustext  = 'Draft (not submitted)';
+        $substatusclass = 'hd-assign-status-draft';
+    } else {
+        $substatustext  = 'Not submitted';
+        $substatusclass = 'hd-assign-status-none';
+    }
+
+    // Grade status.
+    $graderecord = $DB->get_record('assign_grades', [
+        'assignment' => $assign->id,
+        'userid'     => $USER->id,
+        'attemptnumber' => -1,
+    ], '*', IGNORE_MISSING);
+    if (!$graderecord) {
+        // Fallback: latest grade for this user.
+        $grades = $DB->get_records('assign_grades',
+            ['assignment' => $assign->id, 'userid' => $USER->id],
+            'attemptnumber DESC', '*', 0, 1);
+        $graderecord = reset($grades) ?: null;
+    }
+
+    $gradetext = '';
+    if ($graderecord && isset($graderecord->grade) && (float)$graderecord->grade >= 0) {
+        $maxgrade   = (float)($assign->grade > 0 ? $assign->grade : 100);
+        $earned     = (float)$graderecord->grade;
+        $gradetext  = round($earned, 1) . ' / ' . round($maxgrade, 1);
+    }
+
+    // Dates.
+    $duetext     = '';
+    $cutofftext  = '';
+    if (!empty($assign->duedate)) {
+        $duetext = userdate((int)$assign->duedate, get_string('strftimedatetimeshort', 'langconfig'));
+    }
+    if (!empty($assign->cutoffdate)) {
+        $cutofftext = userdate((int)$assign->cutoffdate, get_string('strftimedatetimeshort', 'langconfig'));
+    }
+
+    // Intro.
+    $introhtml = '';
+    if (!empty($assign->intro)) {
+        $introhtml = format_module_intro('assign', $assign, $cm->id, false);
+    }
+
+    $openurl = (new moodle_url('/mod/assign/view.php', ['id' => $cm->id]))->out(false);
+
+    ob_start();
+    ?>
+<div class="hd-assign-page">
+
+  <div class="hd-assign-card">
+
+    <?php if ($introhtml !== ''): ?>
+    <div class="hd-instructions-toggle-wrap">
+      <button type="button" class="hd-instructions-toggle" id="hdAssignInstructionsToggle" aria-expanded="true">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        <span>Show / Hide Instructions</span>
+      </button>
+    </div>
+    <div class="hd-pretest-body hd-instructions-panel" id="hdAssignInstructionsPanel">
+      <?php echo $introhtml; ?>
+    </div>
+    <?php endif; ?>
+
+    <table class="hd-assign-status-table">
+      <tbody>
+        <tr>
+          <th scope="row">Submission status</th>
+          <td><span class="hd-assign-status-badge <?php echo s($substatusclass); ?>"><?php echo s($substatustext); ?></span></td>
+        </tr>
+        <?php if ($duetext !== ''): ?>
+        <tr>
+          <th scope="row">Due date</th>
+          <td><?php echo s($duetext); ?></td>
+        </tr>
+        <?php endif; ?>
+        <?php if ($cutofftext !== ''): ?>
+        <tr>
+          <th scope="row">Last submission date</th>
+          <td><?php echo s($cutofftext); ?></td>
+        </tr>
+        <?php endif; ?>
+        <?php if ($gradetext !== ''): ?>
+        <tr>
+          <th scope="row">Grade</th>
+          <td><?php echo s($gradetext); ?></td>
+        </tr>
+        <?php else: ?>
+        <tr>
+          <th scope="row">Grade</th>
+          <td class="hd-assign-no-grade">Not graded yet</td>
+        </tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
+
+    <div class="hd-pretest-actions">
+      <a class="hd-primary-btn" href="<?php echo s($openurl); ?>" target="_top">
+        <?php echo ($substatusraw === 'submitted') ? 'View Submission' : 'Open Assignment'; ?>
+      </a>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var toggle = document.getElementById('hdAssignInstructionsToggle');
+  var panel  = document.getElementById('hdAssignInstructionsPanel');
+  if (toggle && panel) {
+    toggle.addEventListener('click', function(){
+      var hidden = panel.classList.toggle('is-hidden');
+      toggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+    });
+  }
+})();
+</script>
+    <?php
+    return ob_get_clean();
+}
+
+/**
  * Render named page content.
  *
  * @param string $pagekey Page key.
@@ -3775,7 +5114,8 @@ function local_heyday_courseplayer_render_named_page(
     array $resourceitems,
     ?array $pretestitem,
     ?array $finalitem,
-    string $gspage
+    string $gspage,
+    string $subpage = ''
 ): string {
     if ($pagekey === 'home') {
         return local_heyday_courseplayer_render_home($course, $completion, $modinfo, $context, $lessongroups, $sequenceitems);
@@ -3803,6 +5143,9 @@ function local_heyday_courseplayer_render_named_page(
         return local_heyday_courseplayer_render_resources($course, $completion, $resourceitems);
     }
     if ($pagekey === 'finalexam') {
+        if ($subpage === 'nextsteps') {
+            return local_heyday_courseplayer_render_nextsteps_card($course, $finalitem, $completion, $modinfo, $context);
+        }
         if (!$finalitem) {
             return html_writer::div(html_writer::tag('p', get_string('finalnotfound', 'local_heyday_courseplayer')), 'heyday-empty-state');
         }
@@ -3810,7 +5153,7 @@ function local_heyday_courseplayer_render_named_page(
         if ($cm && !local_heyday_courseplayer_item_available($finalitem)) {
             return local_heyday_courseplayer_render_locked_card(get_string('finalexam', 'local_heyday_courseplayer'), local_heyday_courseplayer_locked_message_for_name(get_string('finalexam', 'local_heyday_courseplayer'), $cm));
         }
-        return local_heyday_courseplayer_render_item_content($course, $finalitem);
+        return local_heyday_courseplayer_render_final_exam_card($course, $finalitem, $completion);
     }
 
     return html_writer::div(html_writer::tag('p', get_string('selectlesson', 'local_heyday_courseplayer')), 'heyday-empty-state');
@@ -3930,10 +5273,14 @@ if ($activeitem && $activecm && $activecm->modname === 'h5pactivity') {
 if (in_array($pagekey, ['lessons', 'objectives', 'assignment', 'quiz'], true)) {
     $pagekey = 'lesson';
 }
-if (!$activeitem && in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam', 'lessonquiz'], true)) {
-    $activetitle = in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam'], true)
-        ? get_string($pagekey, 'local_heyday_courseplayer')
-        : 'Lesson Quiz';
+if (!$activeitem && in_array($pagekey, ['home', 'scores', 'discussions', 'discussion', 'gettingstarted', 'pretest', 'resources', 'finalexam', 'lessonquiz'], true)) {
+    if (in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam'], true)) {
+        $activetitle = get_string($pagekey, 'local_heyday_courseplayer');
+    } else if ($pagekey === 'discussion' && $requestedcm) {
+        $activetitle = format_string($requestedcm->name, true, ['context' => $requestedcm->context]);
+    } else {
+        $activetitle = 'Lesson Quiz';
+    }
 }
 $gettingstartedcm = null;
 $gettingstartednext = null;
@@ -4219,36 +5566,87 @@ ob_start();
                     <?php echo get_string('resources', 'local_heyday_courseplayer'); ?>
                 </a>
 
-                <?php if ($finalitem): ?>
-                    <?php
-                    $finalactive = $pagekey === 'finalexam';
-                    $finallocked = !local_heyday_courseplayer_item_available($finalitem);
-                    $finalstatus = local_heyday_courseplayer_completion_status($completion, $finalexamcm);
-                    $finalclasses = ['heyday-final-exam-link', 'is-' . $finalstatus['class']];
-                    if ($finalactive) {
-                        $finalclasses[] = 'is-current';
-                    }
-                    if ($finallocked) {
-                        $finalclasses[] = 'is-locked';
-                    }
-                    ?>
-                    <?php if ($finallocked): ?>
-                        <div class="<?php echo s(implode(' ', $finalclasses)); ?>">
-                            <span><?php echo get_string('finalexam', 'local_heyday_courseplayer'); ?></span>
-                            <small class="heyday-release-note"><?php echo s(local_heyday_courseplayer_locked_message_for_name(get_string('finalexam', 'local_heyday_courseplayer'), $finalexamcm)); ?></small>
-                            <span class="heyday-status-icon locked" aria-hidden="true">🔒</span>
-                        </div>
-                    <?php else: ?>
-                        <a class="<?php echo s(implode(' ', $finalclasses)); ?>" href="<?php echo local_heyday_courseplayer_item_url($course, $finalitem)->out(false); ?>">
-                            <span><?php echo get_string('finalexam', 'local_heyday_courseplayer'); ?></span>
-                            <span class="heyday-status-icon <?php echo s($finalstatus['class']); ?>" aria-hidden="true">
-                                <?php echo $finalstatus['icon'] !== '' ? s($finalstatus['icon']) : ''; ?>
+                <?php
+                // Final Exam group — expandable like lesson groups.
+                // Contains two children: Final Exam quiz + Next Steps for Completion.
+                $finalactive    = $pagekey === 'finalexam';
+                $nextstepsactive = ($pagekey === 'finalexam' && $subpage === 'nextsteps');
+                $finalexamactive = ($pagekey === 'finalexam' && $subpage !== 'nextsteps');
+                $finallocked    = $finalitem && !local_heyday_courseplayer_item_available($finalitem);
+                $finalstatus    = $finalexamcm ? local_heyday_courseplayer_completion_status($completion, $finalexamcm) : ['class' => 'not-started', 'icon' => ''];
+                $groupclasses   = ['heyday-lesson-group', 'heyday-final-exam-group', 'is-' . $finalstatus['class']];
+                if ($finalactive) {
+                    $groupclasses[] = 'is-active';
+                }
+                if ($finallocked) {
+                    $groupclasses[] = 'is-locked';
+                }
+                ?>
+                <details class="<?php echo s(implode(' ', $groupclasses)); ?>" name="heyday-lesson" <?php echo $finalactive ? 'open' : ''; ?>>
+                    <summary>
+                        <span class="heyday-group-summary-inner">
+                            <span class="heyday-lesson-group-title<?php echo $finallocked ? ' is-disabled' : ''; ?>">
+                                <?php echo get_string('finalexam', 'local_heyday_courseplayer'); ?>
                             </span>
-                        </a>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <span class="heyday-final-exam-link is-missing"><?php echo get_string('finalexam', 'local_heyday_courseplayer'); ?></span>
-                <?php endif; ?>
+                            <span class="heyday-group-status <?php echo s($finalstatus['class']); ?>" aria-hidden="true">
+                                <?php echo $finalstatus['icon'] !== '' ? s($finalstatus['icon']) : '<span class="heyday-progress-dot"></span>'; ?>
+                            </span>
+                        </span>
+                        <?php if ($finallocked && $finalexamcm): ?>
+                            <span class="heyday-release-note"><?php echo s(local_heyday_courseplayer_locked_message_for_name(get_string('finalexam', 'local_heyday_courseplayer'), $finalexamcm)); ?></span>
+                        <?php endif; ?>
+                    </summary>
+                    <div class="heyday-lesson-items">
+                        <!-- Child: Final Exam quiz -->
+                        <?php if ($finalitem && !$finallocked): ?>
+                            <?php
+                            $feclasses = ['heyday-sidebar-item', 'heyday-finalexam-child', 'is-' . $finalstatus['class']];
+                            if ($finalexamactive) {
+                                $feclasses[] = 'is-current';
+                            }
+                            ?>
+                            <a class="<?php echo s(implode(' ', $feclasses)); ?>"
+                               href="<?php echo local_heyday_courseplayer_item_url($course, $finalitem)->out(false); ?>">
+                                <span class="heyday-current-arrow" aria-hidden="true"></span>
+                                <span class="heyday-item-title"><?php echo get_string('finalexam', 'local_heyday_courseplayer'); ?></span>
+                                <span class="heyday-status-icon <?php echo s($finalstatus['class']); ?>" aria-hidden="true">
+                                    <?php echo $finalstatus['icon'] !== '' ? s($finalstatus['icon']) : '○'; ?>
+                                </span>
+                            </a>
+                        <?php else: ?>
+                            <div class="heyday-sidebar-item heyday-finalexam-child is-locked">
+                                <span class="heyday-item-title"><?php echo get_string('finalexam', 'local_heyday_courseplayer'); ?></span>
+                                <span class="heyday-status-icon locked" aria-hidden="true">🔒</span>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Child: Next Steps for Completion -->
+                        <?php
+                        $nsclasses = ['heyday-sidebar-item', 'heyday-nextsteps-child'];
+                        if ($nextstepsactive) {
+                            $nsclasses[] = 'is-current';
+                        }
+                        // Next Steps is locked until the Final Exam quiz is completed.
+                        $nextstepslocked = !$finalexamcm || !($finalstatus['class'] === 'completed');
+                        if ($nextstepslocked) {
+                            $nsclasses[] = 'is-locked';
+                        }
+                        ?>
+                        <?php if (!$nextstepslocked): ?>
+                            <a class="<?php echo s(implode(' ', $nsclasses)); ?>"
+                               href="<?php echo (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'finalexam', 'subpage' => 'nextsteps']))->out(false); ?>">
+                                <span class="heyday-current-arrow" aria-hidden="true"></span>
+                                <span class="heyday-item-title">Next Steps for Completion</span>
+                                <span class="heyday-status-icon" aria-hidden="true">○</span>
+                            </a>
+                        <?php else: ?>
+                            <div class="<?php echo s(implode(' ', $nsclasses)); ?>">
+                                <span class="heyday-item-title">Next Steps for Completion</span>
+                                <span class="heyday-status-icon locked" aria-hidden="true">🔒</span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </details>
             </nav>
 
 <?php
@@ -4257,7 +5655,13 @@ $sidebarhtml = ob_get_clean();
 // Render only the inner activity/content body. The card/header/footer now come
 // from local_heyday_courseplayer\output\master_shell templates.
 ob_start();
-if (in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam'], true)) {
+if ($pagekey === 'discussion') {
+    if (!$requestedcm || $requestedcm->modname !== 'forum') {
+        echo html_writer::div(html_writer::tag('p', get_string('noitemsfound', 'local_heyday_courseplayer')), 'heyday-empty-state');
+    } else {
+        echo local_heyday_courseplayer_render_discussion_detail($course, $requestedcm, $did);
+    }
+} else if (in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pretest', 'resources', 'finalexam'], true)) {
     echo local_heyday_courseplayer_render_named_page(
         $pagekey,
         $course,
@@ -4270,7 +5674,8 @@ if (in_array($pagekey, ['home', 'scores', 'discussions', 'gettingstarted', 'pret
         $resourceitems,
         $pretestitem,
         $finalitem,
-        $gspage
+        $gspage,
+        $subpage
     );
 } else if ($pagekey === 'lessonquiz') {
     if (!$activeitem) {
