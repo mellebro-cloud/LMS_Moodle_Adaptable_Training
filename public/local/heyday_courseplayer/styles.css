@@ -6722,3 +6722,1050 @@ body.local-heyday-courseplayer .hd-disc-tab.is-active .hd-disc-tab-count {
         padding-left: 18px;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Discussion UI — ed2go-style polish v2
+   All selectors scoped to body.local-heyday-courseplayer.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Discussion page bottom padding (leaves room for fixed counter bar) ───── */
+
+body.local-heyday-courseplayer .hd-discussion-page {
+    padding-bottom: 88px;
+}
+
+/* ── Write your post card ───────────────────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-write-post-card {
+    background: #fff;
+    border: 1px solid #dde3ea;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: visible; /* allow toolbar dropdowns to escape */
+}
+
+body.local-heyday-courseplayer .hd-write-post-card .hd-write-post-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: #f5f8fa;
+    border-bottom: 1px solid #dde3ea;
+    border-radius: 8px 8px 0 0;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #1a2a3a;
+}
+
+body.local-heyday-courseplayer .hd-write-post-icon {
+    flex-shrink: 0;
+    color: var(--heyday-accent, #006fa8);
+}
+
+body.local-heyday-courseplayer .hd-write-post-card .hd-write-post-body {
+    padding: 14px 18px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ── Editor toolbar ──────────────────────────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    padding: 3px 6px;
+    background: #f1f4f7;
+    border: 1px solid #d0d9e2;
+    border-radius: 5px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 10;
+}
+
+body.local-heyday-courseplayer .hd-editor-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 24px;
+    padding: 0 3px;
+    border: none;
+    background: transparent;
+    border-radius: 3px;
+    cursor: default;
+    font-size: 0.8rem;
+    color: #334155;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+    gap: 2px;
+}
+
+body.local-heyday-courseplayer .hd-editor-btn:hover {
+    background: #dde6ee;
+    color: #1a2a3a;
+}
+
+body.local-heyday-courseplayer .hd-editor-select-btn {
+    gap: 3px;
+    padding: 0 5px;
+}
+
+body.local-heyday-courseplayer .hd-editor-font-btn {
+    min-width: 52px;
+}
+
+body.local-heyday-courseplayer .hd-editor-size-btn {
+    min-width: 34px;
+}
+
+body.local-heyday-courseplayer .hd-tb-arrow {
+    font-size: 0.65em;
+    color: #6b7280;
+    line-height: 1;
+}
+
+/* Toolbar dropdown wrappers */
+body.local-heyday-courseplayer .hd-editor-dropdown-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+body.local-heyday-courseplayer .hd-editor-menu {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    z-index: 1060;
+    background: #fff;
+    border: 1px solid #c8d3dc;
+    border-radius: 5px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.14);
+    min-width: 130px;
+    padding: 4px 0;
+    list-style: none;
+    margin: 0;
+}
+
+body.local-heyday-courseplayer .hd-editor-menu li[role="menuitem"] {
+    padding: 5px 14px;
+    font-size: 0.84rem;
+    color: #1a2a3a;
+    cursor: default;
+    white-space: nowrap;
+}
+
+body.local-heyday-courseplayer .hd-editor-menu li[role="menuitem"]:hover {
+    background: #e8f4fb;
+}
+
+body.local-heyday-courseplayer .hd-editor-color-menu li[role="menuitem"] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.local-heyday-courseplayer .hd-color-swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,.15);
+    flex-shrink: 0;
+}
+
+body.local-heyday-courseplayer .hd-tb-sep {
+    display: inline-block;
+    width: 1px;
+    height: 16px;
+    background: #c8d3dc;
+    margin: 0 3px;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+body.local-heyday-courseplayer .hd-tb-hint-sep {
+    margin: 0 4px;
+}
+
+body.local-heyday-courseplayer .hd-tb-hint {
+    margin-left: auto;
+    font-size: 0.73rem;
+    color: #8a9bb0;
+    white-space: nowrap;
+    padding-right: 2px;
+}
+
+/* Upload row */
+body.local-heyday-courseplayer .hd-write-post-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #667788;
+    font-size: 0.84rem;
+}
+
+body.local-heyday-courseplayer .hd-write-post-upload-link {
+    color: var(--heyday-accent, #006fa8);
+    text-decoration: none;
+    font-size: 0.84rem;
+}
+
+body.local-heyday-courseplayer .hd-write-post-upload-link:hover {
+    text-decoration: underline;
+}
+
+/* Action row */
+body.local-heyday-courseplayer .hd-write-post-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 6px;
+    border-top: 1px solid #edf0f4;
+    margin-top: 2px;
+}
+
+body.local-heyday-courseplayer .hd-write-post-card .hd-wp-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 22px;
+    background: var(--heyday-accent, #006fa8);
+    color: #fff;
+    border-radius: 5px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-write-post-card .hd-wp-submit-btn:hover {
+    background: #005d8f;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* ── Search input + attached blue button ─────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-discussion-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search-wrap {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 220px;
+    border: 1px solid #c8d3dc;
+    border-radius: 5px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search {
+    flex: 1 1 auto;
+    border: none;
+    padding: 7px 12px;
+    font-size: 0.88rem;
+    outline: none;
+    background: #fff;
+    color: #333;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search:focus {
+    background: #f7fafc;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    background: var(--heyday-accent, #006fa8);
+    color: #fff;
+    border: none;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search-btn:hover {
+    background: #005d8f;
+}
+
+/* ── Thread card: metadata right column (stacked: stats / updated) ─────────── */
+
+body.local-heyday-courseplayer .hd-disc-thread-meta-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+body.local-heyday-courseplayer .hd-disc-thread-stats-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+body.local-heyday-courseplayer .hd-disc-stats-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+body.local-heyday-courseplayer .hd-disc-reply-count {
+    font-size: 0.8rem;
+    color: #374151;
+}
+
+body.local-heyday-courseplayer .hd-disc-stats-sep {
+    color: #9ca3af;
+    font-size: 0.8rem;
+}
+
+body.local-heyday-courseplayer .hd-disc-new-count {
+    font-size: 0.8rem;
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+body.local-heyday-courseplayer .hd-disc-updated {
+    font-size: 0.72rem;
+    color: #9ca3af;
+    white-space: nowrap;
+}
+
+/* ── Thread card: bookmark button ────────────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-disc-bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #c8d3dc;
+    padding: 0;
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-disc-bookmark-btn:hover {
+    color: var(--heyday-accent, #006fa8);
+    background: #e8f4fb;
+}
+
+body.local-heyday-courseplayer .hd-disc-bookmark-btn[aria-pressed="true"] {
+    color: var(--heyday-accent, #006fa8);
+}
+
+/* ── Thread card footer: left actions + right posted date ────────────────── */
+
+body.local-heyday-courseplayer .hd-disc-thread-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 0 2px;
+    border-top: 1px solid #edf0f4;
+    margin-top: 8px;
+}
+
+body.local-heyday-courseplayer .hd-disc-thread-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .hd-disc-thread-posted {
+    font-size: 0.76rem;
+    color: #9ca3af;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── Instructor reply card ───────────────────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-reply.hd-reply-instructor {
+    border-left: none;
+    background: #fff;
+    border: 1px solid #b8ddf4;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+body.local-heyday-courseplayer .hd-reply-instructor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #ceeef9;
+    border-bottom: 1px solid #a6d5ee;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #0a3d5c;
+}
+
+body.local-heyday-courseplayer .hd-reply-instr-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .hd-reply-instr-tag {
+    font-weight: 400;
+    font-style: italic;
+    color: #2060a0;
+    margin-left: 2px;
+}
+
+body.local-heyday-courseplayer .hd-reply-bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #5c9fc4;
+    padding: 0;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-reply-bookmark-btn:hover {
+    color: #0a3d5c;
+}
+
+body.local-heyday-courseplayer .hd-reply-instructor .hd-reply-body {
+    padding: 10px 14px 6px;
+}
+
+body.local-heyday-courseplayer .hd-reply-body {
+    padding: 8px 12px 0;
+}
+
+/* ── Reply footer ────────────────────────────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-reply-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 14px 8px;
+    border-top: 1px solid #e8f0f6;
+    flex-wrap: wrap;
+}
+
+body.local-heyday-courseplayer .hd-reply-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+body.local-heyday-courseplayer .hd-reply-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 0;
+}
+
+/* ── Fixed bottom-right counter bar — horizontal single row ─────────────── */
+
+body.local-heyday-courseplayer .hd-discussion-counters {
+    position: fixed;
+    bottom: 18px;
+    right: 22px;
+    z-index: 1040;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(15,23,42,.18);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    pointer-events: auto;
+}
+
+body.local-heyday-courseplayer .hd-counter-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    background: #f1f5f9;
+    border: none;
+    border-right: 1px solid #e2e8f0;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-counter-toggle:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+body.local-heyday-courseplayer .hd-counter-items {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+body.local-heyday-courseplayer .hd-counter-person {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    background: #e8f5e1;
+    border-right: 1px solid #c8e6bb;
+    flex-shrink: 0;
+    color: #3a7c1e;
+}
+
+body.local-heyday-courseplayer .hd-counter-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    padding: 6px 14px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.12s;
+    border-right: 1px solid #e2e8f0;
+    min-width: 58px;
+}
+
+body.local-heyday-courseplayer .hd-counter-item:last-child {
+    border-right: none;
+}
+
+body.local-heyday-courseplayer .hd-counter-item:hover {
+    background: #f8fafc;
+}
+
+body.local-heyday-courseplayer .hd-counter-count {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #1e293b;
+}
+
+body.local-heyday-courseplayer .hd-counter-label {
+    font-size: 0.68rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+
+/* Green Mine */
+body.local-heyday-courseplayer .hd-counter-mine {
+    background: #f0faf0;
+}
+body.local-heyday-courseplayer .hd-counter-mine .hd-counter-count {
+    color: #2e7d32;
+}
+body.local-heyday-courseplayer .hd-counter-mine .hd-counter-label {
+    color: #388e3c;
+}
+body.local-heyday-courseplayer .hd-counter-mine:hover {
+    background: #e0f5e0;
+}
+
+/* Red New */
+body.local-heyday-courseplayer .hd-counter-new {
+    background: #fff5f5;
+}
+body.local-heyday-courseplayer .hd-counter-new .hd-counter-count {
+    color: #c53030;
+}
+body.local-heyday-courseplayer .hd-counter-new .hd-counter-label {
+    color: #c53030;
+}
+body.local-heyday-courseplayer .hd-counter-new:hover {
+    background: #ffe5e5;
+}
+
+/* Blue Bookmarked */
+body.local-heyday-courseplayer .hd-counter-bookmarked {
+    background: #f0f7ff;
+}
+body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-count {
+    color: #0073a6;
+}
+body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-label {
+    color: #0073a6;
+}
+body.local-heyday-courseplayer .hd-counter-bookmarked:hover {
+    background: #e0eeff;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+    body.local-heyday-courseplayer .hd-disc-thread-top {
+        flex-direction: column;
+        gap: 6px;
+    }
+    body.local-heyday-courseplayer .hd-disc-thread-meta-right {
+        align-self: flex-end;
+    }
+    body.local-heyday-courseplayer .hd-discussion-counters {
+        bottom: 10px;
+        right: 10px;
+        border-radius: 10px;
+    }
+    body.local-heyday-courseplayer .hd-counter-item {
+        padding: 5px 10px;
+        min-width: 46px;
+    }
+    body.local-heyday-courseplayer .hd-tb-hint {
+        display: none;
+    }
+    body.local-heyday-courseplayer .hd-disc-thread-footer {
+        flex-wrap: wrap;
+    }
+    body.local-heyday-courseplayer .hd-disc-replies {
+        padding-left: 18px;
+    }
+}
+
+/* ── Write your post card ───────────────────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-write-post-card {
+    background: #fff;
+    border: 1px solid #dde3ea;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+body.local-heyday-courseplayer .hd-write-post-card .hd-write-post-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: #f5f8fa;
+    border-bottom: 1px solid #dde3ea;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #1a2a3a;
+}
+
+body.local-heyday-courseplayer .hd-write-post-icon {
+    flex-shrink: 0;
+    color: var(--heyday-accent, #006fa8);
+}
+
+body.local-heyday-courseplayer .hd-write-post-card .hd-write-post-body {
+    padding: 16px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Formatting toolbar */
+body.local-heyday-courseplayer .hd-write-post-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 6px;
+    background: #f5f8fa;
+    border: 1px solid #dde3ea;
+    border-radius: 5px;
+}
+
+body.local-heyday-courseplayer .hd-tb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 26px;
+    padding: 0 4px;
+    border: none;
+    background: transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: #445566;
+    line-height: 1;
+}
+
+body.local-heyday-courseplayer .hd-tb-btn:hover {
+    background: #e4ecf2;
+    color: #1a2a3a;
+}
+
+body.local-heyday-courseplayer .hd-tb-italic { font-style: italic; }
+
+body.local-heyday-courseplayer .hd-tb-sep {
+    display: inline-block;
+    width: 1px;
+    height: 18px;
+    background: #d0d9e2;
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+body.local-heyday-courseplayer .hd-tb-hint {
+    margin-left: auto;
+    font-size: 0.74rem;
+    color: #8a9bb0;
+    white-space: nowrap;
+    padding-right: 4px;
+}
+
+/* Upload row */
+body.local-heyday-courseplayer .hd-write-post-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #667788;
+    font-size: 0.84rem;
+}
+
+body.local-heyday-courseplayer .hd-write-post-upload-link {
+    color: var(--heyday-accent, #006fa8);
+    text-decoration: none;
+    font-size: 0.84rem;
+}
+
+body.local-heyday-courseplayer .hd-write-post-upload-link:hover {
+    text-decoration: underline;
+}
+
+/* Action row: Cancel / Submit */
+body.local-heyday-courseplayer .hd-write-post-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+    border-top: 1px solid #edf0f4;
+    margin-top: 4px;
+}
+
+body.local-heyday-courseplayer .hd-write-post-card .hd-wp-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 20px;
+    background: var(--heyday-accent, #006fa8);
+    color: #fff;
+    border-radius: 5px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-write-post-card .hd-wp-submit-btn:hover {
+    background: #005d8f;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* ── Search input + attached blue button ─────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-discussion-search-wrap {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 auto;
+    border: 1px solid #c8d3dc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search {
+    flex: 1 1 auto;
+    border: none;
+    padding: 7px 12px;
+    font-size: 0.88rem;
+    outline: none;
+    background: #fff;
+    color: #333;
+    min-width: 0;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search:focus {
+    background: #f7fafc;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    background: var(--heyday-accent, #006fa8);
+    color: #fff;
+    border: none;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-discussion-search-btn:hover {
+    background: #005d8f;
+}
+
+/* ── Thread card: bookmark button ────────────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-disc-bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #b0bec5;
+    padding: 0;
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-disc-bookmark-btn:hover {
+    color: var(--heyday-accent, #006fa8);
+    background: #e8f4fb;
+}
+
+body.local-heyday-courseplayer .hd-disc-bookmark-btn[aria-pressed="true"] {
+    color: var(--heyday-accent, #006fa8);
+}
+
+/* ── Thread card footer: left actions + right posted date ────────────────── */
+
+body.local-heyday-courseplayer .hd-disc-thread-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0 2px;
+    border-top: 1px solid #edf0f4;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+body.local-heyday-courseplayer .hd-disc-thread-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+body.local-heyday-courseplayer .hd-disc-thread-posted {
+    font-size: 0.78rem;
+    color: #8a9bb0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── Reply: instructor header with name + bookmark ────────────────────────── */
+
+body.local-heyday-courseplayer .hd-reply-instructor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 12px;
+    background: #deeef8;
+    border-bottom: 1px solid #bcd6ec;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #1a4060;
+}
+
+body.local-heyday-courseplayer .hd-reply-instr-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 auto;
+}
+
+body.local-heyday-courseplayer .hd-reply-bookmark-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #5588aa;
+    padding: 0;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+
+body.local-heyday-courseplayer .hd-reply-bookmark-btn:hover {
+    color: #1a4060;
+}
+
+/* ── Reply footer: separate from body, left actions + right date ─────────── */
+
+body.local-heyday-courseplayer .hd-reply-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 12px 8px;
+    border-top: 1px solid #edf0f4;
+    flex-wrap: wrap;
+}
+
+body.local-heyday-courseplayer .hd-reply-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+body.local-heyday-courseplayer .hd-reply-date {
+    font-size: 0.76rem;
+    color: #8a9bb0;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 0;
+}
+
+/* ── Fixed bottom-right counter bar ─────────────────────────────────────── */
+
+body.local-heyday-courseplayer .hd-discussion-counters {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    pointer-events: none;
+}
+
+body.local-heyday-courseplayer .hd-counter-toggle {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--heyday-accent, #006fa8);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.22);
+    transition: background 0.15s;
+    align-self: flex-end;
+}
+
+body.local-heyday-courseplayer .hd-counter-toggle:hover {
+    background: #005d8f;
+}
+
+body.local-heyday-courseplayer .hd-counter-items {
+    pointer-events: auto;
+    display: flex;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #dde3ea;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.14);
+}
+
+body.local-heyday-courseplayer .hd-counter-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.12s;
+    min-width: 52px;
+}
+
+body.local-heyday-courseplayer .hd-counter-item:hover {
+    background: #e8f4fb;
+}
+
+body.local-heyday-courseplayer .hd-counter-count {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1a2a3a;
+    line-height: 1;
+}
+
+body.local-heyday-courseplayer .hd-counter-label {
+    font-size: 0.72rem;
+    color: #667788;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+
+body.local-heyday-courseplayer .hd-counter-mine .hd-counter-count { color: var(--heyday-accent, #006fa8); }
+body.local-heyday-courseplayer .hd-counter-new .hd-counter-count  { color: #2e7d32; }
+
+/* Responsive: hide counters on small screens */
+@media (max-width: 640px) {
+    body.local-heyday-courseplayer .hd-discussion-counters {
+        bottom: 12px;
+        right: 12px;
+    }
+    body.local-heyday-courseplayer .hd-counter-items {
+        padding: 6px 8px;
+        gap: 4px;
+    }
+    body.local-heyday-courseplayer .hd-tb-hint {
+        display: none;
+    }
+    body.local-heyday-courseplayer .hd-disc-thread-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

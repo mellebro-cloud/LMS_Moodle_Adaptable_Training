@@ -3654,25 +3654,121 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
 <?php endif; ?>
 
 <?php if ($canpost): ?>
-  <div class="hd-write-post" id="hd-write-post">
-    <div class="hd-write-post-heading">Write your post</div>
+  <div class="hd-write-post-card" id="hd-write-post">
+    <div class="hd-write-post-heading">
+      <svg class="hd-write-post-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="18" height="18" style="fill:currentColor;flex-shrink:0"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      <span>Write your post</span>
+    </div>
     <div class="hd-write-post-body">
       <input type="text" id="hd-wp-title" class="hd-write-post-title"
              placeholder="<?php echo s('Enter a title for your post...'); ?>"
              maxlength="255" autocomplete="off">
+      <div class="hd-editor-toolbar" id="hd-editor-toolbar" role="toolbar" aria-label="Text formatting (preview only — Submit opens full editor)">
+        <button type="button" class="hd-editor-btn hd-tb-bold" title="Bold" tabindex="-1"><b>B</b></button>
+        <button type="button" class="hd-editor-btn hd-tb-italic" title="Italic" tabindex="-1"><i>I</i></button>
+        <button type="button" class="hd-editor-btn hd-tb-underline" title="Underline" tabindex="-1"><u>U</u></button>
+        <span class="hd-tb-sep"></span>
+        <span class="hd-editor-dropdown-wrap" data-hd-tb-dropdown="text-style">
+          <button type="button" class="hd-editor-btn hd-editor-select-btn" title="Text style" tabindex="-1" data-hd-tb-toggle="text-style">
+            <b>A</b><sub style="font-size:0.65em">a</sub><span class="hd-tb-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul class="hd-editor-menu" id="hd-tb-menu-text-style" hidden role="menu">
+            <li role="menuitem">Normal</li>
+            <li role="menuitem">Heading 1</li>
+            <li role="menuitem">Heading 2</li>
+            <li role="menuitem">Heading 3</li>
+            <li role="menuitem">Preformatted</li>
+          </ul>
+        </span>
+        <span class="hd-editor-dropdown-wrap" data-hd-tb-dropdown="color">
+          <button type="button" class="hd-editor-btn hd-editor-color-btn" title="Text color" tabindex="-1" data-hd-tb-toggle="color">
+            <span class="hd-color-swatch" style="background:#333;border-radius:2px;display:inline-block;width:12px;height:12px;vertical-align:middle;"></span><span class="hd-tb-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul class="hd-editor-menu hd-editor-color-menu" id="hd-tb-menu-color" hidden role="menu">
+            <li role="menuitem"><span class="hd-color-swatch" style="background:#000"></span> Black</li>
+            <li role="menuitem"><span class="hd-color-swatch" style="background:#e53e3e"></span> Red</li>
+            <li role="menuitem"><span class="hd-color-swatch" style="background:#3182ce"></span> Blue</li>
+            <li role="menuitem"><span class="hd-color-swatch" style="background:#2f855a"></span> Green</li>
+            <li role="menuitem"><span class="hd-color-swatch" style="background:#d69e2e"></span> Yellow</li>
+          </ul>
+        </span>
+        <span class="hd-tb-sep"></span>
+        <span class="hd-editor-dropdown-wrap" data-hd-tb-dropdown="paragraph">
+          <button type="button" class="hd-editor-btn hd-editor-select-btn" title="Paragraph format" tabindex="-1" data-hd-tb-toggle="paragraph">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M13 4v7h-2V4H9v-.01L3.01 4 3 6h4v12h2V6h2v12h2V4h-2zm5 4c-1.1 0-2 .9-2 2v9h2v-4h2v4h2v-9c0-1.1-.9-2-2-2h-2zm0 2h2v3h-2v-3z"/></svg>
+            Normal<span class="hd-tb-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul class="hd-editor-menu" id="hd-tb-menu-paragraph" hidden role="menu">
+            <li role="menuitem">Normal</li>
+            <li role="menuitem">Heading 1</li>
+            <li role="menuitem">Heading 2</li>
+            <li role="menuitem">Blockquote</li>
+            <li role="menuitem">Code</li>
+          </ul>
+        </span>
+        <span class="hd-editor-dropdown-wrap" data-hd-tb-dropdown="align">
+          <button type="button" class="hd-editor-btn hd-editor-select-btn" title="Alignment" tabindex="-1" data-hd-tb-toggle="align">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3 3h18v2H3V3zm0 4h12v2H3V7zm0 4h18v2H3v-2zm0 4h12v2H3v-2zm0 4h18v2H3v-2z"/></svg>
+            <span class="hd-tb-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul class="hd-editor-menu" id="hd-tb-menu-align" hidden role="menu">
+            <li role="menuitem">Align Left</li>
+            <li role="menuitem">Align Center</li>
+            <li role="menuitem">Align Right</li>
+            <li role="menuitem">Justify</li>
+          </ul>
+        </span>
+        <span class="hd-tb-sep"></span>
+        <button type="button" class="hd-editor-btn" title="Insert link" tabindex="-1">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+        </button>
+        <button type="button" class="hd-editor-btn" title="Insert table" tabindex="-1">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M20 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 2v3H5V5h15zm-9 5h-6v-2h6v2zm0 4h-6v-2h6v2zm0 4h-6v-2h6v2zm9-8h-7v-2h7v2zm0 4h-7v-2h7v2zm0 4h-7v-2h7v2z"/></svg>
+        </button>
+        <button type="button" class="hd-editor-btn hd-editor-btn-omega" title="Special character" tabindex="-1"><b style="font-size:0.95em">&#937;</b></button>
+        <button type="button" class="hd-editor-btn" title="Horizontal rule" tabindex="-1"><span style="font-size:0.9em;letter-spacing:-1px">&#8213;</span></button>
+        <span class="hd-tb-sep"></span>
+        <span class="hd-editor-dropdown-wrap" data-hd-tb-dropdown="font">
+          <button type="button" class="hd-editor-btn hd-editor-select-btn hd-editor-font-btn" title="Font" tabindex="-1" data-hd-tb-toggle="font">
+            Arial<span class="hd-tb-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul class="hd-editor-menu" id="hd-tb-menu-font" hidden role="menu">
+            <li role="menuitem" style="font-family:Arial,sans-serif">Arial</li>
+            <li role="menuitem" style="font-family:'Times New Roman',serif">Times New Roman</li>
+            <li role="menuitem" style="font-family:'Courier New',monospace">Courier New</li>
+            <li role="menuitem" style="font-family:Georgia,serif">Georgia</li>
+            <li role="menuitem" style="font-family:Verdana,sans-serif">Verdana</li>
+          </ul>
+        </span>
+        <span class="hd-editor-dropdown-wrap" data-hd-tb-dropdown="size">
+          <button type="button" class="hd-editor-btn hd-editor-select-btn hd-editor-size-btn" title="Font size" tabindex="-1" data-hd-tb-toggle="size">
+            12<span class="hd-tb-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul class="hd-editor-menu" id="hd-tb-menu-size" hidden role="menu">
+            <li role="menuitem">8</li><li role="menuitem">10</li>
+            <li role="menuitem">12</li><li role="menuitem">14</li>
+            <li role="menuitem">16</li><li role="menuitem">18</li>
+            <li role="menuitem">24</li><li role="menuitem">36</li>
+          </ul>
+        </span>
+        <span class="hd-tb-sep"></span>
+        <button type="button" class="hd-editor-btn hd-editor-fullscreen-btn" title="Fullscreen (opens full editor)" tabindex="-1">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+        <span class="hd-tb-sep hd-tb-hint-sep"></span>
+        <span class="hd-tb-hint">Submit opens the full Moodle editor</span>
+      </div>
       <div class="hd-write-post-editor" id="hd-wp-editor"
            contenteditable="true" role="textbox" aria-multiline="true"
            aria-label="<?php echo s('Post message'); ?>"
            data-placeholder="<?php echo s('Write your message here...'); ?>"></div>
-      <div class="hd-write-post-actions">
-        <a href="<?php echo s($addposturl); ?>" target="_top" class="hd-write-post-upload-btn">
-          <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" style="fill:currentColor;flex-shrink:0"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
-          Upload File
-        </a>
-        <div class="hd-write-post-btns">
-          <button type="button" class="hd-btn-outline hd-wp-cancel-btn" id="hd-wp-cancel">Cancel</button>
-          <a href="<?php echo s($addposturl); ?>" target="_top" class="hd-primary-btn hd-wp-submit-btn">Submit</a>
-        </div>
+      <div class="hd-write-post-upload-row">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="15" height="15" style="fill:currentColor;flex-shrink:0"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
+        <a href="<?php echo s($addposturl); ?>" target="_top" class="hd-write-post-upload-link">Upload File</a>
+      </div>
+      <div class="hd-write-post-action-row">
+        <button type="button" class="hd-btn-outline hd-wp-cancel-btn" id="hd-wp-cancel">Cancel</button>
+        <a href="<?php echo s($addposturl); ?>" target="_top" class="hd-wp-submit-btn">Submit</a>
       </div>
     </div>
   </div>
@@ -3680,10 +3776,13 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
 
   <div class="hd-discussion-toolbar">
     <div class="hd-discussion-search-wrap">
-      <svg class="hd-discussion-search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       <input type="text" id="hd-disc-search" class="hd-discussion-search"
              placeholder="<?php echo get_string('discussion_searchposts', 'local_heyday_courseplayer'); ?>"
              aria-label="Search posts">
+      <button type="button" class="hd-discussion-search-btn" id="hd-disc-search-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="16" height="16" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        Search
+      </button>
     </div>
     <button type="button" class="hd-discussion-sort-btn" id="hd-disc-sort-btn" aria-haspopup="listbox" aria-expanded="false">
       <?php echo get_string('discussion_sortby', 'local_heyday_courseplayer'); ?> <span class="hd-sort-arrow">▾</span>
@@ -3749,31 +3848,43 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
           <div class="hd-disc-thread-top">
             <a class="hd-disc-thread-title" href="<?php echo s($threadurl); ?>" target="_top"><?php echo $threadname; ?></a>
             <div class="hd-disc-thread-meta-right">
-              <?php if ($isnew): ?>
-              <span class="hd-disc-new-badge"><?php echo get_string('newposts', 'local_heyday_courseplayer'); ?></span>
-              <?php endif; ?>
-              <span class="hd-disc-reply-count"><?php echo $replycount; ?> <?php echo get_string($replycount === 1 ? 'reply' : 'replies', 'local_heyday_courseplayer'); ?></span>
-              <span class="hd-disc-updated"><?php echo $updated; ?></span>
+              <div class="hd-disc-thread-stats-col">
+                <span class="hd-disc-stats-row">
+                  <span class="hd-disc-reply-count"><?php echo $replycount; ?> <?php echo $replycount === 1 ? 'Reply' : 'Replies'; ?></span>
+                  <?php if ($isnew): ?>
+                  <span class="hd-disc-stats-sep" aria-hidden="true">&ndash;</span>
+                  <span class="hd-disc-new-count"><?php echo (int)($disc->newcount ?? 0); ?> New</span>
+                  <?php endif; ?>
+                </span>
+                <span class="hd-disc-updated"><?php echo $updated; ?></span>
+              </div>
+              <button type="button" class="hd-disc-bookmark-btn" aria-label="Bookmark this discussion" title="Bookmark" aria-pressed="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true" width="15" height="15" fill="currentColor"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+              </button>
             </div>
           </div>
           <div class="hd-disc-thread-author"><?php echo $authorname; ?></div>
           <?php if ($excerpt !== ''): ?>
           <div class="hd-disc-thread-excerpt"><?php echo $excerpt; ?></div>
           <?php endif; ?>
-          <div class="hd-disc-thread-actions">
-            <?php if ($canreply && $rootpost): ?>
-            <a class="hd-disc-action-reply" href="<?php echo s($replyposturl); ?>" target="_top">Reply</a>
-            <span class="hd-disc-action-sep" aria-hidden="true">&middot;</span>
-            <?php endif; ?>
-            <a class="hd-disc-action-report" href="<?php echo s($threadurl); ?>" target="_top">Report as Inappropriate</a>
-            <?php if (!empty($replies)): ?>
-            <button type="button" class="hd-disc-expand-btn"
-                    data-target="hd-replies-<?php echo (int)$disc->id; ?>"
-                    aria-expanded="false">
-              <svg class="hd-expand-icon" viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" style="fill:currentColor;display:inline-block;transition:transform .15s"><path d="M7 10l5 5 5-5z"/></svg>
-              <?php echo $replycount; ?> <?php echo get_string($replycount === 1 ? 'reply' : 'replies', 'local_heyday_courseplayer'); ?>
-            </button>
-            <?php endif; ?>
+          <div class="hd-disc-thread-footer">
+            <div class="hd-disc-thread-footer-left">
+              <?php if ($canreply && $rootpost): ?>
+              <a class="hd-disc-action-reply" href="<?php echo s($replyposturl); ?>" target="_top">Reply</a>
+              <span class="hd-disc-action-sep" aria-hidden="true">&middot;</span>
+              <?php endif; ?>
+              <?php if (!empty($replies)): ?>
+              <button type="button" class="hd-disc-expand-btn"
+                      data-target="hd-replies-<?php echo (int)$disc->id; ?>"
+                      aria-expanded="false">
+                <svg class="hd-expand-icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" style="fill:currentColor;display:inline-block;transition:transform .15s"><path d="M7 10l5 5 5-5z"/></svg>
+                <?php echo $replycount; ?> <?php echo get_string($replycount === 1 ? 'reply' : 'replies', 'local_heyday_courseplayer'); ?>
+              </button>
+              <span class="hd-disc-action-sep" aria-hidden="true">&middot;</span>
+              <?php endif; ?>
+              <a class="hd-disc-action-report" href="<?php echo s($threadurl); ?>" target="_top">Report as Inappropriate</a>
+            </div>
+            <span class="hd-disc-thread-posted">Posted <?php echo $updated; ?></span>
           </div>
         </div>
       </div>
@@ -3790,21 +3901,30 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
         <div class="hd-reply<?php echo $replyisinstr ? ' hd-reply-instructor' : ''; ?>">
           <?php if ($replyisinstr): ?>
           <div class="hd-reply-instructor-header">
-            <svg viewBox="0 0 24 24" aria-hidden="true" width="14" height="14" style="fill:currentColor;flex-shrink:0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            Instructor Response
+            <span class="hd-reply-instr-left">
+              <svg viewBox="0 0 24 24" aria-hidden="true" width="14" height="14" style="fill:currentColor;flex-shrink:0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              Posted by <?php echo $replyauthor; ?> <span class="hd-reply-instr-tag">(Instructor)</span>
+            </span>
+            <button type="button" class="hd-reply-bookmark-btn" aria-label="Bookmark this reply" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true" width="14" height="14" fill="currentColor"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+            </button>
           </div>
           <?php endif; ?>
           <div class="hd-reply-body">
+            <?php if (!$replyisinstr): ?>
             <div class="hd-reply-author"><?php echo $replyauthor; ?></div>
+            <?php endif; ?>
             <div class="hd-reply-content"><?php echo $replycontent; ?></div>
-            <div class="hd-reply-actions">
+          </div>
+          <div class="hd-reply-footer">
+            <div class="hd-reply-footer-actions">
               <?php if ($canreply): ?>
               <a class="hd-reply-action-reply" href="<?php echo s($replytothisurl); ?>" target="_top">Reply</a>
               <span aria-hidden="true"> &middot; </span>
               <?php endif; ?>
               <a class="hd-reply-action-report" href="<?php echo s($threadurl); ?>" target="_top">Report</a>
-              <span class="hd-reply-date"><?php echo $replydate; ?></span>
             </div>
+            <span class="hd-reply-date">Posted <?php echo $replydate; ?></span>
           </div>
         </div>
         <?php endforeach; ?>
@@ -3842,6 +3962,29 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
   </div>
 
 </div><!-- .hd-discussion-page -->
+
+<div class="hd-discussion-counters" id="hd-disc-counters" aria-label="Discussion filter counters">
+  <button type="button" class="hd-counter-toggle" id="hd-counter-toggle" aria-label="Collapse counter bar" aria-expanded="true" title="Collapse">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+  </button>
+  <div class="hd-counter-items" id="hd-counter-items">
+    <button type="button" class="hd-counter-item hd-counter-mine" data-tab="mine">
+      <span class="hd-counter-count"><?php echo $minethreads; ?></span>
+      <span class="hd-counter-label">Mine</span>
+    </button>
+    <span class="hd-counter-person" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+    </span>
+    <button type="button" class="hd-counter-item hd-counter-new" data-tab="new">
+      <span class="hd-counter-count"><?php echo $newthreads; ?></span>
+      <span class="hd-counter-label">New</span>
+    </button>
+    <button type="button" class="hd-counter-item hd-counter-bookmarked" data-tab="all">
+      <span class="hd-counter-count">0</span>
+      <span class="hd-counter-label">Bookmarked</span>
+    </button>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -3972,6 +4115,71 @@ function local_heyday_courseplayer_render_discussion_detail(stdClass $course, cm
   }
 
   renderAll();
+
+  // Editor toolbar: dropdown open/close (visual-only preview toolbar).
+  var toolbar = document.getElementById('hd-editor-toolbar');
+  if (toolbar) {
+    toolbar.querySelectorAll('[data-hd-tb-toggle]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var key = btn.getAttribute('data-hd-tb-toggle');
+        var menu = document.getElementById('hd-tb-menu-' + key);
+        var wrap = btn.closest('[data-hd-tb-dropdown]');
+        var isOpen = menu && !menu.hidden;
+        // Close all menus first.
+        toolbar.querySelectorAll('.hd-editor-menu').forEach(function (m) { m.hidden = true; });
+        toolbar.querySelectorAll('[data-hd-tb-dropdown]').forEach(function (w) { w.classList.remove('hd-tb-open'); });
+        // Toggle this one.
+        if (menu && !isOpen) {
+          menu.hidden = false;
+          if (wrap) { wrap.classList.add('hd-tb-open'); }
+        }
+      });
+    });
+    toolbar.querySelectorAll('.hd-editor-menu [role="menuitem"]').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        // Close all menus on selection.
+        toolbar.querySelectorAll('.hd-editor-menu').forEach(function (m) { m.hidden = true; });
+        toolbar.querySelectorAll('[data-hd-tb-dropdown]').forEach(function (w) { w.classList.remove('hd-tb-open'); });
+      });
+    });
+  }
+  document.addEventListener('click', function (e) {
+    if (toolbar && !toolbar.contains(e.target)) {
+      toolbar.querySelectorAll('.hd-editor-menu').forEach(function (m) { m.hidden = true; });
+      toolbar.querySelectorAll('[data-hd-tb-dropdown]').forEach(function (w) { w.classList.remove('hd-tb-open'); });
+    }
+  });
+
+  // Counter bar: toggle collapse.
+  var counterToggle = document.getElementById('hd-counter-toggle');
+  var counterItems  = document.getElementById('hd-counter-items');
+  if (counterToggle && counterItems) {
+    counterToggle.addEventListener('click', function () {
+      var collapsed = counterItems.style.display === 'none';
+      counterItems.style.display = collapsed ? '' : 'none';
+      counterToggle.setAttribute('aria-expanded', String(collapsed));
+    });
+  }
+
+  // Counter bar items: clicking them activates the matching tab filter.
+  var counterItemEls = document.querySelectorAll('.hd-counter-item[data-tab]');
+  counterItemEls.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var tab = btn.getAttribute('data-tab');
+      tabs.forEach(function (t) {
+        var isActive = t.getAttribute('data-tab') === tab;
+        t.classList.toggle('is-active', isActive);
+        t.setAttribute('aria-selected', String(isActive));
+        if (isActive) { activeTab = tab; }
+      });
+      loadedCount = PAGE_SIZE;
+      renderAll();
+      // Scroll to thread list.
+      if (threadList) { threadList.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
 })();
 </script>
 <?php

@@ -12,7 +12,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_heyday_courseplayer';
-$plugin->version = 2026063011;
+$plugin->version = 2026063013;
 $plugin->requires  = 2025051200;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2026063011-discussion-sidebar-order-fix';
+$plugin->release   = '2026063013-discussion-editor-counters-thread-alignment';
