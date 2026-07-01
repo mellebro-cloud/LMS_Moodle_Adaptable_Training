@@ -73,7 +73,7 @@ function local_heyday_quiz_get_context(): ?array {
 function local_heyday_quiz_is_target(): bool {
     global $PAGE;
 
-    $allowedpagetypes = ['mod-quiz-view', 'mod-quiz-attempt', 'mod-quiz-review', 'mod-quiz-summary'];
+    $allowedpagetypes = ['mod-quiz-attempt', 'mod-quiz-review', 'mod-quiz-summary'];
     if (!in_array($PAGE->pagetype, $allowedpagetypes, true)) {
         return false;
     }
@@ -260,7 +260,7 @@ function local_heyday_quiz_return_url(stdClass $course, int $cmid): string {
     if (is_file($CFG->dirroot . '/local/heyday_courseplayer/index.php')) {
         return (new moodle_url('/local/heyday_courseplayer/index.php', [
             'id'   => $course->id,
-            'page' => 'lesson',
+            'page' => 'lessonquiz',
             'cmid' => $cmid,
         ]))->out(false);
     }
@@ -321,11 +321,15 @@ function local_heyday_quiz_before_standard_html_head(): string {
         return "<script>window.location.replace({$dest});</script>\n";
     }
 
-    return <<<'HTML'
+    $cpstyles = (new moodle_url('/local/heyday_courseplayer/styles.css'))->out(false);
+
+    return <<<HTML
+<link rel="stylesheet" href="{$cpstyles}">
 <style id="heyday-quiz-css">
 /* =================================================================
-   HEYDAY LESSON QUIZ SKIN  –  ed2go-style learning check
-   Scoped to body.heyday-quiz-page
+   HEYDAY LESSON QUIZ SKIN  –  Uses courseplayer CSS classes.
+   Bridge overrides scoped to body.heyday-quiz-page.
+   Quiz-specific styles (questions, answers, buttons, score ring).
    ================================================================= */
 
 body.heyday-quiz-page {
@@ -334,102 +338,63 @@ body.heyday-quiz-page {
     color: #111 !important;
 }
 
-/* ---- HeyDay outer topnav (black bar) ---- */
-.hdqz-topnav {
+/* ── Bridge: courseplayer topbar/sidebar use sticky inside a grid.
+      Quiz page injects them at body-level, so we use fixed instead. ── */
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-ed2go-topbar {
     position: fixed !important;
-    top: 0 !important; left: 0 !important; right: 0 !important;
-    height: 50px !important;
-    background: #1e1e1e !important;
-    color: #fff !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
     z-index: 9900 !important;
-    display: flex !important;
-    align-items: center !important;
-    padding: 0 24px !important;
-    font-size: 14px !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-}
-.hdqz-topnav-brand {
-    font-weight: 700 !important;
-    color: #fff !important;
-    text-decoration: none !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    margin: 0 !important;
 }
 
-/* ---- HeyDay outer sidebar ---- */
-.hdqz-sidenav {
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-courseplayer-sidebar {
     position: fixed !important;
-    top: 50px !important; left: 0 !important; bottom: 0 !important;
-    width: 250px !important;
-    background: #fff !important;
-    border-right: 1px solid #d4dae0 !important;
-    overflow-y: auto !important;
+    top: 42px !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: var(--heyday-sidebar-width, 424px) !important;
+    height: auto !important;
     z-index: 9800 !important;
-    font-family: Arial, Helvetica, sans-serif !important;
-    font-size: 13px !important;
-    -webkit-overflow-scrolling: touch !important;
 }
-.hdqz-sidenav-mainlink {
-    display: block !important;
-    padding: 9px 16px !important;
-    color: #334155 !important;
-    text-decoration: none !important;
-    font-size: 13px !important;
-    line-height: 1.35 !important;
-    border-left: 3px solid transparent !important;
-}
-.hdqz-sidenav-mainlink:hover { background: #f0f4f8 !important; color: #0073a8 !important; }
-.hdqz-sidenav-group { border-top: 1px solid #e8ecf0 !important; }
-.hdqz-sidenav-group-hd {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 9px 14px 9px 16px !important;
-    font-weight: 700 !important;
-    font-size: 12px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.04em !important;
-    color: #64748b !important;
-    cursor: pointer !important;
-    user-select: none !important;
-    background: #f8f9fa !important;
-}
-.hdqz-sidenav-group-hd:hover { background: #eff3f7 !important; color: #334155 !important; }
-.hdqz-sidenav-item {
-    display: block !important;
-    padding: 7px 16px 7px 22px !important;
-    color: #334155 !important;
-    text-decoration: none !important;
-    font-size: 13px !important;
-    line-height: 1.4 !important;
-    border-left: 3px solid transparent !important;
-}
-.hdqz-sidenav-item:hover { background: #f0f4f8 !important; color: #0073a8 !important; }
-.hdqz-sidenav-item.is-active {
-    border-left-color: #0073a8 !important;
-    background: #eef7fc !important;
-    color: #0073a8 !important;
-    font-weight: 600 !important;
-}
-.hdqz-sidenav-item.is-locked { color: #94a3b8 !important; pointer-events: none !important; }
-.hdqz-sidenav-afterlink {
-    display: block !important;
-    padding: 9px 16px !important;
-    color: #334155 !important;
-    text-decoration: none !important;
-    font-size: 13px !important;
-    border-top: 1px solid #e8ecf0 !important;
-}
-.hdqz-sidenav-afterlink:hover { background: #f0f4f8 !important; color: #0073a8 !important; }
 
-/* ---- Layout adjustment for topnav + sidebar ---- */
-body.heyday-quiz-page #page {
-    padding-top: 50px !important;
-    padding-left: 250px !important;
+/* Page padding to make room for fixed topbar + sidebar. */
+body.heyday-quiz-page.local-heyday-courseplayer #page {
+    padding-top: 42px !important;
+    padding-left: var(--heyday-sidebar-width, 424px) !important;
     margin: 0 !important;
     min-height: 100vh !important;
     box-sizing: border-box !important;
+}
+
+body.heyday-quiz-page.local-heyday-courseplayer.hdqz-no-sidebar #page {
+    padding-left: 0 !important;
+}
+
+/* Strip Adaptable outer containers. */
+body.heyday-quiz-page.local-heyday-courseplayer #region-main,
+body.heyday-quiz-page.local-heyday-courseplayer #region-main-box,
+body.heyday-quiz-page.local-heyday-courseplayer .region-main-content {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* Content area padding around the player card. */
+body.heyday-quiz-page.local-heyday-courseplayer #region-main {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 26px 32px 90px 32px !important;
+    background: var(--heyday-page-bg, #f4f6f8) !important;
+}
+
+/* Hide everything in #region-main that is not part of the HeyDay quiz shell. */
+body.heyday-quiz-page.local-heyday-courseplayer #region-main > *:not(.heyday-player-card):not(.heyday-nextup-row):not(.heyday-player-footer) {
+    display: none !important;
 }
 
 /* ---- Hide Moodle navigation chrome ---- */
@@ -448,7 +413,6 @@ body.heyday-quiz-page .block,
 body.heyday-quiz-page footer,
 body.heyday-quiz-page #page-footer { display: none !important; }
 
-/* Hide Moodle chrome that conflicts with the learner card view. */
 body.heyday-quiz-page #page-header,
 body.heyday-quiz-page .page-header-headings,
 body.heyday-quiz-page .page-context-header,
@@ -459,6 +423,9 @@ body.heyday-quiz-page .secondary-navigation,
 body.heyday-quiz-page .tertiary-navigation,
 body.heyday-quiz-page .activity-header,
 body.heyday-quiz-page .activity-navigation,
+body.heyday-quiz-page .activity_footer,
+body.heyday-quiz-page #adaptable-activity-navigation,
+body.heyday-quiz-page .jumpnav,
 body.heyday-quiz-page .moodle-activity-navigation,
 body.heyday-quiz-page .prevnext,
 body.heyday-quiz-page .activityprev,
@@ -472,7 +439,12 @@ body.heyday-quiz-page .quizattemptcounts,
 body.heyday-quiz-page .quizattemptsummary,
 body.heyday-quiz-page .quizreviewsummary,
 body.heyday-quiz-page .mod_quiz-prev-nav,
-body.heyday-quiz-page .continuebutton {
+body.heyday-quiz-page .continuebutton,
+body.heyday-quiz-page #quiz-timer-wrapper,
+body.heyday-quiz-page #maincontent,
+body.heyday-quiz-page .course_category_tree,
+body.heyday-quiz-page .course-content-header,
+body.heyday-quiz-page .course-content-footer {
     display: none !important;
 }
 
@@ -498,64 +470,8 @@ body.heyday-quiz-page .que .info .editquestion {
     display: none !important;
 }
 
-/* ---- Main content area ---- */
-body.heyday-quiz-page #region-main {
-    width: auto !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 32px 90px 32px !important;
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-}
-
-/* ---- White quiz card ---- */
-.hdqz-card {
-    width: 100% !important;
-    max-width: 1000px !important;
-    min-height: 520px !important;
-    margin: 26px auto 38px auto !important;
-    padding: 36px 48px 34px 48px !important;
-    background: #fff !important;
-    border: 1px solid #d7dce0 !important;
-    box-shadow: none !important;
-}
-
-/* ---- Top icon bar ---- */
-.hdqz-topbar {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    margin-bottom: 8px !important;
-}
-
-.hdqz-left,
-.hdqz-right {
-    display: flex !important;
-    align-items: center !important;
-    gap: 18px !important;
-}
-
-.hdqz-icon {
-    border: 0 !important;
-    background: transparent !important;
-    color: #0073a8 !important;
-    font-size: 23px !important;
-    line-height: 1 !important;
-    padding: 0 !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
-}
-
-.hdqz-icon:hover,
-.hdqz-icon:focus {
-    color: #004f76 !important;
-    outline: none !important;
-}
-
-/* Print dropdown. */
+/* ---- Print dropdown (quiz-specific, kept as hdqz-*) ---- */
 .hdqz-print-wrap { position: relative !important; }
-
 .hdqz-print-menu {
     display: none !important;
     position: absolute !important;
@@ -567,9 +483,7 @@ body.heyday-quiz-page #region-main {
     border: 1px solid #ddd !important;
     box-shadow: 0 4px 14px rgba(0,0,0,.14) !important;
 }
-
 .hdqz-print-menu.is-open { display: block !important; }
-
 .hdqz-print-menu button {
     display: block !important;
     width: 100% !important;
@@ -581,29 +495,9 @@ body.heyday-quiz-page #region-main {
     font-size: 13px !important;
     cursor: pointer !important;
 }
-
 .hdqz-print-menu button:hover { background: #f2f2f2 !important; }
 
-/* ---- Course + quiz titles ---- */
-.hdqz-course-title {
-    text-align: center !important;
-    font-size: 15px !important;
-    font-weight: 400 !important;
-    color: #66727c !important;
-    margin: -10px 0 8px 0 !important;
-    line-height: 1.35 !important;
-}
-
-.hdqz-title {
-    text-align: center !important;
-    font-size: 29px !important;
-    font-weight: 400 !important;
-    color: #111 !important;
-    margin: 0 0 30px 0 !important;
-    line-height: 1.25 !important;
-}
-
-/* ---- Show Instructions toggle ---- */
+/* ---- Show Instructions toggle (quiz-specific) ---- */
 .hdqz-instructions-toggle {
     display: inline-flex !important;
     align-items: center !important;
@@ -619,13 +513,11 @@ body.heyday-quiz-page #region-main {
     cursor: pointer !important;
     text-decoration: underline !important;
 }
-
 .hdqz-instructions-toggle:hover,
 .hdqz-instructions-toggle:focus {
     color: #005d8c !important;
     outline: none !important;
 }
-
 .hdqz-instructions-panel {
     display: block !important;
     margin: 0 0 24px 0 !important;
@@ -633,55 +525,64 @@ body.heyday-quiz-page #region-main {
     line-height: 1.5 !important;
     color: #111 !important;
 }
-
 .hdqz-instructions-panel.is-hidden { display: none !important; }
 
 /* ---- Quiz form width ---- */
 body.heyday-quiz-page form#responseform,
 body.heyday-quiz-page .quizattempt,
 body.heyday-quiz-page .quizreview {
-    max-width: 1000px !important;
+    max-width: 100% !important;
     width: 100% !important;
     margin: 0 auto !important;
 }
 
-/* Remove duplicate Moodle headings. */
-body.heyday-quiz-page #region-main > h1,
-body.heyday-quiz-page #region-main > h2,
-body.heyday-quiz-page #region-main > h3,
-body.heyday-quiz-page .hdqz-card > h1:not(.hdqz-title),
-body.heyday-quiz-page .hdqz-card > h2:not(.hdqz-title),
-body.heyday-quiz-page .hdqz-card > h3:not(.hdqz-title) {
+/* Remove duplicate Moodle headings inside the player card. */
+body.heyday-quiz-page .heyday-player-card > h1,
+body.heyday-quiz-page .heyday-player-card > h2,
+body.heyday-quiz-page .heyday-player-card > h3,
+body.heyday-quiz-page .heyday-content-body > h1:not(.heyday-player-heading h1),
+body.heyday-quiz-page .heyday-content-body > h2,
+body.heyday-quiz-page .heyday-content-body > h3 {
     display: none !important;
 }
 
-/* ---- Question block ---- */
+/* ---- Question block: block layout (no flex side-by-side). ---- */
 body.heyday-quiz-page .que {
     position: relative !important;
+    display: block !important;           /* disable Moodle's flex layout */
     margin: 0 !important;
-    padding: 28px 0 30px 0 !important;
+    padding: 24px 0 24px 58px !important;
     border: 0 !important;
     border-top: 1px dashed #c8d0d6 !important;
     background: transparent !important;
     box-shadow: none !important;
+    clear: both !important;
+    overflow: visible !important;
+    gap: 0 !important;
 }
 
 body.heyday-quiz-page .que:first-of-type { border-top: 0 !important; }
 
-/* Question number badge. */
+/* Question number badge: absolutely positioned inside the 58px left padding lane. */
 body.heyday-quiz-page .que .info {
     position: absolute !important;
-    left: -30px !important;
-    top: 28px !important;
+    display: block !important;
+    left: 0 !important;
+    top: 24px !important;
     width: 46px !important;
+    min-width: 0 !important;
+    flex-shrink: unset !important;
     margin: 0 !important;
     padding: 0 !important;
     float: none !important;
     background: transparent !important;
     border: 0 !important;
+    border-radius: 0 !important;
 }
 
-body.heyday-quiz-page .que .info .no {
+body.heyday-quiz-page .que .info .no,
+body.heyday-quiz-page .que .info h3.no,
+body.heyday-quiz-page .que .info div.no {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -690,25 +591,42 @@ body.heyday-quiz-page .que .info .no {
     height: 36px !important;
     padding: 0 !important;
     margin: 0 !important;
-    border-radius: 0 17px 17px 0 !important;
+    border-radius: 19px !important;
     background: #6d7a83 !important;
     color: #fff !important;
-    font-size: 16px !important;
+    font-size: 15px !important;
     font-weight: 700 !important;
     line-height: 36px !important;
+    border: 0 !important;
+    box-shadow: none !important;
 }
 
-/* Question content alignment. */
+/* Question content fills the block width after the left padding lane. */
 body.heyday-quiz-page .que .content {
-    margin-left: 58px !important;
+    display: block !important;
+    margin: 0 !important;
     padding: 0 !important;
+    flex-grow: unset !important;
+    width: auto !important;
 }
 
 body.heyday-quiz-page .que .formulation {
+    display: block !important;
     margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
     background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Neutralise the plain <div> wrapper inside form#responseform. */
+body.heyday-quiz-page form#responseform > div {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* Question text. */
@@ -1006,7 +924,7 @@ body.heyday-quiz-page .submitbtns {
     justify-content: flex-end !important;
     align-items: center !important;
     width: 100% !important;
-    max-width: 1000px !important;
+    max-width: 100% !important;
     margin: 28px auto 0 auto !important;
     padding: 0 !important;
     gap: 10px !important;
@@ -1117,57 +1035,6 @@ body#page-mod-quiz-review.heyday-quiz-page a.endtestlink:hover {
     text-decoration: none !important;
 }
 
-/* ---- End-of-quiz divider ---- */
-.hdqz-end {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 12px !important;
-    margin: 38px auto 18px auto !important;
-    color: #333 !important;
-    font-size: 14px !important;
-}
-
-.hdqz-end span {
-    width: 72px !important;
-    height: 1px !important;
-    background: #9aa8b1 !important;
-}
-
-/* ---- Next Up card ---- */
-.hdqz-next {
-    display: flex !important;
-    width: 330px !important;
-    margin: 0 auto 40px auto !important;
-    text-decoration: none !important;
-    color: inherit !important;
-}
-
-.hdqz-next-label {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 88px !important;
-    min-height: 68px !important;
-    background: #0077a6 !important;
-    color: #fff !important;
-    font-weight: 700 !important;
-    font-size: 15px !important;
-}
-
-.hdqz-next-content {
-    flex: 1 !important;
-    min-height: 68px !important;
-    padding: 11px 13px !important;
-    border: 1px solid #d7d7d7 !important;
-    border-left: 0 !important;
-    background: #fff !important;
-    font-size: 13px !important;
-}
-
-.hdqz-next-section { display: block !important; color: #777 !important; font-size: 12px !important; }
-.hdqz-next-title   { display: block !important; color: #006fae !important; text-decoration: underline !important; font-size: 14px !important; line-height: 1.25 !important; }
-.hdqz-next-type    { display: block !important; color: #444 !important; font-size: 12px !important; }
 
 /* ---- Remove leftover Moodle navigation ---- */
 body.heyday-quiz-page .activity-navigation,
@@ -1179,24 +1046,18 @@ body.heyday-quiz-page .submitbtns + .activity-navigation {
 
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
-    body.heyday-quiz-page #page {
-        padding-left: 0 !important;
-    }
-    .hdqz-sidenav { display: none !important; }
-
-    body.heyday-quiz-page #region-main {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-    }
-
-    .hdqz-card {
-        padding: 18px 14px !important;
-    }
+    body.heyday-quiz-page.local-heyday-courseplayer #page { padding-left: 0 !important; }
+    body.heyday-quiz-page.local-heyday-courseplayer .heyday-courseplayer-sidebar { display: none !important; }
+    body.heyday-quiz-page.local-heyday-courseplayer #region-main { padding-left: 12px !important; padding-right: 12px !important; }
+    body.heyday-quiz-page.local-heyday-courseplayer .heyday-player-card { padding: 18px 14px !important; }
 }
 
 @media print {
-    .hdqz-topnav, .hdqz-sidenav { display: none !important; }
-    body.heyday-quiz-page #page { padding: 0 !important; }
+    body.heyday-quiz-page.local-heyday-courseplayer .heyday-ed2go-topbar,
+    body.heyday-quiz-page.local-heyday-courseplayer .heyday-courseplayer-sidebar { display: none !important; }
+    body.heyday-quiz-page.local-heyday-courseplayer #page { padding: 0 !important; }
+    body.heyday-quiz-page.local-heyday-courseplayer #region-main { padding: 0 !important; }
+    .heyday-player-card { max-width: 100% !important; border: 0 !important; padding: 0 !important; }
 }
 
 /* ---- Summary page — hide content, show submitting overlay ---- */
@@ -1457,14 +1318,14 @@ body#page-mod-quiz-summary.heyday-quiz-page::after {
 
 /* ---- Print ---- */
 @media print {
-    .hdqz-topnav, .hdqz-sidenav,
-    body.heyday-quiz-page .hdqz-next,
-    body.heyday-quiz-page .hdqz-end { display: none !important; }
+    .heyday-ed2go-topbar, .heyday-courseplayer-sidebar,
+    body.heyday-quiz-page .heyday-nextup-row,
+    body.heyday-quiz-page .heyday-player-footer { display: none !important; }
 
     body.heyday-quiz-page #page { padding: 0 !important; }
     body.heyday-quiz-page #region-main { padding: 0 !important; }
 
-    .hdqz-card {
+    .heyday-player-card {
         max-width: 100% !important;
         width: 100% !important;
         margin: 0 !important;
@@ -1614,8 +1475,17 @@ function local_heyday_quiz_before_footer(): string {
                 $seen[(int)$scm->id] = true;
 
                 if (file_exists($CFG->dirroot . '/local/heyday_courseplayer/index.php')) {
+                    // Route quiz CMs to the dedicated lessonquiz intro card;
+                    // forum CMs to the discussion view; everything else to lesson.
+                    if ($scm->modname === 'quiz') {
+                        $scmpage = 'lessonquiz';
+                    } else if ($scm->modname === 'forum') {
+                        $scmpage = 'discussion';
+                    } else {
+                        $scmpage = 'lesson';
+                    }
                     $iurl = (new moodle_url('/local/heyday_courseplayer/index.php', [
-                        'id' => $course->id, 'page' => 'lesson', 'cmid' => $scm->id,
+                        'id' => $course->id, 'page' => $scmpage, 'cmid' => $scm->id,
                     ]))->out(false);
                 } else {
                     $iurl = !empty($scm->url)
@@ -1679,20 +1549,28 @@ function local_heyday_quiz_before_footer(): string {
         $sbafterlinks[] = ['label' => 'Final Exam', 'url' => (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'finalexam']))->out(false)];
     }
 
+    $supporturl = $hasCp
+        ? (new moodle_url('/local/heyday_courseplayer/index.php', ['id' => $course->id, 'page' => 'home']))->out(false)
+        : (new moodle_url('/course/view.php', ['id' => $course->id]))->out(false);
+
     $data = [
-        'course'      => $coursefullname,
-        'quiz'        => $quiztitle,
-        'returnurl'   => $returnurl,
-        'introhtml'   => $introhtml,
-        'endlabel'    => $endlabel,
-        'nexturl'     => $nexturl,
-        'nextsection' => $nextsection,
-        'nextname'    => $nextname,
-        'nexttype'    => $nexttype,
-        'attemptno'   => $attemptno,
-        'attemptdate' => $attemptdate,
-        'canretake'   => $canretake,
-        'sidebar'     => [
+        'course'       => $coursefullname,
+        'lessonlabel'  => $lessonlabel,
+        'quiz'         => $quiztitle,
+        'returnurl'    => $returnurl,
+        'introhtml'    => $introhtml,
+        'endlabel'     => $endlabel,
+        'nexturl'      => $nexturl,
+        'nextsection'  => $nextsection,
+        'nextname'     => $nextname,
+        'nexttype'     => $nexttype,
+        'attemptno'    => $attemptno,
+        'attemptdate'  => $attemptdate,
+        'canretake'    => $canretake,
+        'supporturl'   => $supporturl,
+        'cookieurl'    => '#',
+        'copyright'    => '© ' . date('Y') . ' Cengage Learning, Inc. All Rights Reserved.',
+        'sidebar'      => [
             'navlinks'   => $sbnavlinks,
             'groups'     => $sidebargroups,
             'afterlinks' => $sbafterlinks,
@@ -1716,9 +1594,11 @@ function local_heyday_quiz_before_footer(): string {
         }
     }
 
-    /* ── 1. Add body class ─────────────────────────────────────── */
+    /* ── 1. Add body classes ───────────────────────────────────── */
     document.body.classList.add('heyday-quiz-page');
     document.body.classList.add('local-heyday-quiz');
+    document.body.classList.add('local-heyday-courseplayer');
+    document.body.classList.add('local-heyday-masterplayer');
 
     /* ── 1a. HTML-escape helper ───────────────────────────────── */
     function esc(s) {
@@ -1729,69 +1609,70 @@ function local_heyday_quiz_before_footer(): string {
 
     /* ── 1b. Black topnav bar ─────────────────────────────────── */
     function buildTopnav() {
-        if (document.querySelector('.hdqz-topnav')) { return; }
+        if (document.querySelector('.heyday-ed2go-topbar')) { return; }
         var nav = document.createElement('div');
-        nav.className = 'hdqz-topnav';
-        nav.innerHTML = '<span class="hdqz-topnav-brand">' + esc(HDQ.course) + '</span>';
+        nav.className = 'heyday-ed2go-topbar';
+        nav.innerHTML =
+            '<div class="heyday-ed2go-brand"><span>' + esc(HDQ.course) + '</span></div>' +
+            '<div class="heyday-ed2go-topbar-right">' +
+                '<a href="' + esc(HDQ.returnurl) + '" style="color:#fff;text-decoration:none;font-size:13px;">Exit Quiz</a>' +
+            '</div>';
         document.body.insertBefore(nav, document.body.firstChild);
     }
 
     /* ── 1c. Left sidebar ─────────────────────────────────────── */
     function buildSidenav() {
-        if (document.querySelector('.hdqz-sidenav') || !HDQ.sidebar) { return; }
-        var sb   = document.createElement('aside');
-        sb.className = 'hdqz-sidenav';
-        var html = '';
+        if (document.querySelector('.heyday-courseplayer-sidebar') || !HDQ.sidebar) { return; }
+        var sb = document.createElement('aside');
+        sb.className = 'heyday-courseplayer-sidebar';
+        var nav = document.createElement('nav');
+        nav.className = 'heyday-main-menu';
+        var html = '<ul class="heyday-primary-menu">';
 
-        // Main nav links.
+        // Main nav links (Home, Scores, Discussions, etc.).
         (HDQ.sidebar.navlinks || []).forEach(function(link) {
             if (!link.url) { return; }
-            html += '<a class="hdqz-sidenav-mainlink" href="' + link.url + '">' + esc(link.label) + '</a>';
+            var isActive = link.isCurrent ? ' is-active' : '';
+            html += '<li><a class="heyday-main-nav-link' + isActive + '" href="' + link.url + '">' + esc(link.label) + '</a></li>';
         });
 
-        // Lesson groups.
+        html += '</ul>';
+
+        // Lesson groups — use <details>/<summary> to match courseplayer structure.
         (HDQ.sidebar.groups || []).forEach(function(group) {
             var hasActive = group.items.some(function(i) { return i.isCurrent; });
-            var open      = hasActive ? '1' : '0';
-            html += '<div class="hdqz-sidenav-group">';
-            html += '<div class="hdqz-sidenav-group-hd" data-open="' + open + '">' +
-                        esc(group.name) +
-                        '<i class="fa fa-chevron-' + (hasActive ? 'down' : 'right') + '" aria-hidden="true"></i>' +
-                    '</div>';
-            html += '<div class="hdqz-sidenav-group-items" style="display:' + (hasActive ? 'block' : 'none') + '">';
+            html += '<details class="heyday-subsection-group depth-0"' + (hasActive ? ' open' : '') + '>';
+            html += '<summary class="heyday-subsection-title">' + esc(group.name) + '</summary>';
+            html += '<ul class="heyday-lesson-items">';
             group.items.forEach(function(item) {
-                var cls = 'hdqz-sidenav-item';
-                if (item.isCurrent) { cls += ' is-active'; }
+                var cls = 'heyday-lesson-item depth-1';
+                if (item.isCurrent) { cls += ' is-current'; }
                 if (item.isLocked)  { cls += ' is-locked'; }
-                html += '<a class="' + cls + '" href="' + item.url + '">' + esc(item.name) + '</a>';
+                var href = item.isLocked ? '#' : item.url;
+                html += '<li><a class="' + cls + '" href="' + href + '">' + esc(item.name) + '</a></li>';
             });
-            html += '</div></div>';
+            html += '</ul></details>';
         });
 
         // After links (Resources, Final Exam).
-        (HDQ.sidebar.afterlinks || []).forEach(function(link) {
-            if (!link.url) { return; }
-            html += '<a class="hdqz-sidenav-afterlink" href="' + link.url + '">' + esc(link.label) + '</a>';
-        });
-
-        sb.innerHTML = html;
-
-        // Wire group toggles.
-        sb.querySelectorAll('.hdqz-sidenav-group-hd').forEach(function(hd) {
-            hd.addEventListener('click', function() {
-                var isOpen = hd.getAttribute('data-open') === '1';
-                var items  = hd.nextElementSibling;
-                var icon   = hd.querySelector('i');
-                hd.setAttribute('data-open', isOpen ? '0' : '1');
-                if (items) { items.style.display = isOpen ? 'none' : 'block'; }
-                if (icon)  { icon.className = 'fa fa-chevron-' + (isOpen ? 'right' : 'down'); }
+        var hasAfter = (HDQ.sidebar.afterlinks || []).some(function(l) { return !!l.url; });
+        if (hasAfter) {
+            html += '<ul class="heyday-primary-menu">';
+            (HDQ.sidebar.afterlinks || []).forEach(function(link) {
+                if (!link.url) { return; }
+                var isActive = link.isCurrent ? ' is-active' : '';
+                html += '<li><a class="heyday-main-nav-link' + isActive + '" href="' + link.url + '">' + esc(link.label) + '</a></li>';
             });
-        });
+            html += '</ul>';
+        }
 
-        // Insert after topnav (or at body start).
-        var topnav = document.querySelector('.hdqz-topnav');
-        if (topnav && topnav.nextSibling) {
-            topnav.parentNode.insertBefore(sb, topnav.nextSibling);
+        nav.innerHTML = html;
+        sb.appendChild(nav);
+
+        // Insert after topbar (or at body start).
+        var topbar = document.querySelector('.heyday-ed2go-topbar');
+        if (topbar && topbar.nextSibling) {
+            topbar.parentNode.insertBefore(sb, topbar.nextSibling);
         } else {
             document.body.insertBefore(sb, document.body.firstChild);
         }
@@ -1800,26 +1681,27 @@ function local_heyday_quiz_before_footer(): string {
     /* ── 2. Wrap all #region-main content in a white card ─────── */
     function buildShell() {
         var main = document.querySelector('#region-main');
-        if (!main || main.querySelector('.hdqz-card')) {
+        if (!main || main.querySelector('.heyday-player-card')) {
             return;
         }
 
         var card = document.createElement('section');
-        card.className = 'hdqz-card';
+        card.className = 'heyday-player-card';
 
         card.innerHTML =
-            '<div class="hdqz-topbar">' +
-                '<div class="hdqz-left">' +
-                    '<a class="hdqz-icon" href="' + HDQ.returnurl + '" aria-label="Back">' +
+            '<div class="heyday-player-topbar">' +
+                '<div class="heyday-topbar-left">' +
+                    '<a class="heyday-back-link" href="' + HDQ.returnurl + '" aria-label="Back">' +
                         '<i class="fa fa-arrow-left" aria-hidden="true"></i>' +
                     '</a>' +
-                    '<button type="button" class="hdqz-icon" id="hdqzBookmark" aria-label="Bookmark">' +
+                    '<button type="button" class="heyday-icon-button" id="hdqzBookmark" aria-label="Bookmark">' +
                         '<i class="fa fa-bookmark-o" aria-hidden="true"></i>' +
                     '</button>' +
                 '</div>' +
-                '<div class="hdqz-right">' +
+                '<div class="heyday-topbar-spacer"></div>' +
+                '<div class="heyday-topbar-right">' +
                     '<div class="hdqz-print-wrap">' +
-                        '<button type="button" class="hdqz-icon" id="hdqzPrint" aria-label="Print">' +
+                        '<button type="button" class="heyday-icon-button" id="hdqzPrint" aria-label="Print">' +
                             '<i class="fa fa-print" aria-hidden="true"></i>' +
                         '</button>' +
                         '<div class="hdqz-print-menu" id="hdqzPrintMenu">' +
@@ -1827,20 +1709,31 @@ function local_heyday_quiz_before_footer(): string {
                             '<button type="button" id="hdqzPrintLesson">Print/Save entire lesson</button>' +
                         '</div>' +
                     '</div>' +
-                    '<button type="button" class="hdqz-icon" id="hdqzFullscreen" aria-label="Fullscreen">' +
+                    '<button type="button" class="heyday-icon-button" id="hdqzFullscreen" aria-label="Fullscreen">' +
                         '<i class="fa fa-expand" aria-hidden="true"></i>' +
                     '</button>' +
                 '</div>' +
             '</div>' +
-            '<div class="hdqz-course-title"></div>' +
-            '<h1 class="hdqz-title"></h1>' +
+            '<div class="heyday-player-heading">' +
+                '<p class="heyday-course-kicker"></p>' +
+                '<p class="heyday-lesson-kicker"></p>' +
+                '<h1></h1>' +
+            '</div>' +
             '<button type="button" class="hdqz-instructions-toggle" id="hdqzInstructionsToggle" aria-expanded="false">' +
                 '<i class="fa fa-info-circle" aria-hidden="true"></i> <span>Show Instructions</span>' +
             '</button>' +
             '<div class="hdqz-instructions-panel is-hidden" id="hdqzInstructionsPanel"></div>';
 
-        card.querySelector('.hdqz-course-title').textContent = HDQ.course;
-        card.querySelector('.hdqz-title').textContent        = HDQ.quiz;
+        card.querySelector('.heyday-course-kicker').textContent = HDQ.course;
+        var kickerEl = card.querySelector('.heyday-lesson-kicker');
+        if (kickerEl) {
+            if (HDQ.lessonlabel) {
+                kickerEl.textContent = HDQ.lessonlabel;
+            } else {
+                kickerEl.style.display = 'none';
+            }
+        }
+        card.querySelector('.heyday-player-heading h1').textContent = HDQ.quiz;
         card.querySelector('#hdqzInstructionsPanel').innerHTML = HDQ.introhtml;
 
         /* Move existing children into the card. */
@@ -1856,9 +1749,14 @@ function local_heyday_quiz_before_footer(): string {
         var main = document.querySelector('#region-main');
         if (!main) { return; }
 
-        /* Hide redundant headings. */
+        /* Hide redundant headings — but skip the .no badge inside .que .info,
+           which IS an h3 but must remain visible as the question number circle. */
         main.querySelectorAll('h1, h2, h3').forEach(function(el) {
-            if (!el.classList.contains('hdqz-title') && el.closest('.hdqz-card')) {
+            if (!el.closest('.heyday-player-heading') && el.closest('.heyday-player-card')) {
+                /* Skip the question-number badge. */
+                if (el.classList.contains('no') && el.closest('.que .info')) {
+                    return;
+                }
                 var text = (el.textContent || '').trim();
                 if (text !== '') {
                     el.style.display = 'none';
@@ -2085,35 +1983,43 @@ function local_heyday_quiz_before_footer(): string {
 
     /* ── 6. Append End-of-Quiz divider and Next Up card ────────── */
     function addNextUp() {
-        /* Only show on review/summary, not during a live attempt. */
-        if (document.body.id === 'page-mod-quiz-attempt') { return; }
-
         var main = document.querySelector('#region-main');
-        if (!main || main.querySelector('.hdqz-end')) { return; }
-
-        var end = document.createElement('div');
-        end.className = 'hdqz-end';
-        end.innerHTML = '<span></span><strong></strong><span></span>';
-        end.querySelector('strong').textContent = HDQ.endlabel;
+        if (!main || main.querySelector('.heyday-nextup-row')) { return; }
+        if (!HDQ.nexturl) { return; }
 
         var next = document.createElement('a');
-        next.className = 'hdqz-next';
+        next.className = 'heyday-nextup-row';
         next.href = HDQ.nexturl;
         next.target = '_top';
+        next.setAttribute('aria-label', 'Next Up: ' + HDQ.nextname);
         next.innerHTML =
-            '<span class="hdqz-next-label">Next Up</span>' +
-            '<span class="hdqz-next-content">' +
-                '<span class="hdqz-next-section"></span>' +
-                '<span class="hdqz-next-title"></span>' +
-                '<span class="hdqz-next-type"></span>' +
+            '<span class="heyday-nextup-label">Next Up</span>' +
+            '<span class="heyday-nextup-body">' +
+                '<span class="heyday-nextup-title"></span>' +
+                '<span class="heyday-nextup-type"></span>' +
             '</span>';
 
-        next.querySelector('.hdqz-next-section').textContent = HDQ.nextsection;
-        next.querySelector('.hdqz-next-title').textContent   = HDQ.nextname;
-        next.querySelector('.hdqz-next-type').textContent    = HDQ.nexttype;
+        next.querySelector('.heyday-nextup-title').textContent = HDQ.nextname;
+        next.querySelector('.heyday-nextup-type').textContent  = HDQ.nexttype;
 
-        main.appendChild(end);
         main.appendChild(next);
+    }
+
+    /* ── 6b. Footer: Course Support / Cookie Settings / copyright ── */
+    function addFooter() {
+        var main = document.querySelector('#region-main');
+        if (!main || main.querySelector('.heyday-player-footer')) { return; }
+
+        var footer = document.createElement('footer');
+        footer.className = 'heyday-player-footer';
+        footer.setAttribute('aria-label', 'Course footer');
+        footer.innerHTML =
+            '<a href="' + esc(HDQ.supporturl) + '">Course Support</a>' +
+            '<span aria-hidden="true"></span>' +
+            '<a href="' + esc(HDQ.cookieurl) + '">Cookie Settings</a>' +
+            '<div class="heyday-footer-copyright">' + esc(HDQ.copyright) + '</div>';
+
+        main.appendChild(footer);
     }
 
     /* ── 7. Wire interactive controls ──────────────────────────── */
@@ -2217,7 +2123,7 @@ function local_heyday_quiz_before_footer(): string {
     function showScore() {
         if (document.body.id !== 'page-mod-quiz-review') { return; }
 
-        var card = document.querySelector('.hdqz-card');
+        var card = document.querySelector('.heyday-player-card');
         if (!card || card.querySelector('.hdqz-review-header')) { return; }
 
         /* quizreviewsummary is hidden by CSS but still in the DOM. */
@@ -2297,8 +2203,8 @@ function local_heyday_quiz_before_footer(): string {
         header.className = 'hdqz-review-header';
         header.innerHTML = attemptBarHtml + retakeHtml + ringHtml;
 
-        var anchor = card.querySelector('.hdqz-instructions-toggle') ||
-                     card.querySelector('.hdqz-title');
+        var anchor = card.querySelector('#hdqzInstructionsToggle') ||
+                     card.querySelector('.heyday-player-heading');
         if (anchor && anchor.parentNode === card) {
             anchor.parentNode.insertBefore(header, anchor.nextSibling);
         } else {
@@ -2409,19 +2315,21 @@ function local_heyday_quiz_before_footer(): string {
     }
 
     /* ── Main init ──────────────────────────────────────────────── */
-    var inIframe = (window.self !== window.top);
+    var inIframe  = (window.self !== window.top);
+    var isAttempt = (document.body.id === 'page-mod-quiz-attempt');
 
     function init() {
         if (!inIframe) {
             buildTopnav();
-            buildSidenav();
+            buildSidenav();   /* sidebar on all pages, including active attempt */
             buildShell();
         }
         cleanQuiz();
         cleanLiveAttemptHighlights();
         improveButtons();
         if (!inIframe) {
-            addNextUp();
+            addNextUp();      /* Next Up shown on attempt page as well */
+            addFooter();      /* Course Support / Cookie Settings / copyright */
             wireControls();
             showScore();
             annotateReview();
