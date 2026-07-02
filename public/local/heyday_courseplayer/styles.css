@@ -1,11 +1,11 @@
-/*
+﻿/*
  * Heyday ed2go-style master course player.
  * Scope is intentionally limited to body.local-heyday-courseplayer.
  */
 
 .local-heyday-courseplayer {
     --heyday-topbar-bg: #050505;
-    --heyday-accent: #0073a8;
+    --heyday-accent: #007acc;
     --heyday-page-bg: #f4f5f7;
     --heyday-card-bg: #fff;
     --heyday-sidebar-width: 424px;
@@ -1314,8 +1314,8 @@ body.local-heyday-courseplayer .heyday-download-btn {
     align-items: center;
     justify-content: center;
     min-height: 36px;
-    border: 1px solid #0073a8 !important;
-    color: #006fa8 !important;
+    border: 1px solid #007acc !important;
+    color: #007acc !important;
     background: #fff !important;
     border-radius: 4px !important;
     padding: 8px 13px !important;
@@ -1345,8 +1345,8 @@ body.local-heyday-courseplayer .heyday-credit-filter {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    border: 1px solid #0073a8;
-    color: #006fa8;
+    border: 1px solid #007acc;
+    color: #007acc;
     background: #fff;
     padding: 7px 12px;
     border-radius: 4px;
@@ -1365,8 +1365,8 @@ body.local-heyday-courseplayer .heyday-credit-filter input {
 
 body.local-heyday-courseplayer .heyday-sort-btn,
 body.local-heyday-courseplayer .heyday-score-apply {
-    background: #0073a8;
-    border: 1px solid #0073a8;
+    background: #007acc;
+    border: 1px solid #007acc;
     color: #fff;
     padding: 8px 14px;
     border-radius: 4px;
@@ -1378,7 +1378,7 @@ body.local-heyday-courseplayer .heyday-score-apply {
 
 body.local-heyday-courseplayer .heyday-score-apply {
     background: #fff;
-    color: #006fa8;
+    color: #007acc;
 }
 
 body.local-heyday-courseplayer .heyday-sort-btn:hover,
@@ -1416,7 +1416,7 @@ body.local-heyday-courseplayer .heyday-score-search {
 }
 
 body.local-heyday-courseplayer .heyday-score-search:focus {
-    border-color: #0073a8;
+    border-color: #007acc;
 }
 
 body.local-heyday-courseplayer .heyday-score-list {
@@ -1457,7 +1457,7 @@ body.local-heyday-courseplayer .heyday-score-main {
 }
 
 body.local-heyday-courseplayer .heyday-score-name {
-    color: #006fa8;
+    color: #007acc;
     font-size: 22px;
     font-weight: 400;
     text-decoration: underline;
@@ -1587,7 +1587,7 @@ body.local-heyday-courseplayer .heyday-page-btn {
     border: 1px solid #cfd7dc;
     border-right: 0;
     background: #fff;
-    color: #006fa8;
+    color: #007acc;
     font-size: 14px;
     line-height: 1;
     text-decoration: none !important;
@@ -1604,9 +1604,9 @@ body.local-heyday-courseplayer .heyday-page-btn:hover {
 }
 
 body.local-heyday-courseplayer .heyday-page-btn.is-active {
-    background: #0073a8;
+    background: #007acc;
     color: #fff;
-    border-color: #0073a8;
+    border-color: #007acc;
     font-weight: 600;
     cursor: default;
 }
@@ -1816,7 +1816,7 @@ body.local-heyday-courseplayer .hd-discussion-prompt-icon {
     flex: 0 0 auto;
     width: 28px;
     height: 28px;
-    fill: var(--heyday-accent, #006fa8);
+    fill: var(--heyday-accent, #007acc);
     margin-top: 2px;
 }
 
@@ -1896,7 +1896,7 @@ body.local-heyday-courseplayer .hd-discussion-search {
 }
 
 body.local-heyday-courseplayer .hd-discussion-search:focus {
-    outline: 2px solid var(--heyday-accent, #006fa8);
+    outline: 2px solid var(--heyday-accent, #007acc);
     border-color: transparent;
 }
 
@@ -1946,7 +1946,7 @@ body.local-heyday-courseplayer .hd-sort-menu li {
 body.local-heyday-courseplayer .hd-sort-menu li:hover,
 body.local-heyday-courseplayer .hd-sort-menu li[aria-selected="true"] {
     background: #f0f7fc;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 body.local-heyday-courseplayer .hd-discussion-add-btn {
@@ -1980,7 +1980,7 @@ body.local-heyday-courseplayer .hd-disc-thread:hover {
 }
 
 body.local-heyday-courseplayer .hd-disc-thread.is-new {
-    border-left: 4px solid var(--heyday-accent, #006fa8);
+    border-left: 4px solid var(--heyday-accent, #007acc);
 }
 
 body.local-heyday-courseplayer .hd-disc-thread-left {
@@ -1992,7 +1992,7 @@ body.local-heyday-courseplayer .hd-disc-thread-title {
     display: block;
     font-size: 17px;
     font-weight: 400;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     text-decoration: underline;
     line-height: 1.35;
     margin-bottom: 5px;
@@ -2040,7 +2040,7 @@ body.local-heyday-courseplayer .hd-disc-thread-link svg {
 }
 
 body.local-heyday-courseplayer .hd-disc-thread-link:hover {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 body.local-heyday-courseplayer .hd-discussion-empty {
@@ -2075,12 +2075,12 @@ body.local-heyday-courseplayer .hd-disc-tab {
 }
 
 body.local-heyday-courseplayer .hd-disc-tab:hover {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 body.local-heyday-courseplayer .hd-disc-tab.is-active {
-    color: var(--heyday-accent, #006fa8);
-    border-top-color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
+    border-top-color: var(--heyday-accent, #007acc);
 }
 
 /* Native forum link */
@@ -2098,7 +2098,7 @@ body.local-heyday-courseplayer .hd-discussion-native-link {
 }
 
 body.local-heyday-courseplayer .hd-discussion-native-link:hover {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 /* ── Thread detail view (did=X) ─────────────────────────────────────────── */
@@ -2110,7 +2110,7 @@ body.local-heyday-courseplayer .hd-disc-back-link {
     align-items: center;
     gap: 6px;
     font-size: 0.88rem;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     text-decoration: none;
     font-weight: 500;
 }
@@ -2200,7 +2200,7 @@ body.local-heyday-courseplayer .hd-reply-action-report,
 body.local-heyday-courseplayer .hd-disc-action-reply,
 body.local-heyday-courseplayer .hd-disc-action-report {
     font-size: 0.82rem;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     text-decoration: none;
 }
 body.local-heyday-courseplayer .hd-reply-action-reply:hover,
@@ -2299,7 +2299,7 @@ body.local-heyday-courseplayer .heyday-gs-tab {
 }
 
 body.local-heyday-courseplayer .heyday-gs-tab:hover {
-    border-color: rgba(0, 115, 168, .42);
+    border-color: rgba(0, 122, 204, .42);
     background: #f8fcff;
 }
 
@@ -2791,9 +2791,9 @@ body.local-heyday-courseplayer .heyday-gs-sidebar-status.completed {
 body.local-heyday-courseplayer.local-heyday-masterplayer {
     --heyday-topbar-height: 42px;
     --heyday-sidebar-width: 424px;
-    --heyday-accent: #0073a8;
+    --heyday-accent: #007acc;
     --heyday-page-bg: #f4f5f7;
-    --heyday-ed2go-link: #0073a8;
+    --heyday-ed2go-link: #007acc;
     --heyday-ed2go-locked: #707d89;
     --heyday-ed2go-complete: #3fa344;
 }
@@ -3219,7 +3219,7 @@ body.local-heyday-courseplayer .heyday-player-footer {
    =========================================================== */
 body.local-heyday-courseplayer.local-heyday-masterplayer {
     --heyday-sidebar-width: 424px;
-    --heyday-ed2go-link: #0073a8;
+    --heyday-ed2go-link: #007acc;
     --heyday-ed2go-muted: #6f7d89;
     --heyday-ed2go-complete: #36a546;
     --heyday-ed2go-locked: #6f7d89;
@@ -3522,7 +3522,7 @@ body.local-heyday-courseplayer .heyday-courseplayer-sidebar::after {
 
 body.local-heyday-courseplayer.local-heyday-masterplayer {
     --heyday-sidebar-width: 424px;
-    --heyday-ed2go-link: #0073a8;
+    --heyday-ed2go-link: #007acc;
     --heyday-ed2go-complete: #36a546;
     --heyday-ed2go-locked: #6f7d89;
 }
@@ -3825,7 +3825,7 @@ body.local-heyday-courseplayer .heyday-teacher-tool {
     justify-content: center;
     min-height: 30px;
     padding: 6px 10px;
-    border: 1px solid rgba(0, 115, 168, .45);
+    border: 1px solid rgba(0, 122, 204, .45);
     border-radius: 3px;
     background: #fff;
     color: var(--heyday-accent) !important;
@@ -3895,7 +3895,7 @@ body.local-heyday-courseplayer .heyday-topbar-teacher-tool {
 body.local-heyday-courseplayer .heyday-topbar-teacher-tool:hover,
 body.local-heyday-courseplayer .heyday-topbar-teacher-tool:focus {
     background: #fff;
-    color: var(--heyday-accent, #0073a8) !important;
+    color: var(--heyday-accent, #007acc) !important;
     text-decoration: none !important;
 }
 
@@ -3922,7 +3922,7 @@ body.local-heyday-courseplayer.local-heyday-masterplayer {
     --heyday-sidebar-width: 380px;
     --heyday-content-max: 980px;
     --heyday-content-inner-max: 900px;
-    --heyday-accent: #0073a8;
+    --heyday-accent: #007acc;
     --heyday-page-bg: #f4f5f7;
     --heyday-card-bg: #fff;
     --heyday-complete: #54a221;
@@ -4208,7 +4208,7 @@ body.local-heyday-courseplayer .heyday-player-icon:hover,
 body.local-heyday-courseplayer .heyday-player-icon:focus {
     color: #005f8c !important;
     background: #eef7fc !important;
-    border-color: rgba(0, 115, 168, .18) !important;
+    border-color: rgba(0, 122, 204, .18) !important;
     outline: none !important;
     text-decoration: none !important;
 }
@@ -4309,7 +4309,7 @@ body.local-heyday-courseplayer a.heyday-nextup-row:visited {
 body.local-heyday-courseplayer a.heyday-nextup-row:hover,
 body.local-heyday-courseplayer a.heyday-nextup-row:focus {
     transform: translateY(-1px) !important;
-    border-color: rgba(0, 115, 168, .45) !important;
+    border-color: rgba(0, 122, 204, .45) !important;
     box-shadow: 0 3px 10px rgba(15, 23, 42, .14) !important;
     text-decoration: none !important;
     outline: none !important;
@@ -4429,7 +4429,7 @@ body.local-heyday-courseplayer .heyday-fullscreen-button svg {
 body.local-heyday-courseplayer .heyday-player-icon:hover,
 body.local-heyday-courseplayer .heyday-player-icon:focus {
     background: #eef7fc !important;
-    border-color: rgba(0, 115, 168, .2) !important;
+    border-color: rgba(0, 122, 204, .2) !important;
     transform: translateY(-1px);
 }
 
@@ -5251,7 +5251,7 @@ body.local-heyday-courseplayer .hd-instructions-toggle {
     background: #fff;
     border: 1px solid #a9cfe5;
     border-radius: 4px;
-    color: #006fae;
+    color: #007acc;
     font-size: 14px;
     cursor: pointer;
 }
@@ -5287,7 +5287,7 @@ body.local-heyday-courseplayer .hd-pretest-actions {
 }
 
 body.local-heyday-courseplayer .hd-skip-link {
-    color: #006fae;
+    color: #007acc;
     text-decoration: underline;
     font-size: 14px;
 }
@@ -5403,7 +5403,7 @@ body.local-heyday-courseplayer .hd-next-section {
 }
 body.local-heyday-courseplayer .hd-next-title {
     display: block;
-    color: #006fae;
+    color: #007acc;
     text-decoration: underline;
     font-size: 13px;
 }
@@ -5450,6 +5450,130 @@ body.local-heyday-courseplayer.hd-iframe-active .heyday-player-heading {
 body.local-heyday-courseplayer.hd-iframe-active .heyday-completion-row,
 body.local-heyday-courseplayer.hd-iframe-active a.heyday-nextup-row {
     display: none !important;
+}
+
+/* ===========================================================
+   2026063018 - Pretest ed2go status block: hd-pretest-status wrapper,
+   flex-column badge, Instructions accordion, attempt row
+   Scope: local_heyday_courseplayer only — pretest intro card
+   =========================================================== */
+
+/* Allow pretest card to shrink to content height (removes 600px floor). */
+body.local-heyday-courseplayer .heyday-courseplayer-page.is-page-pretest .heyday-player-card {
+    min-height: auto;
+}
+
+/* Status block: flex column so children stack top-to-bottom. */
+body.local-heyday-courseplayer .hd-pretest-status {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Score badge: align-self:flex-end places it at the right edge of the column. */
+body.local-heyday-courseplayer .hd-pretest-score-badge {
+    align-self: flex-end;
+    background: #007acc;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.2;
+    padding: 5px 14px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+/* Blue full-width Instructions accordion header. */
+body.local-heyday-courseplayer .hd-pretest-instructions-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 16px;
+    background: #007acc;
+    color: #fff;
+    border: 0;
+    border-radius: 4px 4px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+body.local-heyday-courseplayer .hd-pretest-instructions-header:hover {
+    background: #005f8c;
+}
+
+body.local-heyday-courseplayer .hd-pretest-header-icon {
+    flex: 0 0 auto;
+    font-size: 16px;
+}
+
+body.local-heyday-courseplayer .hd-pretest-header-label {
+    flex: 1 1 auto;
+}
+
+body.local-heyday-courseplayer .hd-pretest-header-chevron {
+    flex: 0 0 auto;
+    font-size: 12px;
+    display: inline-block;
+    transition: transform 0.18s ease;
+}
+
+/* Attempt row: rendered only when a finished attempt exists. */
+body.local-heyday-courseplayer .hd-pretest-attempt-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    background: #f5f8fb;
+    border: 1px solid #c5d5e4;
+    border-top: 0;
+    font-size: 14px;
+    color: #222;
+}
+
+body.local-heyday-courseplayer .hd-pretest-attempt-icon {
+    flex: 0 0 auto;
+    font-size: 15px;
+    color: #5a6777;
+}
+
+body.local-heyday-courseplayer .hd-pretest-attempt-label {
+    font-weight: 600;
+    color: #1f2933;
+    white-space: nowrap;
+}
+
+body.local-heyday-courseplayer .hd-pretest-attempt-date {
+    flex: 1 1 auto;
+    color: #4b5563;
+}
+
+body.local-heyday-courseplayer .hd-pretest-attempt-score {
+    font-weight: 700;
+    color: #007acc;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+/* Collapsible instructions body — connects visually below the status block. */
+body.local-heyday-courseplayer .hd-pretest-instructions-body {
+    border: 1px solid #c5d5e4;
+    border-top: 0;
+    border-radius: 0 0 4px 4px;
+    padding: 18px 20px 14px;
+    background: #fff;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #222;
+    margin-bottom: 24px;
+}
+
+/* HTML hidden attribute: collapses the body fully with zero residual height. */
+body.local-heyday-courseplayer .hd-pretest-instructions-body[hidden] {
+    display: none;
 }
 
 /* =========================================================
@@ -5885,8 +6009,8 @@ body.local-heyday-courseplayer .heyday-player-card .singlebutton {
 body.local-heyday-courseplayer .heyday-player-card .btn-primary,
 body.local-heyday-courseplayer .heyday-player-card input[type="submit"].btn-primary,
 body.local-heyday-courseplayer .heyday-player-card button.btn-primary {
-    background: #0073a8 !important;
-    border-color: #0073a8 !important;
+    background: #007acc !important;
+    border-color: #007acc !important;
     color: #fff !important;
     border-radius: 4px;
     font-weight: 600;
@@ -5920,8 +6044,8 @@ body.local-heyday-courseplayer .modal-footer {
 }
 
 body.local-heyday-courseplayer .modal-footer .btn-primary {
-    background: #0073a8 !important;
-    border-color: #0073a8 !important;
+    background: #007acc !important;
+    border-color: #007acc !important;
 }
 
 
@@ -5977,7 +6101,7 @@ body.local-heyday-courseplayer .hd-res-type-icon {
     height: 24px;
     margin-top: 2px;
     fill: none;
-    stroke: var(--heyday-accent, #006fa8);
+    stroke: var(--heyday-accent, #007acc);
     stroke-width: 1.75;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -5996,7 +6120,7 @@ body.local-heyday-courseplayer .hd-resource-name {
     display: block;
     font-size: 17px;
     font-weight: 400;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     text-decoration: underline;
     line-height: 1.35;
     margin-bottom: 3px;
@@ -6071,7 +6195,7 @@ body.local-heyday-courseplayer .hd-res-lock svg {
 body.local-heyday-courseplayer .hd-resource-open-btn {
     display: inline-block;
     padding: 8px 16px;
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     color: #fff;
     font-size: 14px;
     font-weight: 600;
@@ -6396,7 +6520,7 @@ body.local-heyday-courseplayer .hd-disc-action-report {
 }
 
 body.local-heyday-courseplayer .hd-disc-action-reply {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 body.local-heyday-courseplayer .hd-disc-action-report {
@@ -6420,7 +6544,7 @@ body.local-heyday-courseplayer .hd-disc-expand-btn {
     border: none;
     padding: 0;
     font-size: 13px;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     cursor: pointer;
     margin-left: auto;
     text-decoration: underline;
@@ -6509,7 +6633,7 @@ body.local-heyday-courseplayer .hd-reply-action-report {
 }
 
 body.local-heyday-courseplayer .hd-reply-action-reply {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 body.local-heyday-courseplayer .hd-reply-action-report {
@@ -6562,7 +6686,7 @@ body.local-heyday-courseplayer .hd-write-post-title {
 }
 
 body.local-heyday-courseplayer .hd-write-post-title:focus {
-    outline: 2px solid var(--heyday-accent, #006fa8);
+    outline: 2px solid var(--heyday-accent, #007acc);
     border-color: transparent;
 }
 
@@ -6588,7 +6712,7 @@ body.local-heyday-courseplayer .hd-write-post-editor:empty:before {
 }
 
 body.local-heyday-courseplayer .hd-write-post-editor:focus {
-    outline: 2px solid var(--heyday-accent, #006fa8);
+    outline: 2px solid var(--heyday-accent, #007acc);
     border-color: transparent;
 }
 
@@ -6606,7 +6730,7 @@ body.local-heyday-courseplayer .hd-write-post-upload-btn {
     align-items: center;
     gap: 6px;
     font-size: 14px;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     text-decoration: none;
     cursor: pointer;
 }
@@ -6641,7 +6765,7 @@ body.local-heyday-courseplayer .hd-wp-submit-btn {
     font-size: 14px;
     font-weight: 600;
     color: #fff !important;
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     border-radius: 4px;
     text-decoration: none !important;
     white-space: nowrap;
@@ -6695,7 +6819,7 @@ body.local-heyday-courseplayer .hd-disc-tab-count {
 }
 
 body.local-heyday-courseplayer .hd-disc-tab.is-active .hd-disc-tab-count {
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     color: #fff;
 }
 
@@ -6759,7 +6883,7 @@ body.local-heyday-courseplayer .hd-write-post-card .hd-write-post-heading {
 
 body.local-heyday-courseplayer .hd-write-post-icon {
     flex-shrink: 0;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 body.local-heyday-courseplayer .hd-write-post-card .hd-write-post-body {
@@ -6907,7 +7031,7 @@ body.local-heyday-courseplayer .hd-write-post-upload-row {
 }
 
 body.local-heyday-courseplayer .hd-write-post-upload-link {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     text-decoration: none;
     font-size: 0.84rem;
 }
@@ -6931,7 +7055,7 @@ body.local-heyday-courseplayer .hd-write-post-card .hd-wp-submit-btn {
     display: inline-flex;
     align-items: center;
     padding: 7px 22px;
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     color: #fff;
     border-radius: 5px;
     font-size: 0.88rem;
@@ -6988,7 +7112,7 @@ body.local-heyday-courseplayer .hd-discussion-search-btn {
     align-items: center;
     gap: 5px;
     padding: 7px 14px;
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     color: #fff;
     border: none;
     font-size: 0.84rem;
@@ -7070,12 +7194,12 @@ body.local-heyday-courseplayer .hd-disc-bookmark-btn {
 }
 
 body.local-heyday-courseplayer .hd-disc-bookmark-btn:hover {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     background: #e8f4fb;
 }
 
 body.local-heyday-courseplayer .hd-disc-bookmark-btn[aria-pressed="true"] {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 /* ── Thread card footer: left actions + right posted date ────────────────── */
@@ -7326,10 +7450,10 @@ body.local-heyday-courseplayer .hd-counter-bookmarked {
     background: #f0f7ff;
 }
 body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-count {
-    color: #0073a6;
+    color: #007acc;
 }
 body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-label {
-    color: #0073a6;
+    color: #007acc;
 }
 body.local-heyday-courseplayer .hd-counter-bookmarked:hover {
     background: #e0eeff;
@@ -7389,7 +7513,7 @@ body.local-heyday-courseplayer .hd-write-post-card .hd-write-post-heading {
 
 body.local-heyday-courseplayer .hd-write-post-icon {
     flex-shrink: 0;
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 body.local-heyday-courseplayer .hd-write-post-card .hd-write-post-body {
@@ -7460,7 +7584,7 @@ body.local-heyday-courseplayer .hd-write-post-upload-row {
 }
 
 body.local-heyday-courseplayer .hd-write-post-upload-link {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     text-decoration: none;
     font-size: 0.84rem;
 }
@@ -7484,7 +7608,7 @@ body.local-heyday-courseplayer .hd-write-post-card .hd-wp-submit-btn {
     display: inline-flex;
     align-items: center;
     padding: 7px 20px;
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     color: #fff;
     border-radius: 5px;
     font-size: 0.88rem;
@@ -7532,7 +7656,7 @@ body.local-heyday-courseplayer .hd-discussion-search-btn {
     align-items: center;
     gap: 5px;
     padding: 7px 14px;
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     color: #fff;
     border: none;
     font-size: 0.84rem;
@@ -7566,12 +7690,12 @@ body.local-heyday-courseplayer .hd-disc-bookmark-btn {
 }
 
 body.local-heyday-courseplayer .hd-disc-bookmark-btn:hover {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
     background: #e8f4fb;
 }
 
 body.local-heyday-courseplayer .hd-disc-bookmark-btn[aria-pressed="true"] {
-    color: var(--heyday-accent, #006fa8);
+    color: var(--heyday-accent, #007acc);
 }
 
 /* ── Thread card footer: left actions + right posted date ────────────────── */
@@ -7690,7 +7814,7 @@ body.local-heyday-courseplayer .hd-counter-toggle {
     justify-content: center;
     width: 28px;
     height: 28px;
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     color: #fff;
     border: none;
     border-radius: 50%;
@@ -7748,7 +7872,7 @@ body.local-heyday-courseplayer .hd-counter-label {
     line-height: 1;
 }
 
-body.local-heyday-courseplayer .hd-counter-mine .hd-counter-count { color: var(--heyday-accent, #006fa8); }
+body.local-heyday-courseplayer .hd-counter-mine .hd-counter-count { color: var(--heyday-accent, #007acc); }
 body.local-heyday-courseplayer .hd-counter-new .hd-counter-count  { color: #2e7d32; }
 
 /* Responsive: hide counters on small screens */
@@ -7779,7 +7903,7 @@ body.local-heyday-courseplayer .hd-discussion-search-btn {
     width: 38px;
     padding: 0;
     gap: 0;
-    background: var(--heyday-accent, #006fa8);
+    background: var(--heyday-accent, #007acc);
     color: #fff;
     border: none;
     font-size: 0.84rem;
@@ -7803,8 +7927,8 @@ body.local-heyday-courseplayer .hd-counter-new .hd-counter-label   { color: #c43
 body.local-heyday-courseplayer .hd-counter-new                     { background: #fff5f5; }
 body.local-heyday-courseplayer .hd-counter-new:hover               { background: #ffe5e5; }
 
-body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-count  { color: #0073a6; }
-body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-label  { color: #0073a6; }
+body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-count  { color: #007acc; }
+body.local-heyday-courseplayer .hd-counter-bookmarked .hd-counter-label  { color: #007acc; }
 body.local-heyday-courseplayer .hd-counter-bookmarked                     { background: #f0f7ff; }
 body.local-heyday-courseplayer .hd-counter-bookmarked:hover               { background: #e0eeff; }
 
@@ -7823,3 +7947,624 @@ body.local-heyday-courseplayer .hd-counter-person {
 /* Toolbar: hide any stray hint text */
 body.local-heyday-courseplayer .hd-tb-hint { display: none !important; }
 body.local-heyday-courseplayer .hd-tb-hint-sep { display: none !important; }
+
+/* ── Discussion filter tabs — compact ed2go style (overrides stretched defaults) */
+
+body.local-heyday-courseplayer .hd-discussion-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    max-width: 480px;
+    margin: 18px auto 0;
+    border-top: none;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+body.local-heyday-courseplayer .hd-disc-tab {
+    flex: 0 0 auto;
+    padding: 9px 28px;
+    background: transparent;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    border-top: none;
+    margin-top: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    transition: color .15s, border-color .15s;
+}
+
+body.local-heyday-courseplayer .hd-disc-tab:hover {
+    color: #007acc;
+}
+
+body.local-heyday-courseplayer .hd-disc-tab.is-active {
+    color: #007acc;
+    border-bottom-color: #007acc;
+    border-top-color: transparent;
+}
+
+body.local-heyday-courseplayer .hd-disc-tab.is-active .hd-disc-tab-count {
+    background: #007acc;
+    color: #fff;
+}
+
+/* Native forum link — right-aligned, tidy spacing */
+body.local-heyday-courseplayer .hd-discussion-native-wrap {
+    text-align: right;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ================================================================
+   QUIZ ATTEMPT PAGE — VISUAL POLISH  2026-07-01
+   Scope: body.heyday-quiz-page.local-heyday-courseplayer only.
+   All selectors use 3-class specificity (0,3,x) to beat the
+   2-class quiz lib.php CSS (0,2,x) in the cascade.
+   CSS-only — no version bump needed; purge caches only.
+   ================================================================ */
+
+/* PART 1: Print + fullscreen icons side-by-side in topbar-right
+   (default display:block causes the print-wrap div + fullscreen
+   button to stack vertically; flex fixes it) */
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-topbar-right {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-topbar-left {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* PART 2: Compact quiz card header — less vertical whitespace */
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-player-heading {
+    margin: 0 auto 14px !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-player-heading h1 {
+    margin-top: 4px !important;
+    font-size: 25px !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-course-kicker,
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-lesson-kicker {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+}
+/* Bring Show Instructions tighter under the heading */
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-instructions-toggle {
+    margin-top: 0 !important;
+    margin-bottom: 14px !important;
+}
+
+/* PART 3: Card slightly wider and better padded */
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-player-card {
+    max-width: 960px !important;
+    padding: 24px 36px 46px !important;
+}
+
+/* PART 4: Answer rows — clean ed2go horizontal bars
+   Adds visible 1px border + subtle border-radius; overrides the
+   transparent border that made rows look borderless */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r0,
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r1,
+body.heyday-quiz-page.local-heyday-courseplayer .answer > div {
+    background: #f6f7f8 !important;
+    border: 1px solid #dce2e8 !important;
+    border-radius: 3px !important;
+    min-height: 46px !important;
+    margin: 8px 0 !important;
+}
+/* A/B/C/D capsule height to match taller row */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .answernumber {
+    height: 46px !important;
+    border-radius: 3px 0 0 3px !important;
+}
+/* Label vertical centering for taller row */
+body.heyday-quiz-page.local-heyday-courseplayer .answer label {
+    min-height: 46px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .answer .flex-fill {
+    min-height: 46px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+
+/* Hover state — subtle blue tint */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r0:hover,
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r1:hover,
+body.heyday-quiz-page.local-heyday-courseplayer .answer > div:hover {
+    background: #f0f6fc !important;
+    border-color: rgba(0, 122, 204, 0.3) !important;
+}
+
+/* PART 5: Selected radio — subtle blue highlight/glow via :has()
+   CSS !important overrides the JS inline style.background reset
+   in cleanLiveAttemptHighlights() which is a regular (non-!important)
+   assignment and therefore lower priority than author !important. */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r0:has(input[type="radio"]:checked),
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r1:has(input[type="radio"]:checked),
+body.heyday-quiz-page.local-heyday-courseplayer .answer > div:has(input[type="radio"]:checked) {
+    background: #eaf4fd !important;
+    border-color: rgba(0, 122, 204, 0.48) !important;
+    box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.14) !important;
+}
+
+/* PART 6: Question block — cleaner spacing + slightly lighter separator */
+body.heyday-quiz-page.local-heyday-courseplayer .que {
+    padding-top: 22px !important;
+    padding-bottom: 28px !important;
+    border-top-color: #ced4da !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .que:first-of-type {
+    border-top: 0 !important;
+}
+
+/* PART 7: Button row — already bottom-right; add slight top breathing room */
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-button-row {
+    margin-top: 30px !important;
+}
+/* ================================================================
+   END quiz attempt polish
+   ================================================================ */
+
+/* ================================================================
+   QUIZ ATTEMPT PAGE — ED2GO STYLE PASS 2  2026-07-01
+   Selector base: body.heyday-quiz-page.local-heyday-courseplayer
+   Specificity (0,3,x) consistently beats lib.php (0,2,x).
+   CSS-only — no version bump; purge caches only.
+   ================================================================ */
+
+/* ── D. CARD — increase to ed2go target width (1000-1100px) ────── */
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-player-card {
+    max-width: 1060px !important;
+    padding: 28px 44px 52px !important;
+}
+
+/* ── G. SHOW INSTRUCTIONS — icon not underlined, text underlined ── */
+/* The JS generates:
+   <button class="hdqz-instructions-toggle">
+       <i class="fa fa-info-circle"></i> <span>Show Instructions</span>
+   </button>
+   Remove underline from the whole button; restore it on the text span only. */
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-instructions-toggle {
+    text-decoration: none !important;
+    font-size: 13px !important;
+    gap: 5px !important;
+    margin-bottom: 22px !important; /* breathing room before Q1 */
+}
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-instructions-toggle span {
+    text-decoration: underline !important;
+    text-underline-offset: 2px !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-instructions-toggle i,
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-instructions-toggle .fa {
+    text-decoration: none !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+/* ── H. QUESTION BADGE — dark slate-gray, consistent circle ──────── */
+body.heyday-quiz-page.local-heyday-courseplayer .que .info .no,
+body.heyday-quiz-page.local-heyday-courseplayer .que .info h3.no,
+body.heyday-quiz-page.local-heyday-courseplayer .que .info div.no {
+    background: #374151 !important; /* dark slate-gray */
+    color: #fff !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    border-radius: 18px !important; /* perfect circle */
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 36px !important;
+}
+
+/* ── H. Badge vertical alignment with first line of question ─────── */
+body.heyday-quiz-page.local-heyday-courseplayer .que .info {
+    top: 26px !important; /* align badge with question text top */
+}
+
+/* ── J. A/B/C/D CAPSULE — restore pill left-radius for ed2go look ── */
+/* The capsule fills the fixed left 64px of each answer row.
+   The pill left-radius (22px) is the signature ed2go answer style.
+   The row border-radius stays at 3px; the capsule extends across full
+   height and its rounded left edge bleeds into the row left edge. */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .answernumber {
+    border-radius: 22px 0 0 22px !important; /* restore pill */
+    background: #c8d2d8 !important;           /* slightly deeper than #d8dde0 */
+    color: #1e2d38 !important;                /* dark text on the capsule */
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    height: 46px !important;
+    line-height: 46px !important;
+}
+
+/* Row border-radius matches pill capsule left-edge rounding */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r0,
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r1,
+body.heyday-quiz-page.local-heyday-courseplayer .answer > div {
+    border-radius: 24px !important; /* full-pill answer bar */
+    overflow: hidden !important;    /* clips capsule + text within pill */
+}
+
+/* ── J. Label padding — stays at 80px from left inside pill row ──── */
+body.heyday-quiz-page.local-heyday-courseplayer .answer label,
+body.heyday-quiz-page.local-heyday-courseplayer .answer .flex-fill {
+    padding-left: 80px !important;
+    color: #007acc !important; /* ensure blue answer text */
+}
+
+/* ── J. Answer text paragraphs also blue ────────────────────────── */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .flex-fill p,
+body.heyday-quiz-page.local-heyday-courseplayer .answer label span,
+body.heyday-quiz-page.local-heyday-courseplayer .answer .ml-1 {
+    color: #007acc !important;
+}
+
+/* ── I. Question text stays clearly dark ──────────────────────────── */
+body.heyday-quiz-page.local-heyday-courseplayer .qtext {
+    color: #111 !important;
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    margin-bottom: 14px !important;
+}
+
+/* ===========================================================
+   2026070104 - ed2go-style lesson quiz intro card
+   Scope: local_heyday_courseplayer only — quiz landing page
+   (.heyday-player-card already provides white bg, border, padding.
+    .hd-quiz-intro-page sits inside .heyday-content-body.)
+   =========================================================== */
+
+body.local-heyday-courseplayer .hd-quiz-intro-page {
+    margin: 0 0 40px;
+}
+
+body.local-heyday-courseplayer .hd-quiz-body {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #293442;
+    margin-bottom: 24px;
+}
+
+body.local-heyday-courseplayer .hd-quiz-body p {
+    margin: 0 0 1em;
+}
+
+body.local-heyday-courseplayer .hd-quiz-rules-box {
+    border: 1px solid #d7dce0;
+    border-radius: 4px;
+    padding: 16px 20px;
+    background: #fff;
+    margin-bottom: 28px;
+}
+
+body.local-heyday-courseplayer .hd-quiz-rules-box ul {
+    margin: 0;
+    padding-left: 1.4rem;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2933;
+}
+
+body.local-heyday-courseplayer .hd-quiz-rules-box ul ul {
+    margin-top: 5px;
+}
+
+body.local-heyday-courseplayer .hd-quiz-rules-box li {
+    margin-bottom: 4px;
+}
+
+body.local-heyday-courseplayer .hd-quiz-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 8px;
+}
+
+/* Form inside .hd-quiz-actions flex row: transparent wrapper */
+body.local-heyday-courseplayer .hd-quiz-actions form {
+    display: contents;
+}
+
+/* ===========================================================
+   2026070104b - ed2go quiz intro action-row button polish
+   Scope: local_heyday_courseplayer only — quiz landing page
+   CSS-only — no version bump; purge caches only.
+   =========================================================== */
+
+/* Action row: 28px breathing room, 22px gap between Skip It and button */
+body.local-heyday-courseplayer .hd-quiz-actions {
+    gap: 22px;
+    margin-top: 28px;
+}
+
+/* Skip It: blue underline, 16px, consistent with ed2go style */
+body.local-heyday-courseplayer .hd-quiz-actions .hd-skip-link {
+    font-size: 16px;
+    color: #007acc;
+    text-decoration: underline;
+    line-height: 1;
+}
+
+/* Primary action button scoped to the quiz intro action row.
+   Overrides the base .hd-primary-btn values for height and font size. */
+body.local-heyday-courseplayer .hd-quiz-actions .hd-primary-btn,
+body.local-heyday-courseplayer .hd-quiz-actions .hd-primary-action,
+body.local-heyday-courseplayer .hd-quiz-actions .btn-success,
+body.local-heyday-courseplayer .hd-quiz-actions .btn-primary,
+body.local-heyday-courseplayer .hd-quiz-intro-card .btn-success,
+body.local-heyday-courseplayer .hd-quiz-intro-card .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 28px;
+    border: 0;
+    border-radius: 4px;
+    background: #007acc;
+    color: #fff !important;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none !important;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+body.local-heyday-courseplayer .hd-quiz-actions .hd-primary-btn:hover,
+body.local-heyday-courseplayer .hd-quiz-actions .hd-primary-action:hover,
+body.local-heyday-courseplayer .hd-quiz-actions .btn-success:hover,
+body.local-heyday-courseplayer .hd-quiz-actions .btn-primary:hover,
+body.local-heyday-courseplayer .hd-quiz-intro-card .btn-success:hover,
+body.local-heyday-courseplayer .hd-quiz-intro-card .btn-primary:hover {
+    background: #0065a9;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+body.local-heyday-courseplayer .hd-quiz-actions .hd-primary-btn:focus,
+body.local-heyday-courseplayer .hd-quiz-actions .hd-primary-action:focus,
+body.local-heyday-courseplayer .hd-quiz-actions .btn-success:focus,
+body.local-heyday-courseplayer .hd-quiz-actions .btn-primary:focus,
+body.local-heyday-courseplayer .hd-quiz-intro-card .btn-success:focus,
+body.local-heyday-courseplayer .hd-quiz-intro-card .btn-primary:focus {
+    outline: 2px solid rgba(0, 122, 204, 0.35);
+    outline-offset: 2px;
+}
+
+/* ── F/E. Player heading — tighten on quiz page ─────────────────── */
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-player-heading {
+    margin: 0 auto 12px !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-player-heading h1 {
+    font-size: 24px !important;
+    font-weight: 500 !important;
+    margin-top: 4px !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-course-kicker {
+    font-size: 12px !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: #666 !important;
+}
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-lesson-kicker {
+    font-size: 13px !important;
+    color: #444 !important;
+}
+
+/* ── M. BUTTONS — ensure height parity ───────────────────────────── */
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-save-close,
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-submit-answer {
+    min-height: 38px !important;
+    padding: 9px 18px !important;
+    font-size: 14px !important;
+}
+
+/* ── B. TOP BAR "Exit Quiz" alignment ────────────────────────────── */
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-ed2go-topbar {
+    height: 42px !important;
+    min-height: 42px !important;
+}
+
+/* ── I. First question top border removed; others dashed ─────────── */
+body.heyday-quiz-page.local-heyday-courseplayer .que:first-of-type {
+    padding-top: 4px !important; /* tight space after Show Instructions */
+}
+
+/* ================================================================
+   END ed2go style pass 2
+   ================================================================ */
+
+/* ================================================================
+   QUIZ ATTEMPT — RADIO HIGHLIGHT + BUTTON SPACING FIX  2026-07-01
+   All selectors use 3-class specificity (0,3,x) to beat lib.php.
+   For .submitbtns the ID selector is included: specificity (1,3,2).
+   CSS-only — no version bump; purge caches only.
+   ================================================================ */
+
+/* PILL CORRECTION: Answer rows should be rectangular bars, not pills.
+   pass 2 set 24px (full pill) which makes rows look like floating pill
+   buttons. Ed2go style is a horizontal bar with subtle corner rounding.
+   overflow:hidden stays; the answernumber capsule's 22px inner rounding
+   is clipped to 4px by the parent's overflow:hidden, giving a clean
+   consistent bar corner. */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r0,
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r1,
+body.heyday-quiz-page.local-heyday-courseplayer .answer > div {
+    border-radius: 4px !important;
+}
+
+/* FOCUS-WITHIN FIX: When the browser auto-focuses a checked radio on
+   page load, lib.php :focus-within gives it box-shadow: 0 0 8px — a
+   strong glow. Suppress to a hover-level subtle tint so only the
+   :has(:checked) rule (pass 1) produces the "selected" visual.
+   Specificity (0,3,2) beats lib.php (0,2,2). */
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r0:focus-within,
+body.heyday-quiz-page.local-heyday-courseplayer .answer .r1:focus-within,
+body.heyday-quiz-page.local-heyday-courseplayer .answer > div:focus-within {
+    background: #f0f6fc !important;
+    border-color: rgba(0, 122, 204, 0.2) !important;
+    box-shadow: none !important;
+}
+
+/* BUTTON SPACING — TOP: Reset the 30px button-row margin-top from pass 1.
+   The .submitbtns parent already has margin-top: 28px from lib.php,
+   which is the correct separation from the last question block. */
+body.heyday-quiz-page.local-heyday-courseplayer .hdqz-button-row {
+    margin-top: 0 !important;
+}
+
+/* BUTTON SPACING — BOTTOM: Add dedicated breathing room below the button
+   row. Specificity (1,3,2) beats lib.php (1,2,2) for .submitbtns.
+   padding: 0 0 28px → 28px below buttons, 0 left/right (card handles it). */
+body.heyday-quiz-page.local-heyday-courseplayer form#responseform .submitbtns {
+    padding: 0 0 28px !important;
+}
+
+/* BUTTON SPACING — CARD BOTTOM: Reduce card bottom padding from 52px to 8px.
+   The .submitbtns now has its own 28px bottom padding (36px total below
+   buttons to card border), matching the ed2go 24–36px target. */
+body.heyday-quiz-page.local-heyday-courseplayer .heyday-player-card {
+    padding-bottom: 8px !important;
+}
+
+/* ================================================================
+   END radio highlight + button spacing fix
+   ================================================================ */
+
+/* ================================================================
+   QUIZ ATTEMPT — BUTTON FOOTER STRIP  2026-07-01
+   Turn .submitbtns into a full-bleed footer zone at the bottom of
+   the quiz card. Negative margins negate the card's 44px horizontal
+   padding and 8px bottom padding so the strip reaches all three
+   card border edges. Specificity (1,3,2) beats lib.php (1,2,2).
+   CSS-only — no version bump; purge caches only.
+   ================================================================ */
+
+body.heyday-quiz-page.local-heyday-courseplayer form#responseform .submitbtns {
+    /* Expand to full card width and reach bottom border */
+    width: calc(100% + 88px) !important;
+    max-width: none !important;
+    margin-left: -44px !important;
+    margin-right: -44px !important;
+    margin-bottom: -8px !important;
+    /* Footer visual treatment */
+    background: #fff !important;
+    border-top: 2px solid #e8ecef !important;
+    border-radius: 0 0 6px 6px !important;
+    /* Inner breathing room: 18px above buttons, 44px sides, 24px below */
+    padding: 18px 44px 24px !important;
+}
+
+/* Responsive: card has 14px horizontal padding on small screens */
+@media (max-width: 900px) {
+    body.heyday-quiz-page.local-heyday-courseplayer form#responseform .submitbtns {
+        width: calc(100% + 28px) !important;
+        margin-left: -14px !important;
+        margin-right: -14px !important;
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+}
+
+/* ================================================================
+   END button footer strip
+   ================================================================ */
+
+/* ================================================================
+   QUIZ ATTEMPT — FORMULATION BACKGROUND FIX  2026-07-01
+
+   ROOT CAUSE:
+   Boost theme compiled CSS (all_*.css, loaded first in <head>) sets:
+       .que .formulation { background-color: #e6f2f5; padding: 1rem;
+                           border-color: #b3d9e0; border-radius: ...; }
+   This creates a teal-gray panel around the question text AND answer
+   choices. lib.php overrides this with !important, but only AFTER the
+   footer <script> adds the 'heyday-quiz-page' body class — which runs
+   after the browser's first contentful paint. If the script is slow or
+   has a parse error, the gray persists permanently.
+
+   FIX:
+   Use body#page-mod-quiz-attempt (a PHP-level Moodle body ID, written
+   at render time) so the overrides apply before the first paint, with
+   no JS dependency. styles.css is injected by heyday_quiz only when
+   local_heyday_quiz_is_target() returns true, so these selectors are
+   safe and do not affect admin pages or unrelated Moodle quizzes.
+
+   Specificity: body#page-mod-quiz-attempt .que .formulation = (1,0,2),
+   beating both Boost's (0,0,2) and lib.php's JS-class (0,2,2).
+   After JS adds heyday-quiz-page, lib.php rules add positioning and
+   spacing; these transparent-background rules remain correct and
+   do not conflict.
+
+   CSS-only — no version bump; purge caches only.
+   ================================================================ */
+
+/* 1. Kill the teal-gray formulation panel (main root-cause rule) */
+body#page-mod-quiz-attempt .que .formulation,
+body#page-mod-quiz-review .que .formulation {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    border-color: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+/* 2. Kill the gray info box around the question number badge
+   (Boost: .que .info { background-color: #f8f9fa; border: 1px solid #cad0d7; }) */
+body#page-mod-quiz-attempt .que .info,
+body#page-mod-quiz-review .que .info {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+}
+
+/* 3. Question block: switch to block layout before JS fires
+   (Boost default is display:flex which puts .info and .content
+   side-by-side; also clear any unintended background) */
+body#page-mod-quiz-attempt .que,
+body#page-mod-quiz-review .que {
+    display: block !important;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* 4. Transparent form content wrapper (Boost may color this div) */
+body#page-mod-quiz-attempt form#responseform > div,
+body#page-mod-quiz-review form#responseform > div {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* 5. Transparent fieldset wrapper around answers */
+body#page-mod-quiz-attempt .que .ablock,
+body#page-mod-quiz-review .que .ablock {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+}
+
+/* ================================================================
+   END formulation background fix
+   ================================================================ */

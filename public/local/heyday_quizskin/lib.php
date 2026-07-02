@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Local plugin: Heyday Quiz Skin.
 // Skins selected Moodle quiz attempt/review/summary pages without redirecting away from Moodle core quiz engine.
 
@@ -104,7 +104,8 @@ function local_heyday_quizskin_find_nextsteps_cm($course) {
 }
 
 /**
- * Apply only to Pretest and Lesson Quiz pages.
+ * Apply only to Pretest and Final Exam pages.
+ * Lesson quizzes are now handled exclusively by local_heyday_quiz.
  */
 function local_heyday_quizskin_is_target(): bool {
     global $PAGE;
@@ -125,7 +126,15 @@ function local_heyday_quizskin_is_target(): bool {
         return false;
     }
 
-    return local_heyday_quizskin_quiz_type($ctx) !== null;
+    $type = local_heyday_quizskin_quiz_type($ctx);
+
+    // Lesson quizzes are now owned by local_heyday_quiz — skip them here
+    // to prevent double-shell injection on quiz attempt/review pages.
+    if ($type === 'lessonquiz') {
+        return false;
+    }
+
+    return $type !== null;
 }
 
 /**
@@ -426,7 +435,7 @@ body.heyday-quizskin-page #region-main {
 .hdq-icon {
     border: 0 !important;
     background: transparent !important;
-    color: #0073a8 !important;
+    color: #007acc !important;
     font-size: 23px !important;
     line-height: 1 !important;
     padding: 0 !important;
@@ -506,7 +515,7 @@ body.heyday-quizskin-page #region-main {
     padding: 0 !important;
     background: transparent !important;
     border: 0 !important;
-    color: #0073a8 !important;
+    color: #007acc !important;
     font-size: 15px !important;
     line-height: 1.25 !important;
     cursor: pointer !important;
@@ -729,7 +738,7 @@ body.heyday-quizskin-page .answer .ml-1,
 body.heyday-quizskin-page .answer p {
     display: block !important;
     margin: 0 !important;
-    color: #006fae !important;
+    color: #007acc !important;
     font-size: 15px !important;
     font-weight: 400 !important;
     line-height: 1.42 !important;
@@ -757,7 +766,7 @@ body.heyday-quizskin-page .answer > div:hover .flex-fill,
 body.heyday-quizskin-page .answer .r0:hover p,
 body.heyday-quizskin-page .answer .r1:hover p,
 body.heyday-quizskin-page .answer > div:hover p {
-    color: #006fae !important;
+    color: #007acc !important;
     background: transparent !important;
 }
 
@@ -775,7 +784,7 @@ body#page-mod-quiz-attempt.heyday-quizskin-page .answer label span,
 body#page-mod-quiz-attempt.heyday-quizskin-page .answer div[class*="correct"],
 body#page-mod-quiz-attempt.heyday-quizskin-page .answer div[class*="incorrect"] {
     background: transparent !important;
-    color: #006fae !important;
+    color: #007acc !important;
     font-weight: 400 !important;
 }
 
@@ -1055,7 +1064,7 @@ body.heyday-quizskin-page button.hdq-submit-answer:hover {
 
 .hdq-next-title {
     display: block !important;
-    color: #006fae !important;
+    color: #007acc !important;
     text-decoration: underline !important;
     font-size: 14px !important;
     line-height: 1.25 !important;
@@ -1415,7 +1424,7 @@ function local_heyday_quizskin_before_footer(): string {
             '.answer span.correct, .answer span.incorrect, .answer label.correct, .answer label.incorrect'
         ).forEach(function(el) {
             el.style.background = 'transparent';
-            el.style.color = '#006fae';
+            el.style.color = '#007acc';
             el.style.fontWeight = 'normal';
         });
 
@@ -1425,7 +1434,7 @@ function local_heyday_quizskin_before_footer(): string {
 
         document.querySelectorAll('.answer .flex-fill, .answer .flex-fill p, .answer label, .answer label span').forEach(function(el) {
             el.style.background = 'transparent';
-            el.style.color = '#006fae';
+            el.style.color = '#007acc';
             el.style.fontWeight = 'normal';
         });
 

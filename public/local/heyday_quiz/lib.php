@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // This file is part of Moodle - http://moodle.org/
 // local_heyday_quiz: ed2go-style skin for Moodle lesson quiz attempt/review/summary pages.
 
@@ -507,7 +507,7 @@ body.heyday-quiz-page .que .info .editquestion {
     padding: 0 !important;
     background: transparent !important;
     border: 0 !important;
-    color: #0073a8 !important;
+    color: #007acc !important;
     font-size: 15px !important;
     line-height: 1.25 !important;
     cursor: pointer !important;
@@ -731,7 +731,7 @@ body.heyday-quiz-page .answer .ml-1,
 body.heyday-quiz-page .answer p {
     display: block !important;
     margin: 0 !important;
-    color: #006fae !important;
+    color: #007acc !important;
     font-size: 15px !important;
     font-weight: 400 !important;
     line-height: 1.42 !important;
@@ -757,7 +757,7 @@ body.heyday-quiz-page .answer > div:hover .flex-fill,
 body.heyday-quiz-page .answer .r0:hover p,
 body.heyday-quiz-page .answer .r1:hover p,
 body.heyday-quiz-page .answer > div:hover p {
-    color: #006fae !important;
+    color: #007acc !important;
     background: transparent !important;
 }
 
@@ -775,7 +775,7 @@ body#page-mod-quiz-attempt.heyday-quiz-page .answer label span,
 body#page-mod-quiz-attempt.heyday-quiz-page .answer div[class*="correct"],
 body#page-mod-quiz-attempt.heyday-quiz-page .answer div[class*="incorrect"] {
     background: transparent !important;
-    color: #006fae !important;
+    color: #007acc !important;
     font-weight: 400 !important;
 }
 
@@ -1016,8 +1016,8 @@ body#page-mod-quiz-review.heyday-quiz-page a.endtestlink {
     justify-content: center !important;
     min-height: 36px !important;
     padding: 8px 18px !important;
-    background: #0073a8 !important;
-    border: 1px solid #0073a8 !important;
+    background: #007acc !important;
+    border: 1px solid #007acc !important;
     border-radius: 3px !important;
     color: #fff !important;
     font-size: 14px !important;
@@ -1625,49 +1625,79 @@ function local_heyday_quiz_before_footer(): string {
         if (document.querySelector('.heyday-courseplayer-sidebar') || !HDQ.sidebar) { return; }
         var sb = document.createElement('aside');
         sb.className = 'heyday-courseplayer-sidebar';
-        var nav = document.createElement('nav');
-        nav.className = 'heyday-main-menu';
-        var html = '<ul class="heyday-primary-menu">';
+        var html = '';
 
-        // Main nav links (Home, Scores, Discussions, etc.).
+        // Primary nav: <a> directly in <nav> — no <ul><li> (matches PHP sidebar).
+        html += '<nav class="heyday-main-menu heyday-primary-menu" aria-label="Main course navigation">';
         (HDQ.sidebar.navlinks || []).forEach(function(link) {
             if (!link.url) { return; }
-            var isActive = link.isCurrent ? ' is-active' : '';
-            html += '<li><a class="heyday-main-nav-link' + isActive + '" href="' + link.url + '">' + esc(link.label) + '</a></li>';
+            var cls = 'heyday-main-nav-link has-no-icon' + (link.isCurrent ? ' is-current' : '');
+            html += '<a class="' + cls + '" href="' + esc(link.url) + '">' +
+                        '<span class="heyday-main-nav-label">' + esc(link.label) + '</span>' +
+                    '</a>';
         });
+        html += '</nav>';
 
-        html += '</ul>';
-
-        // Lesson groups — use <details>/<summary> to match courseplayer structure.
-        (HDQ.sidebar.groups || []).forEach(function(group) {
-            var hasActive = group.items.some(function(i) { return i.isCurrent; });
-            html += '<details class="heyday-subsection-group depth-0"' + (hasActive ? ' open' : '') + '>';
-            html += '<summary class="heyday-subsection-title">' + esc(group.name) + '</summary>';
-            html += '<ul class="heyday-lesson-items">';
-            group.items.forEach(function(item) {
-                var cls = 'heyday-lesson-item depth-1';
-                if (item.isCurrent) { cls += ' is-current'; }
-                if (item.isLocked)  { cls += ' is-locked'; }
-                var href = item.isLocked ? '#' : item.url;
-                html += '<li><a class="' + cls + '" href="' + href + '">' + esc(item.name) + '</a></li>';
+        // Lesson groups — match PHP: heyday-lesson-group / heyday-lesson-items (div, not ul).
+        if ((HDQ.sidebar.groups || []).length > 0) {
+            html += '<div class="heyday-lessons-label">Lessons</div>';
+            html += '<div class="heyday-lesson-list">';
+            (HDQ.sidebar.groups || []).forEach(function(group) {
+                var hasActive = group.items.some(function(i) { return i.isCurrent; });
+                var groupUrl = '';
+                for (var g = 0; g < (group.items || []).length; g++) {
+                    if (!group.items[g].isLocked && group.items[g].url) {
+                        groupUrl = group.items[g].url; break;
+                    }
+                }
+                var groupCls = 'heyday-lesson-group' + (hasActive ? ' is-active' : '');
+                html += '<details class="' + groupCls + '" name="heyday-lesson"' + (hasActive ? ' open' : '') + '>';
+                html += '<summary><span class="heyday-group-summary-inner">';
+                if (groupUrl) {
+                    html += '<a class="heyday-lesson-group-title" href="' + esc(groupUrl) + '">' + esc(group.name) + '</a>';
+                } else {
+                    html += '<span class="heyday-lesson-group-title is-disabled">' + esc(group.name) + '</span>';
+                }
+                html += '<span class="heyday-group-status" aria-hidden="true"><span class="heyday-progress-dot"></span></span>';
+                html += '</span></summary>';
+                html += '<div class="heyday-lesson-items">';
+                (group.items || []).forEach(function(item) {
+                    var cls = 'heyday-lesson-item depth-1';
+                    if (item.isCurrent) { cls += ' is-current'; }
+                    if (item.isLocked)  { cls += ' is-locked'; }
+                    if (item.isLocked) {
+                        html += '<div class="' + cls + '">';
+                        html += '<span class="heyday-current-arrow" aria-hidden="true"></span>';
+                        html += '<span class="heyday-lesson-text"><span>' + esc(item.name) + '</span></span>';
+                        html += '<span class="heyday-status-icon locked" aria-hidden="true">🔒</span>';
+                        html += '</div>';
+                    } else {
+                        html += '<a class="' + cls + '" href="' + esc(item.url) + '">';
+                        html += '<span class="heyday-current-arrow" aria-hidden="true"></span>';
+                        html += '<span class="heyday-lesson-text"><span>' + esc(item.name) + '</span></span>';
+                        html += '<span class="heyday-status-icon" aria-hidden="true"></span>';
+                        html += '</a>';
+                    }
+                });
+                html += '</div></details>';
             });
-            html += '</ul></details>';
-        });
-
-        // After links (Resources, Final Exam).
-        var hasAfter = (HDQ.sidebar.afterlinks || []).some(function(l) { return !!l.url; });
-        if (hasAfter) {
-            html += '<ul class="heyday-primary-menu">';
-            (HDQ.sidebar.afterlinks || []).forEach(function(link) {
-                if (!link.url) { return; }
-                var isActive = link.isCurrent ? ' is-active' : '';
-                html += '<li><a class="heyday-main-nav-link' + isActive + '" href="' + link.url + '">' + esc(link.label) + '</a></li>';
-            });
-            html += '</ul>';
+            html += '</div>';
         }
 
-        nav.innerHTML = html;
-        sb.appendChild(nav);
+        // After lessons nav (Resources, Final Exam): <a> directly in <nav>.
+        if ((HDQ.sidebar.afterlinks || []).some(function(l) { return !!l.url; })) {
+            html += '<nav class="heyday-main-menu heyday-after-lessons-menu" aria-label="More course navigation">';
+            (HDQ.sidebar.afterlinks || []).forEach(function(link) {
+                if (!link.url) { return; }
+                var linkCls = 'heyday-main-nav-link has-no-icon' + (link.isCurrent ? ' is-current' : '');
+                html += '<a class="' + linkCls + '" href="' + esc(link.url) + '">' +
+                            '<span class="heyday-main-nav-label">' + esc(link.label) + '</span>' +
+                        '</a>';
+            });
+            html += '</nav>';
+        }
+
+        sb.innerHTML = html;
 
         // Insert after topbar (or at body start).
         var topbar = document.querySelector('.heyday-ed2go-topbar');
@@ -1676,6 +1706,34 @@ function local_heyday_quiz_before_footer(): string {
         } else {
             document.body.insertBefore(sb, document.body.firstChild);
         }
+    }
+
+    /* ── 1d. Force #page offset so the fixed sidebar does not cover content.
+             Moodle's Boost drawer JS may reset #page inline styles after our
+             CSS rules apply; using style.setProperty overrides that. ─────── */
+    function fixLayout() {
+        if (inIframe) { return; }
+        var sb = document.querySelector('.heyday-courseplayer-sidebar');
+        if (!sb) { return; }
+        /* Use the sidebar's actual rendered width so any CSS-overridden value
+           is respected; fall back to 424 if the sidebar hasn't painted yet. */
+        var sbW = sb.offsetWidth > 0 ? sb.offsetWidth : 424;
+        var page = document.getElementById('page');
+        if (page) {
+            page.style.setProperty('padding-top',    '42px',        'important');
+            page.style.setProperty('padding-left',   sbW + 'px',    'important');
+            page.style.setProperty('box-sizing',     'border-box',  'important');
+            page.style.setProperty('margin',         '0',           'important');
+        }
+        /* Strip constraining widths on Moodle's inner scroll/content wrappers
+           so the quiz card can expand to fill the full content column. */
+        ['topofscroll', 'page-content', 'page-wrapper'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (!el) { return; }
+            el.style.setProperty('max-width',   'none',  'important');
+            el.style.setProperty('width',       '100%',  'important');
+            el.style.setProperty('margin-left', '0',     'important');
+        });
     }
 
     /* ── 2. Wrap all #region-main content in a white card ─────── */
@@ -1801,7 +1859,7 @@ function local_heyday_quiz_before_footer(): string {
             '.answer label.correct, .answer label.incorrect'
         ).forEach(function(el) {
             el.style.background = 'transparent';
-            el.style.color = '#006fae';
+            el.style.color = '#007acc';
             el.style.fontWeight = 'normal';
         });
 
@@ -1811,7 +1869,7 @@ function local_heyday_quiz_before_footer(): string {
 
         document.querySelectorAll('.answer .flex-fill, .answer .flex-fill p, .answer label, .answer label span').forEach(function(el) {
             el.style.background = 'transparent';
-            el.style.color = '#006fae';
+            el.style.color = '#007acc';
             el.style.fontWeight = 'normal';
         });
 
@@ -2322,6 +2380,7 @@ function local_heyday_quiz_before_footer(): string {
         if (!inIframe) {
             buildTopnav();
             buildSidenav();   /* sidebar on all pages, including active attempt */
+            fixLayout();      /* push #page right so sidebar never covers content */
             buildShell();
         }
         cleanQuiz();
